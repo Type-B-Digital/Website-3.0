@@ -1,0 +1,205 @@
+/**
+ * Type B Digital — global stylesheet
+ *
+ * Mirrors src/tokens/index.ts as CSS custom properties. Two representations of
+ * one system: TypeScript for component logic and Framer Motion, CSS variables
+ * for stylesheet-level use and for the mood swap (which is a class change on
+ * :root, not a re-render).
+ *
+ * Figma: design tokens board — node 3366:23051
+ * https://www.figma.com/design/LASrWn0jXyj5nBaphi2jgI/TypeB-Creative-Exploration?node-id=3366-23051
+ *
+ * Keep in sync with src/tokens/index.ts. That file is the source of truth.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* --- color: neutral ramp (mood-independent) --------------------- */
+  --color-neutral-50: #f6f2ec;
+  --color-neutral-200: #c6c4c2;
+  --color-neutral-400: #959798;
+  --color-neutral-600: #65696d;
+  --color-neutral-800: #343c43;
+  --color-neutral-900: #040e19;
+
+  /* --- color: off-board values still in use ----------------------- */
+  --color-paper: #f6f6f6;
+  --color-ink-soft: #071b27;
+  --color-white: #ffffff;
+
+  /* --- typography ------------------------------------------------- */
+  --font-sans: 'Reddit Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --font-size-h1: 72px;
+  --font-size-h2: 48px;
+  --font-size-h3: 48px;
+  --font-size-display: 64px;
+  --font-size-sub-header-large: 32px;
+  --font-size-sub-header-small: 24px;
+  --font-size-copy-large: 20px;
+  --font-size-copy-medium: 16px;
+  --font-size-copy-small: 14px;
+  --font-size-copy-x-small: 12px;
+  --font-size-eyebrow: 14px;
+  --font-size-tag: 12px;
+  --font-size-button: 16px;
+
+  --line-height-tight: 1.2;
+  --line-height-relaxed: 1.5;
+  --letter-spacing-nav: -0.01em;
+
+  /* --- spacing (Figma: spacing-vertical, node 3386:25418) --------- */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-tag: 12px; /* off-board; see tokens/index.ts */
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 40px;
+  --spacing-3xl: 48px;
+  --spacing-4xl: 80px;
+
+  /* --- radius (Figma: radius-corner, node 3386:25427) ------------- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-tag: 12px;
+  --radius-pill: 24px;
+  --radius-full: 9999px;
+
+  /* --- layout (Figma: grid-desktop-12-columns, node 3386:25446) --- */
+  --layout-frame-width: 1440px;
+  --layout-max-width: 1280px;
+  --layout-margin: 80px;
+  --layout-gutter: 24px;
+
+  /* --- opacity ---------------------------------------------------- */
+  --opacity-subtle: 0.64;
+  --opacity-muted: 0.8;
+
+  /* --- motion (authored, not from Figma) -------------------------- */
+  --duration-instant: 0.15s;
+  --duration-fast: 0.3s;
+  --duration-base: 0.6s;
+  --duration-slow: 0.9s;
+  --easing-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --easing-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/**
+ * Mood layer. Each mood rebinds the accent ramp only; neutrals are shared.
+ * Swap by setting `data-mood` on <html>. `deep` is the default and matches
+ * the homepage design.
+ */
+:root,
+:root[data-mood='deep'] {
+  --color-accent-100: #c9d5d3;
+  --color-accent-200: #9db8ba;
+  --color-accent-300: #709ba0;
+  --color-accent-400: #447e87;
+  --color-accent-500: #17616e;
+  --color-accent-600: #13505d;
+  --color-accent-700: #0f404c;
+  --color-accent-800: #0c2f3b;
+  --color-accent-900: #081f2a;
+  --color-tag-bg: rgba(198, 196, 194, 0.4);
+}
+
+:root[data-mood='ember'] {
+  --color-accent-100: #f8d2c1;
+  --color-accent-200: #fab296;
+  --color-accent-300: #fb936b;
+  --color-accent-400: #fd7340;
+  --color-accent-500: #ff5315;
+  --color-accent-600: #cd4516;
+  --color-accent-700: #9b3717;
+  --color-accent-800: #682a17;
+  --color-accent-900: #361c18;
+  --color-tag-bg: rgba(198, 196, 194, 0.4);
+}
+
+:root[data-mood='solar'] {
+  --color-accent-100: #f7ddc1;
+  --color-accent-200: #f9c896;
+  --color-accent-300: #fab26c;
+  --color-accent-400: #fc9d41;
+  --color-accent-500: #fd8816;
+  --color-accent-600: #cb7017;
+  --color-accent-700: #995717;
+  --color-accent-800: #683f18;
+  --color-accent-900: #362618;
+  --color-tag-bg: rgba(198, 196, 194, 0.4);
+}
+
+/* --- semantic aliases --------------------------------------------- */
+:root {
+  --color-bg-canvas: var(--color-neutral-900);
+  --color-bg-surface: var(--color-white);
+  --color-bg-accent: var(--color-accent-600);
+  --color-text-on-dark: var(--color-paper);
+  --color-text-on-dark-muted: var(--color-neutral-50);
+  --color-text-on-light: var(--color-neutral-900);
+  --color-text-accent: var(--color-accent-400);
+  --color-border-on-dark: rgba(246, 246, 246, 0.4);
+  --color-border-on-dark-subtle: rgba(246, 246, 246, 0.24);
+  --color-border-on-light: rgba(7, 27, 39, 0.24);
+  --color-border-divider: rgba(4, 14, 25, 0.12);
+  --color-scrim: rgba(4, 14, 25, 0.4);
+}
+
+@layer base {
+  html {
+    /* Smooth scroll is part of the homepage brief. Suppressed for users who
+       ask for reduced motion — see the media query below. */
+    scroll-behavior: smooth;
+    background-color: var(--color-bg-canvas);
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-bg-canvas);
+    color: var(--color-text-on-dark);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-copy-medium);
+    line-height: var(--line-height-relaxed);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* The design has no visible focus treatment. This is an accessibility
+     addition, not a Figma reproduction — logged in BUILD_LOG.md. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent-300);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
