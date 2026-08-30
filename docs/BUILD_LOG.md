@@ -291,3 +291,80 @@ y=2320  p=0.938  filled=111/111  images=1,1,1
 The driver is committed at `scripts/scroll-verify.mjs`; the method is written
 up in SCALING_GUIDE. **Do not conclude a scroll animation is broken from a headless
 screenshot** — that mistake was made twice in this session before measuring.
+
+
+---
+
+## Update — 2026-08-30 (third pass): introduction scene corrections
+
+Against `introduction-component` (node 3431:27216), which did not exist in the
+file when this section was first built.
+
+### Logos now stay on screen through the scene
+
+They were their own band above the pinned scene, so they scrolled away before
+the copy began filling. The logo row now lives **inside** the sticky panel, at
+the top, with the statement and stack below — matching the motion mockup, where
+all three are on screen together. `LogoStrip` is gone as a page band; the row is
+`ClientLogos`, used by the scene.
+
+### Line breaks
+
+The statement is **640px** wide on the artboard (node 3390:26579) at 48px. It
+had been sitting in a ~600px grid column, which pushed it to six lines instead
+of five and broke in the wrong places. The column is now pinned to 640px and the
+breaks match:
+
+```
+We bring hope and expert
+execution to bold innovators,
+guiding ambitious visions
+into brilliant outcomes with a
+relentless drive.
+```
+
+The row is capped at 1240px — the artboard component width — so `justify-between`
+reproduces the designed 178px gap (640 + 178 + 422).
+
+### The missing third image
+
+Only two images were visible. **Figma's fill export for `image-stack-3` returns
+a solid black PNG** (1024x772, 3.2 KB). The node itself renders correctly — a
+photo of a person in a sweater — so the fill export is wrong, not the design.
+
+Fixed by using **node renders** for all three (`get_screenshot` per node) rather
+than fill exports. Two consequences worth knowing:
+
+- The renders have each image's rotation baked in (-2.09deg and 2.66deg), which
+  is why their boxes are 417x494 and 421.8x498 around a 400x480 image. No CSS
+  rotation is applied.
+- They render at 1x. On a retina display they will be slightly soft. If that
+  matters, re-export at 2x from Figma and drop them in — the geometry does not
+  change.
+
+Geometry now matches the group exactly: a 421.806 x 498.014 box with the three
+images at their artboard offsets (3.13/1.92, 11.74/9.05, 0/0), stacked and
+near-centred on one another rather than fanned out.
+
+### Fill is opacity, not colour
+
+The unfilled statement is `#F6F6F6` at **16% opacity** in Figma, not a grey.
+`ScrollFillText` now interpolates opacity (`opacity.dim` -> `opacity.full`) and
+leaves the colour alone. The previous guess (`neutral.800`) was close visually
+but wrong, and would have drifted on any other ground.
+
+### Verified
+
+`scripts/scroll-verify.mjs` gained a `logosVisible` check and now targets the
+stack via `[data-scene="manifesto-stack"]` (it had been matching the logo images
+too, and counting fill by colour, which no longer changes):
+
+```
+y=1000  filled 6/111    images 1.00,0.00,0.00  logosVisible true
+y=1400  filled 44/111   images 1.00,1.00,0.00  logosVisible true
+y=1800  filled 81/111   images 1.00,1.00,1.00  logosVisible true
+y=2200  filled 111/111  images 1.00,1.00,1.00  logosVisible true
+```
+
+Reduced-motion fallback checked separately: no pinned scene, all three images,
+statement and logo row present.

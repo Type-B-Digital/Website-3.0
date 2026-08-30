@@ -1,6 +1,6 @@
 import { Fragment, useMemo } from 'react'
 import { motion as fm, useTransform, type MotionValue } from 'framer-motion'
-import { colors, motion as motionTokens } from '@/tokens'
+import { motion as motionTokens, opacity as opacityTokens } from '@/tokens'
 import { cn } from '@/lib/cn'
 
 /**
@@ -10,9 +10,11 @@ import { cn } from '@/lib/cn'
  * Figma: the statement at node 3390:26579. The artboard shows only the end
  * state; the fill behaviour comes from Eduardo's motion mockup.
  *
- * Each character owns a narrow window of the progress range and interpolates
- * its colour across it. Windows overlap by `fillFeather`, which is what makes
- * the sweep read as a smooth wipe instead of a row of discrete flips.
+ * The design sets the whole paragraph to `#F6F6F6` at 16% opacity
+ * (node 3390:26579), so the sweep raises each character to full opacity rather
+ * than shifting its colour. Each character owns a narrow window of the progress
+ * range; windows overlap by `fillFeather`, which is what makes the sweep read
+ * as a smooth wipe instead of a row of discrete flips.
  *
  * Words are kept whole (`inline-block` + `whitespace-nowrap`) so the line still
  * wraps on word boundaries; only the characters inside a word are split.
@@ -39,8 +41,8 @@ function Char({
   from: number
   to: number
 }) {
-  const color = useTransform(progress, [from, to], [colors.text.onDarkDim, colors.text.onDark])
-  return <fm.span style={{ color }}>{char}</fm.span>
+  const opacity = useTransform(progress, [from, to], [opacityTokens.dim, opacityTokens.full])
+  return <fm.span style={{ opacity }}>{char}</fm.span>
 }
 
 export function ScrollFillText({

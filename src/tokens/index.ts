@@ -180,11 +180,7 @@ export const colors = {
     onDarkMuted: palette.neutral[50],
     /** Accent display type — "Advisory" / "Teams". Figma: 3390:26552 */
     accent: palette.turquoise[400],
-    /**
-     * Unfilled state of the scroll-fill statement — the grey the copy sits at
-     * before the white sweep reaches it. Figma: node 3390:26579
-     */
-    onDarkDim: palette.neutral[800],
+
   },
   border: {
     /** Secondary CTA on dark. Figma: 3369:24517 */
@@ -203,6 +199,12 @@ export const colors = {
  * The design leans on a small set of repeated alpha values.
  * ------------------------------------------------------------------ */
 export const opacity = {
+  /**
+   * Unfilled state of the scroll-fill statement. Figma sets the whole
+   * paragraph to `#F6F6F6` at 16% (node 3390:26579) — the sweep raises each
+   * character to full opacity rather than changing its colour.
+   */
+  dim: 0.16,
   /** Footer column headings. Figma: 3390:26642 */
   subtle: 0.64,
   /** Body copy, eyebrow labels, nav. The most common value in the file. */

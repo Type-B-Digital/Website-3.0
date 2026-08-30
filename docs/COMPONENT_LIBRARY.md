@@ -161,9 +161,11 @@ position rather than time.
 | `progress` | `MotionValue<number>` | — | Normalised scene progress |
 | `start` / `end` | `number` | from `tokens.motion.scene.fill` | Progress window for the sweep |
 
-Each character owns a narrow window of the range and interpolates its colour
-across it; windows overlap by `scene.fillFeather`, which is what makes the sweep
-read as a wipe rather than a row of discrete flips. Words stay whole
+The design sets the whole paragraph to `#F6F6F6` at **16% opacity** (node
+3390:26579), so the sweep raises each character's opacity to full rather than
+shifting its colour. Each character owns a narrow window of the range; windows
+overlap by `scene.fillFeather`, which is what makes the sweep read as a wipe
+rather than a row of discrete flips. Words stay whole
 (`inline-block` + `whitespace-nowrap`) so lines still break on word boundaries.
 The characters are `aria-hidden` and the paragraph carries the full string as a
 label, so assistive tech reads the sentence once, normally.

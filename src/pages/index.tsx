@@ -280,70 +280,76 @@ function Hero() {
 }
 
 /**
- * Client logo strip — Figma node 3390:26570.
+ * Client logo row — Figma node 3390:26570.
  *
- * The artboard shows a static row that overflows the 1440 frame (it spans
- * x=80 to x=1428). Eduardo's motion note makes that overflow literal: the row
- * travels left continuously, marks entering at the right edge and leaving at
- * the left. Full-bleed, so it runs edge to edge rather than stopping at the
- * 1280 content width.
+ * Lives inside the pinned scene rather than as its own band, so the marks stay
+ * on screen for the whole introduction sequence (they used to scroll away
+ * before the copy began filling). Full-bleed and travelling left continuously,
+ * marks entering at the right edge; the artboard row already overflows the
+ * frame (x=80 to x=1428), so the motion makes that overflow literal.
  */
-function LogoStrip() {
+function ClientLogos() {
   return (
-    <Section tone="dark" spacing="compact" bare>
-      <Marquee speed="marqueeSlow" gapClassName="gap-logoGap" className="opacity-muted">
-        {CLIENT_LOGOS.map((logo) => (
-          <div
-            key={logo.src}
-            className="relative shrink-0 overflow-hidden"
-            style={{ width: logo.box.width, height: logo.box.height }}
-          >
-            {logo.crop ? (
-              <img
-                src={logo.src}
-                alt={logo.name}
-                className={cn('absolute max-w-none', logo.blend)}
-                style={{
-                  width: logo.crop.width,
-                  height: logo.crop.height,
-                  left: logo.crop.left,
-                  top: logo.crop.top,
-                }}
-              />
-            ) : (
-              <img
-                src={logo.src}
-                alt={logo.name}
-                className={cn('absolute inset-0 size-full object-cover', logo.blend)}
-              />
-            )}
-          </div>
-        ))}
-      </Marquee>
-    </Section>
+    <Marquee speed="marqueeSlow" gapClassName="gap-logoGap" className="opacity-muted">
+      {CLIENT_LOGOS.map((logo) => (
+        <div
+          key={logo.src}
+          className="relative shrink-0 overflow-hidden"
+          style={{ width: logo.box.width, height: logo.box.height }}
+        >
+          {logo.crop ? (
+            <img
+              src={logo.src}
+              alt={logo.name}
+              className={cn('absolute max-w-none', logo.blend)}
+              style={{
+                width: logo.crop.width,
+                height: logo.crop.height,
+                left: logo.crop.left,
+                top: logo.crop.top,
+              }}
+            />
+          ) : (
+            <img
+              src={logo.src}
+              alt={logo.name}
+              className={cn('absolute inset-0 size-full object-cover', logo.blend)}
+            />
+          )}
+        </div>
+      ))}
+    </Marquee>
   )
 }
-
 
 const MANIFESTO_TEXT =
   'We bring hope and expert execution to bold innovators, guiding ambitious ' +
   'visions into brilliant outcomes with a relentless drive.'
 
 /**
- * The three stacked images. Figma nodes 3390:26679 / 26680 / 26681 sit at
- * slightly different offsets and sizes on the artboard — reproduced here as
- * small resting offsets and rotations so the finished stack keeps that
- * hand-placed feel rather than reading as three aligned rectangles.
+ * Figma: "Image-stack-right" — node 3431:27215, a 421.806 x 498.014 group.
+ *
+ * All three images are 400x480 at heart; two carry a small rotation
+ * (-2.09deg and 2.66deg) which enlarges their bounding boxes to 417x494 and
+ * 421.8x498. Positions are the group-relative offsets from the artboard, so
+ * the three sit stacked and near-centred on one another.
+ *
+ * The assets are node RENDERS, not fill exports: Figma's fill export for
+ * image-stack-3 comes back solid black, which is why only two images appeared
+ * in the previous build. Rendering the node returns the real photo with the
+ * rotation already baked in — so no CSS rotation is applied here.
  */
 const MANIFESTO_STACK = [
-  { src: '/images/stack/stack-1.png', restX: 0, restY: 0, rotate: -2.5 },
-  { src: '/images/stack/stack-2.png', restX: 5, restY: -3, rotate: 1.5 },
-  { src: '/images/stack/stack-3.png', restX: 10, restY: -6, rotate: -1 },
+  { src: '/images/stack/stack-1.png', left: 3.13, top: 1.92, width: 417.209, height: 494.243 },
+  { src: '/images/stack/stack-2.png', left: 11.74, top: 9.05, width: 400, height: 480 },
+  { src: '/images/stack/stack-3.png', left: 0, top: 0, width: 421.806, height: 498.014 },
 ]
 
+const STACK_BOX = { width: 421.806, height: 498.014 }
+
 /**
- * One image in the manifesto stack: enters from beyond the right edge and
- * settles at its resting offset, over its own window of the scene's progress.
+ * One image in the stack: enters from beyond the right edge and settles at its
+ * artboard offset, over its own window of the scene's progress.
  */
 function StackImage({
   image,
@@ -358,44 +364,44 @@ function StackImage({
   const start = scene.images.start + index * scene.images.stagger
   const end = start + scene.images.duration
 
-  const x = useTransform(
-    progress,
-    [start, end],
-    [`${scene.imageEnter + image.restX}%`, `${image.restX}%`],
-  )
+  const x = useTransform(progress, [start, end], [`${scene.imageEnter}%`, '0%'])
   const opacity = useTransform(progress, [start, start + 0.03], [0, 1])
 
   return (
-    <fm.div
-      className="absolute inset-0 will-change-transform"
-      style={{ x, y: `${image.restY}%`, opacity, rotate: image.rotate, zIndex: index }}
-    >
-      <img
-        src={image.src}
-        alt=""
-        aria-hidden="true"
-        className="size-full rounded-md object-cover"
-      />
-    </fm.div>
+    <fm.img
+      src={image.src}
+      alt=""
+      aria-hidden="true"
+      className="absolute max-w-none will-change-transform"
+      style={{
+        left: image.left,
+        top: image.top,
+        width: image.width,
+        height: image.height,
+        zIndex: index,
+        x,
+        opacity,
+      }}
+    />
   )
 }
 
 /**
  * Manifesto — a scroll-pinned scene.
  *
- * Figma: statement node 3390:26579, image stack nodes 3390:26679 / 26680 /
- * 26681. The artboard shows only the end state; the behaviour comes from
- * Eduardo's motion mockup.
+ * Figma: "introduction-component" — node 3431:27216 (statement 3390:26579 at
+ * 640px wide, image group 3431:27215). The artboard shows only the end state;
+ * the behaviour comes from Eduardo's motion mockup.
  *
- * The scene occupies `scene.pinLength` viewport heights of scroll. Inside it a
- * sticky panel holds the frame still while scroll drives two things on one
- * clock: the statement filling grey to white a letter at a time, and the three
- * images entering from the right one by one. Both are scheduled to land
- * together at `scene.fill.end`, after which the page scrolls on normally.
+ * The scene occupies `scene.pinLength` viewport heights of scroll. A sticky
+ * panel holds the frame still — logo row at the top, statement and image stack
+ * below — while scroll drives two things on one clock: the statement filling
+ * from 16% to full opacity a character at a time, and the three images entering
+ * from the right one by one. Both land together at `scene.fill.end`, after
+ * which the page continues normally.
  *
- * `offset: ['start start', 'end end']` puts progress 0 at the moment the panel
- * pins and 1 at the moment it releases, so the schedule maps onto the pinned
- * duration with no dead zone at either end.
+ * The statement column is pinned to 640px because that is the artboard's text
+ * width, and the line breaks depend on it.
  */
 function Manifesto() {
   const sceneRef = useRef<HTMLDivElement>(null)
@@ -405,33 +411,61 @@ function Manifesto() {
     offset: ['start start', 'end end'],
   })
 
+  const stack = (
+    <div
+      data-scene="manifesto-stack"
+      className="relative shrink-0"
+      style={{ width: STACK_BOX.width, height: STACK_BOX.height }}
+    >
+      {MANIFESTO_STACK.map((image, i) =>
+        prefersReduced ? (
+          <img
+            key={image.src}
+            src={image.src}
+            alt=""
+            aria-hidden="true"
+            className="absolute max-w-none"
+            style={{
+              left: image.left,
+              top: image.top,
+              width: image.width,
+              height: image.height,
+              zIndex: i,
+            }}
+          />
+        ) : (
+          <StackImage key={image.src} image={image} index={i} progress={scrollYProgress} />
+        ),
+      )}
+    </div>
+  )
+
+  // 1240px is the artboard's introduction-component width: 640 text + 178 gap
+  // + 422 stack. justify-between reproduces that gap at the designed width.
+  const row = (
+    <div className="mx-auto flex w-full max-w-[1240px] items-center justify-between gap-4xl">
+      {prefersReduced ? (
+        <Typography variant="h2" as="p" className="w-[640px] leading-normal">
+          {MANIFESTO_TEXT}
+        </Typography>
+      ) : (
+        <ScrollFillText
+          text={MANIFESTO_TEXT}
+          progress={scrollYProgress}
+          className="w-[640px] text-h2 leading-normal text-on-dark"
+        />
+      )}
+      {stack}
+    </div>
+  )
+
   // Reduced motion: no pin, no sweep — the finished frame, in normal flow.
   if (prefersReduced) {
     return (
-      <Section tone="dark" spacing="loose">
-        <div className="grid items-center gap-4xl lg:grid-cols-2">
-          <Typography variant="h2" className="text-h3 md:text-h2">
-            {MANIFESTO_TEXT}
-          </Typography>
-          <div className="relative ml-auto aspect-[400/480] w-full max-w-[420px]">
-            {MANIFESTO_STACK.map((image, i) => (
-              <div
-                key={image.src}
-                className="absolute inset-0"
-                style={{
-                  transform: `translate(${image.restX}%, ${image.restY}%) rotate(${image.rotate}deg)`,
-                  zIndex: i,
-                }}
-              >
-                <img
-                  src={image.src}
-                  alt=""
-                  aria-hidden="true"
-                  className="size-full rounded-md object-cover"
-                />
-              </div>
-            ))}
-          </div>
+      <Section tone="dark" spacing="loose" bare>
+        <div className="flex flex-col gap-4xl">
+          <ClientLogos />
+          <Container>{row}</Container>
         </div>
       </Section>
     )
@@ -444,27 +478,13 @@ function Manifesto() {
       style={{ height: `${motionTokens.scene.pinLength * 100}vh` }}
     >
       {/* overflow-hidden clips entering images at the viewport edge. */}
-      <div className="sticky top-0 flex h-screen items-center overflow-hidden">
-        <Container>
-          <div className="grid items-center gap-4xl lg:grid-cols-2">
-            <ScrollFillText
-              text={MANIFESTO_TEXT}
-              progress={scrollYProgress}
-              className="text-h3 font-semibold md:text-h2"
-            />
-            {/*
-              Figma's stack frames are ~417x494 and sit toward the right of the
-              content area (node 3390:26679 spans x=911..1328 of the 1440 frame).
-              Capping the width and pushing it right reproduces that rather than
-              letting the images fill the whole grid column.
-            */}
-            <div className="relative ml-auto aspect-[400/480] w-full max-w-[420px]">
-              {MANIFESTO_STACK.map((image, i) => (
-                <StackImage key={image.src} image={image} index={i} progress={scrollYProgress} />
-              ))}
-            </div>
-          </div>
-        </Container>
+      <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
+        <div className="shrink-0 pt-4xl">
+          <ClientLogos />
+        </div>
+        <div className="flex flex-1 items-center">
+          <Container>{row}</Container>
+        </div>
       </div>
     </div>
   )
@@ -835,7 +855,6 @@ export function HomePage() {
       <SiteHeader />
       <main>
         <Hero />
-        <LogoStrip />
         <Manifesto />
         <Stats />
         <Pillars />

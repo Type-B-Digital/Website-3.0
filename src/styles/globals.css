@@ -112,6 +112,7 @@
   --layout-gutter: 24px;
 
   /* --- opacity ---------------------------------------------------- */
+  --opacity-dim: 0.16;
   --opacity-subtle: 0.64;
   --opacity-muted: 0.8;
 
@@ -178,7 +179,7 @@
   --color-text-on-dark-muted: var(--color-neutral-50);
   --color-text-on-light: var(--color-neutral-900);
   --color-text-accent: var(--color-accent-400);
-  --color-text-on-dark-dim: var(--color-neutral-800);
+
   --color-border-on-dark: rgba(246, 246, 246, 0.4);
   --color-border-on-dark-subtle: rgba(246, 246, 246, 0.24);
   --color-border-on-light: rgba(7, 27, 39, 0.24);

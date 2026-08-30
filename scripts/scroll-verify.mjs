@@ -67,14 +67,21 @@ for (const y of stops) {
   console.log(
     await evaluate(`JSON.stringify({
       y: Math.round(window.scrollY),
+      // The sweep raises each character's opacity; colour never changes.
       filled: (() => {
         const n = [...document.querySelectorAll('p[aria-label] span span')]
         if (!n.length) return null
-        const lit = n.filter((s) => getComputedStyle(s).color === 'rgb(246, 246, 246)').length
+        const lit = n.filter((s) => Number(getComputedStyle(s).opacity) > 0.99).length
         return lit + '/' + n.length
       })(),
-      images: [...document.querySelectorAll('main div[style*="vh"] .sticky img')]
-        .map((i) => getComputedStyle(i.parentElement).opacity).join(','),
+      images: [...document.querySelectorAll('[data-scene="manifesto-stack"] img')]
+        .map((i) => Number(getComputedStyle(i).opacity).toFixed(2)).join(','),
+      logosVisible: (() => {
+        const l = document.querySelector('img[alt="Deloitte"]')
+        if (!l) return false
+        const r = l.getBoundingClientRect()
+        return r.bottom > 0 && r.top < window.innerHeight
+      })(),
     })`),
   )
 
