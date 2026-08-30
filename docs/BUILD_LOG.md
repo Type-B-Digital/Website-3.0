@@ -368,3 +368,79 @@ y=2200  filled 111/111  images 1.00,1.00,1.00  logosVisible true
 
 Reduced-motion fallback checked separately: no pinned scene, all three images,
 statement and logo row present.
+
+
+---
+
+## Update — 2026-08-30 (fourth pass): Bold. Brilliant. Beautiful.
+
+The page's centrepiece. Figma: `bbb-glowing-copy-component` (node 3390:26748)
+plus the stats frame (node 3390:26720).
+
+### How the effect is built
+
+Three layers, following the artboard exactly:
+
+1. **Ambient blob** (node 3390:26682) — three radial gradients in
+   `orange.500 / amber.500 / turquoise.500`, blurred by 120px, `screen` blended.
+   Figma uses `difference`; on a near-black ground the two read the same, and
+   `screen` is far better behaved over the colour ramps. Built from gradients
+   rather than the exported bitmap so it stays crisp and stays on tokens.
+2. **Solid words** (node 3390:26719) — `#071B27` on the `#040E19` ground, a
+   shade off it, sitting *over* the ambient blob and occluding it. That
+   occlusion is what gives the letterforms their silhouette.
+3. **Lit strokes** (node 3390:26687) — cream letter strokes at 40% opacity,
+   revealed by the blob.
+
+Layer 3 is the interesting one. It is not stroked text that lights up: it is
+stroke artwork masked so the glow shows through letter-shaped holes. **The mask
+is static and the blob moves inside it** — the obvious alternative, a moving
+radial gradient as the mask, repaints the mask on every pointer move. This way
+the per-frame cost is one composited translate.
+
+The pointer is spring-smoothed so the blob trails the cursor with weight, and
+rests over the words before the pointer ever arrives — which is also the touch
+and no-pointer behaviour.
+
+### Two export problems, both fixed
+
+- **The stroke SVG exports rotated 90°** (624x1008 for landscape artwork),
+  because Figma has it inside a `-rotate-90` wrapper. The rotation is now baked
+  into the file so the CSS does not have to compensate.
+- **The solid SVG exports 50 paths, not 25.** Twenty-five are the `#071B27`
+  letterforms; the other twenty-five are a shading overlay with
+  `mix-blend-mode: multiply` at 40%. In Figma that multiplies against the dark
+  ground. Inside an `<img>`, the SVG canvas is transparent, so multiply has
+  nothing to darken against and the overlay renders as a *light wash* — the
+  words came out pale grey instead of near-black. The overlay is stripped; the
+  original is kept at `scratchpad/bbb-solid-original.svg`. If the shading turns
+  out to matter, the fix is to inline the SVG so it composites against the page
+  rather than its own transparent canvas.
+
+### The crossfade
+
+Rather than cutting from this near-black band to the white section below, the
+ground crossfades to that surface over the last third of the scene and the
+content fades with it. Measured:
+
+```
+y=3300  ground rgb(4, 14, 25)      content opacity 1
+y=3700  ground rgb(4, 14, 25)      content opacity 1
+y=4100  ground rgb(196, 196, 197)  content opacity 0.41
+y=4300  ground rgb(255, 255, 255)  content opacity 0
+```
+
+The scene releases just as the next (white) section arrives, so there is no
+seam and no dead white space.
+
+### Stats
+
+Moved into this scene and re-laid-out: right-aligned vertical stack against the
+80px margin, vertically centred. Verified at exactly 80px from the right edge.
+They previously sat in a three-column grid in their own band.
+
+### Verification
+
+`scripts/scroll-verify.mjs` now accepts pointer stops (`3600@950,380`) — a
+screenshot without a real `mouseMoved` event only ever shows the blob at rest.
+It also reports `glowGround` so the crossfade can be measured rather than eyeballed.

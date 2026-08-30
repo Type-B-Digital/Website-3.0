@@ -11,11 +11,13 @@
  * breakpoint below `xl` is an engineering interpretation, not a reproduction of a
  * design. See docs/BUILD_LOG.md § Open questions.
  */
-import { useRef } from 'react'
+import { useLayoutEffect, useRef, type PointerEvent as ReactPointerEvent } from 'react'
 import {
   motion as fm,
+  useMotionValue,
   useReducedMotion,
   useScroll,
+  useSpring,
   useTransform,
   type MotionValue,
 } from 'framer-motion'
@@ -24,6 +26,7 @@ import {
   Card,
   Container,
   Eyebrow,
+  GlowText,
   Marquee,
   ParallaxSection,
   Reveal,
@@ -35,7 +38,7 @@ import type { CardCrop } from '@/components'
 import ScrollFillText from '@/components/ScrollFillText'
 import CaretDown from '@/components/icons/CaretDown'
 import { cn } from '@/lib/cn'
-import { motion as motionTokens } from '@/tokens'
+import { colors as colorTokens, motion as motionTokens } from '@/tokens'
 
 /* ================================================================== *
  * CONTENT
@@ -109,6 +112,18 @@ const CLIENT_LOGOS = [
     blend: '',
   },
 ].map((logo, i) => ({ ...logo, src: `/images/logos/logo-${i + 1}.png` }))
+
+/**
+ * "Bold. Brilliant. Beautiful." artwork geometry, as fractions of the panel.
+ *
+ * Figma: the component (node 3390:26748) sits at x=-26 with the words inset
+ * 12.74% into its 1153.7px width, i.e. x=121 in the 1440 frame, 1006.72 wide.
+ */
+const BBB_ARTWORK = {
+  aspect: 1006.72 / 622.344,
+  widthRatio: 1006.72 / 1440,
+  leftRatio: 121 / 1440,
+}
 
 /** Figma: nodes 3390:26720 / 26724 / 26727 */
 const STATS = [
@@ -491,30 +506,132 @@ function Manifesto() {
 }
 
 
-/** Figma: "Frame 1000003403" — node 3390:26720 */
-function Stats() {
+/**
+ * Bold. Brilliant. Beautiful. — the page's centrepiece.
+ *
+ * Figma: "bbb-glowing-copy-component" node 3390:26748, stats node 3390:26720.
+ *
+ * A pinned scene the visitor can play in. A colour blob follows the pointer and
+ * lights the words as it passes — see GlowText for how the three layers work.
+ * The stats sit right-aligned against the 80px margin (the artboard frame runs
+ * x=1051..1360 in a 1440 frame), vertically centred beside the words.
+ *
+ * Rather than cutting from this near-black band to the white section below, the
+ * ground itself crossfades to that surface over the last third of the scene and
+ * the content fades with it, so the seam never appears.
+ */
+function BoldBrilliantBeautiful() {
+  const sceneRef = useRef<HTMLDivElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const prefersReduced = useReducedMotion()
+  const { glowScene } = motionTokens
+
+  const { scrollYProgress } = useScroll({
+    target: sceneRef,
+    offset: ['start start', 'end end'],
+  })
+
+  // Pointer in panel pixels. The springs are what make the blob trail the
+  // cursor with weight instead of snapping to it.
+  const rawX = useMotionValue(0)
+  const rawY = useMotionValue(0)
+  const pointerX = useSpring(rawX, glowScene.pointer)
+  const pointerY = useSpring(rawY, glowScene.pointer)
+
+  // Rest the blob over the words before the pointer ever arrives, so the
+  // section reads as designed on load and on touch devices.
+  useLayoutEffect(() => {
+    const el = panelRef.current
+    if (!el) return
+    const rest = () => {
+      rawX.jump(el.clientWidth * glowScene.rest.x)
+      rawY.jump(el.clientHeight * glowScene.rest.y)
+    }
+    rest()
+    window.addEventListener('resize', rest)
+    return () => window.removeEventListener('resize', rest)
+  }, [rawX, rawY, glowScene.rest.x, glowScene.rest.y])
+
+  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const el = panelRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    rawX.set(event.clientX - rect.left)
+    rawY.set(event.clientY - rect.top)
+  }
+
+  const background = useTransform(
+    scrollYProgress,
+    [glowScene.fade.start, glowScene.fade.end],
+    [colorTokens.background.canvas, colorTokens.background.surface],
+  )
+  const contentOpacity = useTransform(
+    scrollYProgress,
+    [glowScene.fade.start, glowScene.fade.end],
+    [1, 0],
+  )
+
+  const stats = (
+    <div className="absolute right-4xl top-1/2 flex w-[309px] -translate-y-1/2 flex-col gap-4xl text-right">
+      {STATS.map((stat) => (
+        <div key={stat.label} className="flex flex-col gap-sm">
+          <Typography variant="h1" as="p" className="text-on-dark-muted">
+            {stat.value}
+          </Typography>
+          <Typography variant="copyMedium" as="p" muted className="text-on-dark-muted">
+            {stat.label}
+          </Typography>
+        </div>
+      ))}
+    </div>
+  )
+
+  const words = (
+    <GlowText
+      solidSrc="/vectors/bbb-solid.svg"
+      strokeSrc="/vectors/bbb-stroke.svg"
+      label="Bold. Brilliant. Beautiful."
+      aspect={BBB_ARTWORK.aspect}
+      widthRatio={BBB_ARTWORK.widthRatio}
+      leftRatio={BBB_ARTWORK.leftRatio}
+      pointerX={pointerX}
+      pointerY={pointerY}
+    />
+  )
+
+  // Reduced motion: no pin, no crossfade, blob parked at its resting spot.
+  if (prefersReduced) {
+    return (
+      <section className="relative min-h-screen w-full overflow-hidden bg-canvas text-on-dark">
+        <div ref={panelRef} className="absolute inset-0">
+          {words}
+          {stats}
+        </div>
+      </section>
+    )
+  }
+
   return (
-    <Section tone="dark" spacing="loose">
-      <dl className="grid gap-4xl md:grid-cols-3">
-        {STATS.map((stat, i) => (
-          <Reveal key={stat.label} index={i}>
-            <div className="flex flex-col gap-sm md:text-right">
-              <dt className="sr-only">{stat.label}</dt>
-              <dd className="flex flex-col gap-sm">
-                <Typography variant="h1" as="span" className="text-h2 md:text-h1">
-                  {stat.value}
-                </Typography>
-                <Typography variant="copyMedium" as="span" muted>
-                  {stat.label}
-                </Typography>
-              </dd>
-            </div>
-          </Reveal>
-        ))}
-      </dl>
-    </Section>
+    <div
+      ref={sceneRef}
+      className="relative"
+      style={{ height: `${glowScene.pinLength * 100}vh` }}
+    >
+      <fm.div
+        ref={panelRef}
+        onPointerMove={handlePointerMove}
+        className="sticky top-0 h-screen w-full overflow-hidden text-on-dark"
+        style={{ backgroundColor: background }}
+      >
+        <fm.div className="absolute inset-0" style={{ opacity: contentOpacity }}>
+          {words}
+          {stats}
+        </fm.div>
+      </fm.div>
+    </div>
   )
 }
+
 
 /** Figma: "Frame 1000003355" — node 3390:26429, cards nodes 3390:26539 … 26549 */
 function Pillars() {
@@ -856,7 +973,7 @@ export function HomePage() {
       <main>
         <Hero />
         <Manifesto />
-        <Stats />
+        <BoldBrilliantBeautiful />
         <Pillars />
         <Stages />
         <Work />

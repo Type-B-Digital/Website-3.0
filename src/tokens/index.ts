@@ -398,6 +398,36 @@ export const motion = {
   /** Viewport trigger point for scroll reveals. */
   viewport: { amount: 0.25, once: true },
   /**
+   * Schedule and geometry for the pointer-lit "Bold. Brilliant. Beautiful."
+   * scene. Figma: bbb-glowing-copy-component, node 3390:26748.
+   *
+   * ⚠ Timings authored, as everywhere in `motion`. The geometry, though, is
+   * from the artboard: `blur` is Figma's own gaussian stdDeviation on the glow
+   * ellipses, and `strokeOpacity` is the 40% the outline layer carries.
+   */
+  glowScene: {
+    /** Viewport heights of scroll the scene occupies. Most of it is dwell time
+     *  so the pointer interaction can actually be explored. */
+    pinLength: 2.75,
+    /** Where the ground starts turning into the next section's surface, and
+     *  where it finishes — so there is no hard black-to-white seam. */
+    fade: { start: 0.62, end: 0.94 },
+    /** Blob box, px. Large because it is heavily blurred. */
+    blobSize: 900,
+    /** Figma gaussian stdDeviation on the glow ellipses (node 3390:26688). */
+    blur: 120,
+    /** Outline layer opacity on the artboard. */
+    strokeOpacity: 0.4,
+    /** Ambient haze strength. Tuned against the motion mockups, which read
+     *  considerably more muted than a full-strength screen blend. */
+    ambientOpacity: 0.5,
+    /** Pointer smoothing — the blob trails the cursor rather than snapping. */
+    pointer: { stiffness: 90, damping: 24, mass: 0.6 },
+    /** Resting position as a fraction of the panel, before the pointer arrives. */
+    rest: { x: 0.32, y: 0.52 },
+  },
+
+  /**
    * Schedule for the pinned Manifesto scene, in normalised scroll progress
    * (0 = scene pins, 1 = scene releases).
    *

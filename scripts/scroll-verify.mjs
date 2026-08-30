@@ -5,6 +5,11 @@
  * budget, Framer Motion's `useScroll` never fires, however you scroll the page
  * from JavaScript. This drives REAL input over the DevTools protocol instead.
  *
+ * Stops may carry a pointer position: `2400@950,380` scrolls to 2400 and then
+ * moves the mouse to (950, 380) — needed for the pointer-lit
+ * "Bold. Brilliant. Beautiful." scene, where a screenshot without a real
+ * mouseMoved event only ever shows the blob's resting position.
+ *
  * Usage:
  *   npm run dev
  *   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
@@ -17,7 +22,11 @@
  * dependencies — Node 18+ has global WebSocket and fetch.
  */
 const [, , outDir, ...stopArgs] = process.argv
-const stops = stopArgs.length ? stopArgs.map(Number) : [1050, 1400, 1750, 2100, 2450]
+const stops = (stopArgs.length ? stopArgs : ['1050', '1400', '1750', '2100', '2450']).map((arg) => {
+  const [y, pointer] = String(arg).split('@')
+  const [px, py] = pointer ? pointer.split(',').map(Number) : []
+  return { y: Number(y), pointer: pointer ? { x: px, y: py } : null }
+})
 
 const list = await (await fetch('http://127.0.0.1:9222/json')).json()
 const page = list.find((t) => t.type === 'page' && t.url.includes('5173'))
@@ -55,7 +64,7 @@ const { writeFileSync, mkdirSync } = await import('node:fs')
 if (outDir) mkdirSync(outDir, { recursive: true })
 
 let at = 0
-for (const y of stops) {
+for (const { y, pointer } of stops) {
   // A real gesture. Negative yDistance scrolls the page down.
   await send('Input.synthesizeScrollGesture', {
     x: 720, y: 400, xDistance: 0, yDistance: -(y - at),
@@ -63,6 +72,13 @@ for (const y of stops) {
   })
   at = y
   await wait(900)
+
+  if (pointer) {
+    await send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved', x: pointer.x, y: pointer.y, button: 'none',
+    })
+    await wait(700)
+  }
 
   console.log(
     await evaluate(`JSON.stringify({
@@ -76,6 +92,14 @@ for (const y of stops) {
       })(),
       images: [...document.querySelectorAll('[data-scene="manifesto-stack"] img')]
         .map((i) => Number(getComputedStyle(i).opacity).toFixed(2)).join(','),
+      // Glow scene: ground colour mid-crossfade, and the lit-stroke layer.
+      glowGround: (() => {
+        const lit = document.querySelector('.bbb-lit')
+        if (!lit) return null
+        let panel = lit
+        while (panel && !panel.classList.contains('sticky')) panel = panel.parentElement
+        return panel ? getComputedStyle(panel).backgroundColor : null
+      })(),
       logosVisible: (() => {
         const l = document.querySelector('img[alt="Deloitte"]')
         if (!l) return false
@@ -87,7 +111,8 @@ for (const y of stops) {
 
   if (outDir) {
     const shot = await send('Page.captureScreenshot', { format: 'png' })
-    writeFileSync(`${outDir}/scroll-${y}.png`, Buffer.from(shot.data, 'base64'))
+    const tag = pointer ? `${y}-p${pointer.x}x${pointer.y}` : `${y}`
+    writeFileSync(`${outDir}/scroll-${tag}.png`, Buffer.from(shot.data, 'base64'))
   }
 }
 ws.close()

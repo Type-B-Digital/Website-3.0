@@ -27,6 +27,14 @@
   --color-neutral-800: #343c43;
   --color-neutral-900: #040e19;
 
+  /* --- glow colours for the Bold/Brilliant/Beautiful scene ---------- */
+  /* Figma node 3390:26682 fills: orange.500, amber.500, turquoise.500. */
+  --color-glow-warm: #ff5315;
+  --color-glow-amber: #fd8816;
+  --color-glow-cool: #17616e;
+  /* Figma gaussian stdDeviation on the glow ellipses (node 3390:26688). */
+  --bbb-blur: 120px;
+
   /* --- color: off-board values still in use ----------------------- */
   --color-paper: #f6f6f6;
   --color-ink-soft: #071b27;
@@ -232,5 +240,47 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+
+/**
+ * Bold. Brilliant. Beautiful. — pointer-lit scene.
+ * Figma: bbb-glowing-copy-component, node 3390:26748.
+ *
+ * The blob is three overlapping radial gradients rather than an exported
+ * bitmap, so it stays crisp at any size and its colours stay tied to tokens.
+ * Figma builds the same shape from three 514px ellipses (node 3390:26688).
+ */
+.bbb-blob {
+  pointer-events: none;
+  will-change: transform;
+  background:
+    radial-gradient(circle at 32% 34%, var(--color-glow-warm) 0%, transparent 58%),
+    radial-gradient(circle at 66% 30%, var(--color-glow-amber) 0%, transparent 58%),
+    radial-gradient(circle at 48% 70%, var(--color-glow-cool) 0%, transparent 62%);
+  filter: blur(var(--bbb-blur));
+}
+
+/* The haze behind the words. Figma uses difference; screen reads the same on
+   a near-black ground and is far better behaved over the colour ramps. */
+.bbb-blob--ambient {
+  mix-blend-mode: screen;
+}
+
+/* The letterform mask is static; the blob moves inside it. */
+.bbb-lit {
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bbb-blob {
+    /* Keep the glow, drop the transition cost. */
+    will-change: auto;
   }
 }

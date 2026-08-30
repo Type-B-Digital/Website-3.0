@@ -151,6 +151,29 @@ the right edge. Under reduced motion it becomes a horizontally scrollable row
 **with the same flex layout** — dropping the flex there was a bug found in
 review, see BUILD_LOG.
 
+### `GlowText`
+Words lit by a colour blob that follows the pointer. Figma
+[node 3390:26748](https://www.figma.com/design/LASrWn0jXyj5nBaphi2jgI/TypeB-Creative-Exploration?node-id=3390-26748).
+
+| Prop | Type | Notes |
+|---|---|---|
+| `solidSrc` / `strokeSrc` | `string` | Solid silhouette and stroke artwork |
+| `aspect` | `number` | Artwork width / height |
+| `widthRatio` / `leftRatio` | `number` | Words box as a fraction of the panel |
+| `pointerX` / `pointerY` | `MotionValue<number>` | Pointer in panel pixels |
+| `label` | `string` | Accessible text; the artwork is decorative |
+
+Three layers, as the artboard builds them: an ambient blob, the words as a solid
+`#071B27` silhouette that occludes it, and cream letter **strokes revealed by the
+blob**. The strokes are not stroked text — they are artwork masked so the glow
+shows through letter-shaped holes.
+
+**The mask is static and the blob moves inside it.** The obvious alternative — a
+moving radial gradient as the mask — repaints the mask every frame; this way the
+only per-frame work is a composited translate. Geometry is measured with a
+`ResizeObserver` rather than expressed in percentages, because the mask, the
+solid layer and the blob all have to agree on one coordinate space.
+
 ### `ScrollFillText`
 Copy that fills from dim to bright one character at a time, driven by scroll
 position rather than time.
