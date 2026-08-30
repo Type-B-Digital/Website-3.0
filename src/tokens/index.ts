@@ -180,6 +180,11 @@ export const colors = {
     onDarkMuted: palette.neutral[50],
     /** Accent display type — "Advisory" / "Teams". Figma: 3390:26552 */
     accent: palette.turquoise[400],
+    /**
+     * Unfilled state of the scroll-fill statement — the grey the copy sits at
+     * before the white sweep reaches it. Figma: node 3390:26579
+     */
+    onDarkDim: palette.neutral[800],
   },
   border: {
     /** Secondary CTA on dark. Figma: 3369:24517 */
@@ -285,6 +290,11 @@ export const spacing = {
    * Figma: node 3383:25392
    */
   tag: '12px',
+  /**
+   * Client logo strip gap. Also off-board — Figma measures 93px between marks.
+   * Figma: node 3390:26570
+   */
+  logoGap: '93px',
   md: '16px',
   lg: '24px',
   xl: '32px',
@@ -356,7 +366,10 @@ export const motion = {
     fast: 0.3,
     base: 0.6,
     slow: 0.9,
+    /** Values band. */
     marquee: 40,
+    /** Client logo strip — slower, so marks read as they pass. */
+    marqueeSlow: 60,
   },
   easing: {
     /** Default entrance — decelerating, no overshoot. */
@@ -382,6 +395,27 @@ export const motion = {
   },
   /** Viewport trigger point for scroll reveals. */
   viewport: { amount: 0.25, once: true },
+  /**
+   * Schedule for the pinned Manifesto scene, in normalised scroll progress
+   * (0 = scene pins, 1 = scene releases).
+   *
+   * ⚠ Authored, like the rest of `motion`. `pinLength` is how many viewport
+   * heights of scroll the scene occupies; raise it to slow the whole scene
+   * down without touching the sub-timings.
+   *
+   * The letter fill and the third image are scheduled to land together at
+   * `fill.end`, which is what makes the scene feel finished before it releases.
+   * The gap between that and 1.0 is a deliberate hold on the completed frame.
+   */
+  scene: {
+    pinLength: 3,
+    fill: { start: 0.06, end: 0.9 },
+    /** Per-character overlap; wider = softer sweep, narrower = sharper. */
+    fillFeather: 0.06,
+    images: { start: 0.06, stagger: 0.28, duration: 0.28 },
+    /** Travel distance for an entering image, as % of its own width. */
+    imageEnter: 170,
+  },
 } as const
 
 /* ------------------------------------------------------------------ *

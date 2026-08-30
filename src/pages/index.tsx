@@ -11,6 +11,14 @@
  * breakpoint below `xl` is an engineering interpretation, not a reproduction of a
  * design. See docs/BUILD_LOG.md § Open questions.
  */
+import { useRef } from 'react'
+import {
+  motion as fm,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+  type MotionValue,
+} from 'framer-motion'
 import {
   Button,
   Card,
@@ -24,7 +32,10 @@ import {
   Typography,
 } from '@/components'
 import type { CardCrop } from '@/components'
+import ScrollFillText from '@/components/ScrollFillText'
 import CaretDown from '@/components/icons/CaretDown'
+import { cn } from '@/lib/cn'
+import { motion as motionTokens } from '@/tokens'
 
 /* ================================================================== *
  * CONTENT
@@ -35,19 +46,68 @@ import CaretDown from '@/components/icons/CaretDown'
 const NAV_LINKS = ['What we do', 'Industries', 'Case studies', 'Who we are', 'Publications']
 
 /**
- * Figma: node 3390:26570. Each logo carries its own dimensions from the
- * artboard — they are not a uniform height, and normalising them distorts the
- * wordmarks and overflows the row.
+ * Figma: node 3390:26570.
+ *
+ * `box` is the frame size on the artboard. `crop` is Figma's image-fill
+ * transform for that frame, as percentages of the box.
+ *
+ * The crop is not optional decoration: these PNGs are large canvases with the
+ * wordmark occupying a small region. Fitting the whole file into the box
+ * (object-contain) renders the mark far smaller than the artboard shows, which
+ * is exactly what went wrong in v1. Reproducing the transform makes the mark
+ * fill its box at the designed size.
+ *
+ * Logos with no `crop` are already tight to their frame and use object-cover.
  */
 const CLIENT_LOGOS = [
-  { name: 'Deloitte', width: 95, height: 19, blend: '' },
-  { name: 'Equinox', width: 140, height: 18, blend: 'mix-blend-lighten' },
-  { name: 'HP', width: 47, height: 47, blend: '' },
-  { name: 'Oracle', width: 121, height: 20, blend: 'mix-blend-lighten' },
-  { name: 'Medtronic', width: 121, height: 20, blend: 'mix-blend-screen' },
-  { name: 'Bell', width: 41, height: 23, blend: '' },
-  { name: 'PCL Construction', width: 73, height: 47, blend: '' },
-  { name: 'BDO', width: 60, height: 23, blend: '' },
+  {
+    name: 'Deloitte',
+    box: { width: 95.2, height: 18.667 },
+    crop: { width: '118.95%', height: '609.14%', left: '-11.76%', top: '-254.57%' },
+    blend: '',
+  },
+  {
+    name: 'Equinox',
+    box: { width: 140, height: 18.143 },
+    crop: { width: '100%', height: '144.78%', left: '0%', top: '-23.88%' },
+    blend: 'mix-blend-lighten',
+  },
+  {
+    name: 'HP',
+    box: { width: 46.756, height: 46.667 },
+    crop: { width: '229.01%', height: '113.38%', left: '-64.5%', top: '-6.69%' },
+    blend: '',
+  },
+  {
+    name: 'Oracle',
+    box: { width: 120.744, height: 19.833 },
+    crop: null,
+    blend: 'mix-blend-lighten',
+  },
+  {
+    name: 'Medtronic',
+    box: { width: 121.052, height: 19.833 },
+    crop: { width: '100%', height: '244.83%', left: '0%', top: '-72.41%' },
+    blend: 'mix-blend-screen',
+  },
+  {
+    name: 'Bell',
+    box: { width: 40.632, height: 23.333 },
+    crop: { width: '176.24%', height: '174.14%', left: '-38.12%', top: '-37.07%' },
+    blend: '',
+  },
+  {
+    name: 'PCL Construction',
+    box: { width: 72.846, height: 46.667 },
+    crop: { width: '100%', height: '128%', left: '0%', top: '-0.59%' },
+    blend: '',
+  },
+  {
+    name: 'BDO',
+    box: { width: 60.459, height: 23.333 },
+    crop: null,
+    blend: '',
+  },
 ].map((logo, i) => ({ ...logo, src: `/images/logos/logo-${i + 1}.png` }))
 
 /** Figma: nodes 3390:26720 / 26724 / 26727 */
@@ -219,79 +279,197 @@ function Hero() {
   )
 }
 
-/** Figma: "Frame 1000003366" — node 3390:26570 */
+/**
+ * Client logo strip — Figma node 3390:26570.
+ *
+ * The artboard shows a static row that overflows the 1440 frame (it spans
+ * x=80 to x=1428). Eduardo's motion note makes that overflow literal: the row
+ * travels left continuously, marks entering at the right edge and leaving at
+ * the left. Full-bleed, so it runs edge to edge rather than stopping at the
+ * 1280 content width.
+ */
 function LogoStrip() {
   return (
-    <Section tone="dark" spacing="compact">
-      <Reveal>
-        {/* Figma's 93px gap is off the spacing scale; nearest token is 80px. */}
-        <ul className="flex flex-wrap items-center justify-center gap-x-4xl gap-y-xl opacity-muted">
-          {CLIENT_LOGOS.map((logo) => (
-            <li key={logo.src} className="shrink-0">
+    <Section tone="dark" spacing="compact" bare>
+      <Marquee speed="marqueeSlow" gapClassName="gap-logoGap" className="opacity-muted">
+        {CLIENT_LOGOS.map((logo) => (
+          <div
+            key={logo.src}
+            className="relative shrink-0 overflow-hidden"
+            style={{ width: logo.box.width, height: logo.box.height }}
+          >
+            {logo.crop ? (
               <img
                 src={logo.src}
                 alt={logo.name}
-                width={logo.width}
-                height={logo.height}
-                style={{ width: logo.width, height: logo.height }}
-                className={`object-contain ${logo.blend}`}
+                className={cn('absolute max-w-none', logo.blend)}
+                style={{
+                  width: logo.crop.width,
+                  height: logo.crop.height,
+                  left: logo.crop.left,
+                  top: logo.crop.top,
+                }}
               />
-            </li>
-          ))}
-        </ul>
-      </Reveal>
+            ) : (
+              <img
+                src={logo.src}
+                alt={logo.name}
+                className={cn('absolute inset-0 size-full object-cover', logo.blend)}
+              />
+            )}
+          </div>
+        ))}
+      </Marquee>
     </Section>
+  )
+}
+
+
+const MANIFESTO_TEXT =
+  'We bring hope and expert execution to bold innovators, guiding ambitious ' +
+  'visions into brilliant outcomes with a relentless drive.'
+
+/**
+ * The three stacked images. Figma nodes 3390:26679 / 26680 / 26681 sit at
+ * slightly different offsets and sizes on the artboard — reproduced here as
+ * small resting offsets and rotations so the finished stack keeps that
+ * hand-placed feel rather than reading as three aligned rectangles.
+ */
+const MANIFESTO_STACK = [
+  { src: '/images/stack/stack-1.png', restX: 0, restY: 0, rotate: -2.5 },
+  { src: '/images/stack/stack-2.png', restX: 5, restY: -3, rotate: 1.5 },
+  { src: '/images/stack/stack-3.png', restX: 10, restY: -6, rotate: -1 },
+]
+
+/**
+ * One image in the manifesto stack: enters from beyond the right edge and
+ * settles at its resting offset, over its own window of the scene's progress.
+ */
+function StackImage({
+  image,
+  index,
+  progress,
+}: {
+  image: (typeof MANIFESTO_STACK)[number]
+  index: number
+  progress: MotionValue<number>
+}) {
+  const { scene } = motionTokens
+  const start = scene.images.start + index * scene.images.stagger
+  const end = start + scene.images.duration
+
+  const x = useTransform(
+    progress,
+    [start, end],
+    [`${scene.imageEnter + image.restX}%`, `${image.restX}%`],
+  )
+  const opacity = useTransform(progress, [start, start + 0.03], [0, 1])
+
+  return (
+    <fm.div
+      className="absolute inset-0 will-change-transform"
+      style={{ x, y: `${image.restY}%`, opacity, rotate: image.rotate, zIndex: index }}
+    >
+      <img
+        src={image.src}
+        alt=""
+        aria-hidden="true"
+        className="size-full rounded-md object-cover"
+      />
+    </fm.div>
   )
 }
 
 /**
- * Figma: statement node 3390:26579 + image stack nodes 3390:26679 / 26680 / 26681
- * The three stacked images sit at slightly different offsets in the design; here
- * they travel at different parallax speeds, which is what the stagger implies.
+ * Manifesto — a scroll-pinned scene.
+ *
+ * Figma: statement node 3390:26579, image stack nodes 3390:26679 / 26680 /
+ * 26681. The artboard shows only the end state; the behaviour comes from
+ * Eduardo's motion mockup.
+ *
+ * The scene occupies `scene.pinLength` viewport heights of scroll. Inside it a
+ * sticky panel holds the frame still while scroll drives two things on one
+ * clock: the statement filling grey to white a letter at a time, and the three
+ * images entering from the right one by one. Both are scheduled to land
+ * together at `scene.fill.end`, after which the page scrolls on normally.
+ *
+ * `offset: ['start start', 'end end']` puts progress 0 at the moment the panel
+ * pins and 1 at the moment it releases, so the schedule maps onto the pinned
+ * duration with no dead zone at either end.
  */
 function Manifesto() {
-  return (
-    <Section tone="dark" spacing="loose">
-      <div className="grid items-center gap-4xl lg:grid-cols-2">
-        <Reveal>
-          <Typography variant="h2" className="text-h3 md:text-h2">
-            We bring hope and expert execution to bold innovators, guiding ambitious visions
-            into brilliant outcomes with a relentless drive.
-          </Typography>
-        </Reveal>
+  const sceneRef = useRef<HTMLDivElement>(null)
+  const prefersReduced = useReducedMotion()
+  const { scrollYProgress } = useScroll({
+    target: sceneRef,
+    offset: ['start start', 'end end'],
+  })
 
-        <div className="relative aspect-[400/480] w-full">
-          <ParallaxSection speed="subtle" className="absolute inset-0">
-            <img
-              src="/images/stack/stack-1.png"
-              alt=""
-              aria-hidden="true"
-              className="size-full rounded-md object-cover"
-            />
-          </ParallaxSection>
-          <ParallaxSection speed="base" className="absolute inset-0 translate-x-md translate-y-lg">
-            <img
-              src="/images/stack/stack-2.png"
-              alt=""
-              aria-hidden="true"
-              className="size-full rounded-md object-cover"
-            />
-          </ParallaxSection>
-          <ParallaxSection
-            speed="strong"
-            className="absolute inset-0 -translate-x-md translate-y-2xl"
-          >
-            <img
-              src="/images/stack/stack-3.png"
-              alt="Type B Digital team at work"
-              className="size-full rounded-md object-cover object-bottom"
-            />
-          </ParallaxSection>
+  // Reduced motion: no pin, no sweep — the finished frame, in normal flow.
+  if (prefersReduced) {
+    return (
+      <Section tone="dark" spacing="loose">
+        <div className="grid items-center gap-4xl lg:grid-cols-2">
+          <Typography variant="h2" className="text-h3 md:text-h2">
+            {MANIFESTO_TEXT}
+          </Typography>
+          <div className="relative ml-auto aspect-[400/480] w-full max-w-[420px]">
+            {MANIFESTO_STACK.map((image, i) => (
+              <div
+                key={image.src}
+                className="absolute inset-0"
+                style={{
+                  transform: `translate(${image.restX}%, ${image.restY}%) rotate(${image.rotate}deg)`,
+                  zIndex: i,
+                }}
+              >
+                <img
+                  src={image.src}
+                  alt=""
+                  aria-hidden="true"
+                  className="size-full rounded-md object-cover"
+                />
+              </div>
+            ))}
+          </div>
         </div>
+      </Section>
+    )
+  }
+
+  return (
+    <div
+      ref={sceneRef}
+      className="relative bg-canvas text-on-dark"
+      style={{ height: `${motionTokens.scene.pinLength * 100}vh` }}
+    >
+      {/* overflow-hidden clips entering images at the viewport edge. */}
+      <div className="sticky top-0 flex h-screen items-center overflow-hidden">
+        <Container>
+          <div className="grid items-center gap-4xl lg:grid-cols-2">
+            <ScrollFillText
+              text={MANIFESTO_TEXT}
+              progress={scrollYProgress}
+              className="text-h3 font-semibold md:text-h2"
+            />
+            {/*
+              Figma's stack frames are ~417x494 and sit toward the right of the
+              content area (node 3390:26679 spans x=911..1328 of the 1440 frame).
+              Capping the width and pushing it right reproduces that rather than
+              letting the images fill the whole grid column.
+            */}
+            <div className="relative ml-auto aspect-[400/480] w-full max-w-[420px]">
+              {MANIFESTO_STACK.map((image, i) => (
+                <StackImage key={image.src} image={image} index={i} progress={scrollYProgress} />
+              ))}
+            </div>
+          </div>
+        </Container>
       </div>
-    </Section>
+    </div>
   )
 }
+
 
 /** Figma: "Frame 1000003403" — node 3390:26720 */
 function Stats() {

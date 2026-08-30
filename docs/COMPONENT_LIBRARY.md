@@ -138,10 +138,39 @@ Fade and rise on first scroll into view.
 Each item's trigger is tied to its own position, not the group's.
 
 ### `Marquee`
-Continuous horizontal scroll. Renders children twice for a seamless loop; the
-duplicate is `aria-hidden`. Under reduced motion it becomes a horizontally
-scrollable row **with the same flex layout** — dropping the flex there was a bug
-found in review, see BUILD_LOG.
+Continuous horizontal scroll, used by the values band and the client logo strip.
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `speed` | `'marquee' \| 'marqueeSlow'` | `'marquee'` | Duration token; `marqueeSlow` (60s) for the logo strip |
+| `gapClassName` | `string` | `'gap-4xl'` | Item gap; logo strip uses `gap-logoGap` (93px) |
+
+Renders children twice for a seamless loop; the duplicate is `aria-hidden`.
+Because the track animates `0% → -50%`, items appear to enter continuously from
+the right edge. Under reduced motion it becomes a horizontally scrollable row
+**with the same flex layout** — dropping the flex there was a bug found in
+review, see BUILD_LOG.
+
+### `ScrollFillText`
+Copy that fills from dim to bright one character at a time, driven by scroll
+position rather than time.
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `text` | `string` | — | Plain string; also becomes the `aria-label` |
+| `progress` | `MotionValue<number>` | — | Normalised scene progress |
+| `start` / `end` | `number` | from `tokens.motion.scene.fill` | Progress window for the sweep |
+
+Each character owns a narrow window of the range and interpolates its colour
+across it; windows overlap by `scene.fillFeather`, which is what makes the sweep
+read as a wipe rather than a row of discrete flips. Words stay whole
+(`inline-block` + `whitespace-nowrap`) so lines still break on word boundaries.
+The characters are `aria-hidden` and the paragraph carries the full string as a
+label, so assistive tech reads the sentence once, normally.
+
+```tsx
+<ScrollFillText text={COPY} progress={scrollYProgress} className="text-h2" />
+```
 
 ---
 

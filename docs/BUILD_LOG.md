@@ -205,3 +205,89 @@ section in the image was below the real fold.
 **Screenshot dimensions are not viewport dimensions.** When a headless capture
 disagrees with expected layout, measure `window.innerHeight` against
 `getBoundingClientRect()` before changing any CSS.
+
+
+---
+
+## Update — 2026-08-30 (second pass): logo strip + manifesto scene
+
+### Client logo sizing — root cause
+
+The logos rendered far smaller than the artboard. The frame sizes were right;
+the **image fills** were not.
+
+Each logo PNG is a large canvas with the wordmark occupying a small region, and
+Figma applies a per-frame image-fill transform to crop and scale it (Deloitte,
+for instance, is `w 118.95% / h 609.14% / left -11.76% / top -254.57%`). v1
+ignored those and used `object-contain`, which fits the *whole file* into the
+frame — so the mark shrank to whatever fraction of the canvas it occupied.
+
+Fixed by reproducing each transform, the same technique already used for the
+pillar cards. `CLIENT_LOGOS` now carries `box` (frame size) and `crop` (fill
+transform) per logo. Two logos are already tight to their frames and need no
+crop.
+
+**Nothing is needed from design for this** — the sizes now match. If the logos
+are ever re-exported, exporting each mark tightly cropped (no surrounding
+canvas) would remove the need for the transforms and make the data smaller.
+
+### Added
+
+- **Logo strip is now a marquee** — full-bleed, travelling left continuously at
+  `marqueeSlow` (60s), marks entering at the right edge. The artboard already
+  overflows the frame (x=80 to x=1428); this makes the overflow literal.
+- **`Marquee`** gained `speed` and `gapClassName`, and `items-center` on its
+  rows — without it, flex stretch left the 47px marks (HP, PCL) misaligned
+  against the 19px wordmarks.
+- **`ScrollFillText`** — per-character scroll-driven colour fill.
+- **`Manifesto` is now a scroll-pinned scene.** `scene.pinLength` viewport
+  heights of scroll; a sticky panel holds the frame while progress drives the
+  letter fill and the three images entering from the right. Both are scheduled
+  to land together at `scene.fill.end` (0.9), with a short hold before release.
+- **`tokens.motion.scene`** — the whole schedule in one place. Raising
+  `pinLength` slows the scene without touching sub-timings.
+
+### Fixed during this pass
+
+- **A non-breaking space (`\xa0`) got into `ScrollFillText`'s word separator**,
+  which would have stopped the paragraph wrapping entirely. Caught because a
+  string replace failed to match; worth knowing that heredoc-authored source can
+  pick these up invisibly.
+- **Fill finished after the images.** Characters were scheduled across the full
+  `[start, end]` range and then had `feather` added, so the last character
+  completed at `end + feather`. The tail feather is now reserved, so the last
+  character lands exactly on `end` — the same point the last image arrives.
+- **Image stack was oversized**, filling the 600px grid column. Figma's frames
+  are ~417x494 sitting right-of-centre (node 3390:26679 spans x=911..1328), so
+  the stack is now capped at 420px and right-aligned.
+
+### Verification: headless cannot drive scroll-linked motion
+
+Every scroll-linked feature in this project — the parallax shipped in v1
+included — had never actually been verified, and this pass showed why.
+
+Under `--headless` with `--virtual-time-budget`, Framer Motion's `useScroll`
+**never fires**. Confirmed it was not a component bug by probing both
+target-based and page-wide `useScroll` in the same render: neither emitted a
+single change event, whether scrolled by `window.scrollTo`, by assigning
+`scrollTop`, or by an rAF loop stepping the position over 20s of virtual time.
+Programmatic scroll is not enough.
+
+The workaround is to drive **real input** over the DevTools protocol. Chrome is
+launched with `--remote-debugging-port`, and a dependency-free Node script
+(Node 24 has global `WebSocket` and `fetch`) calls
+`Input.synthesizeScrollGesture`, then reads state via `Runtime.evaluate` and
+captures with `Page.captureScreenshot`. With a real gesture, progress tracks
+correctly and the whole scene can be measured frame by frame:
+
+```
+y=1050  p=0.099  filled=0/111    images=1,0,0
+y=1400  p=0.330  filled=30/111   images=1,0,0
+y=1750  p=0.561  filled=63/111   images=1,1,0
+y=2250  p=0.892  filled=109/111  images=1,1,1
+y=2320  p=0.938  filled=111/111  images=1,1,1
+```
+
+The driver is committed at `scripts/scroll-verify.mjs`; the method is written
+up in SCALING_GUIDE. **Do not conclude a scroll animation is broken from a headless
+screenshot** — that mistake was made twice in this session before measuring.

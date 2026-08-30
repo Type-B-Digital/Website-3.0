@@ -91,6 +91,7 @@ export default {
         'on-dark': colors.text.onDark,
         'on-dark-muted': colors.text.onDarkMuted,
         'on-light': colors.text.onLight,
+        'on-dark-dim': colors.text.onDarkDim,
       },
       borderColor: {
         'on-dark': colors.border.onDark,

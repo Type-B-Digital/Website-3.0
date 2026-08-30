@@ -166,6 +166,30 @@ npx vite preview --port 4173 &
 `--force-prefers-reduced-motion` is not optional: without it, `Reveal` content
 below the fold captures at `opacity: 0` and the screenshot is useless.
 
+### Verifying scroll-linked motion
+
+Screenshots cannot verify anything driven by `useScroll` — parallax, the pinned
+manifesto scene. Under headless with a virtual time budget, Framer's scroll
+tracking never fires, no matter how you scroll the page from JavaScript. It is
+not a bug in the component; it is the harness.
+
+Drive real input over the DevTools protocol instead:
+
+```bash
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --headless=new --disable-gpu --hide-scrollbars \
+  --remote-debugging-port=9222 --window-size=1440,900 \
+  --user-data-dir=/tmp/chrome-profile http://localhost:5173/ &
+node scripts/scroll-verify.mjs /tmp/out 1050 1400 1750 2100 2450
+```
+
+`scripts/scroll-verify.mjs` connects over WebSocket (Node 18+ has it globally,
+no dependencies),
+calls `Input.synthesizeScrollGesture` to scroll for real, then reads state with
+`Runtime.evaluate` and captures with `Page.captureScreenshot`. Reading computed
+styles at each stop — how many characters are white, each image's opacity — is
+far more useful than eyeballing frames.
+
 ---
 
 ## Things that will bite

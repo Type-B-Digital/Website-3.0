@@ -90,6 +90,7 @@
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-tag: 12px; /* off-board; see tokens/index.ts */
+  --spacing-logo-gap: 93px; /* off-board; Figma node 3390:26570 */
   --spacing-md: 16px;
   --spacing-lg: 24px;
   --spacing-xl: 32px;
@@ -177,6 +178,7 @@
   --color-text-on-dark-muted: var(--color-neutral-50);
   --color-text-on-light: var(--color-neutral-900);
   --color-text-accent: var(--color-accent-400);
+  --color-text-on-dark-dim: var(--color-neutral-800);
   --color-border-on-dark: rgba(246, 246, 246, 0.4);
   --color-border-on-dark-subtle: rgba(246, 246, 246, 0.24);
   --color-border-on-light: rgba(7, 27, 39, 0.24);
