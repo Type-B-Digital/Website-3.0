@@ -42,7 +42,7 @@
 
   --font-size-h1: 72px;
   --font-size-h2: 48px;
-  --font-size-h3: 48px;
+  --font-size-h3: 40px;
   --font-size-display: 64px;
   --font-size-sub-header-large: 32px;
   --font-size-sub-header-small: 24px;
@@ -57,6 +57,34 @@
   --line-height-tight: 1.2;
   --line-height-relaxed: 1.5;
   --letter-spacing-nav: -0.01em;
+
+  /* --- gradients (Figma "Type B BG 1-8", node 3430:*) ------------- */
+  --gradient-b1: linear-gradient(
+    230.52deg,
+    #040e19 3.19%,
+    #447e87 54.91%,
+    #fab26c 85.88%,
+    #fab296 110.67%
+  );
+  --gradient-b2: linear-gradient(
+    230.49deg,
+    #f6f2ec 16.18%,
+    #fab26c 53.93%,
+    #fd7340 80.9%,
+    #343c43 107.86%
+  );
+  --gradient-b3: linear-gradient(50.55deg, #040e19 0%, #17616e 63.82%, #f6f2ec 127.63%);
+  --gradient-b4: linear-gradient(230.54deg, #040e19 0%, #fd7340 75.52%, #fab26c 115.5%);
+  --gradient-b5: linear-gradient(50.55deg, #17616e 0%, #c9d5d3 63.82%, #f6f2ec 127.63%);
+  --gradient-b6: linear-gradient(230.53deg, #f6f2ec 0%, #fb936b 53.37%, #fc9d41 100%);
+  --gradient-b7: linear-gradient(50.6deg, #995717 0%, #fd8816 53.34%, #f6f2ec 106.67%);
+  --gradient-b8: linear-gradient(
+    230.53deg,
+    #f6f2ec 0%,
+    #f9c896 30.73%,
+    #c6c4c2 63.94%,
+    #709ba0 100%
+  );
 
   /* --- spacing (Figma: spacing-vertical, node 3386:25418) --------- */
   --spacing-xs: 4px;

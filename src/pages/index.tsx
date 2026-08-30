@@ -24,6 +24,7 @@ import {
   Typography,
 } from '@/components'
 import type { CardCrop } from '@/components'
+import CaretDown from '@/components/icons/CaretDown'
 
 /* ================================================================== *
  * CONTENT
@@ -154,14 +155,7 @@ function SiteHeader() {
                   className="flex items-center gap-xs text-nav-link text-on-dark-muted transition-opacity duration-fast ease-out hover:opacity-muted"
                 >
                   {link}
-                  <img
-                    src="/icons/caret-down.svg"
-                    alt=""
-                    aria-hidden="true"
-                    width={24}
-                    height={24}
-                    className="size-lg"
-                  />
+                  <CaretDown className="size-lg shrink-0" />
                 </a>
               </li>
             ))}
@@ -176,10 +170,28 @@ function SiteHeader() {
   )
 }
 
-/** Figma: "Frame 1000003409" — node 3390:26582 */
+/**
+ * Figma: "Frame 1000003409" — node 3390:26582
+ * Background: gradient `b1` — Figma style "Type B BG 1", node 3430:26778
+ *
+ * Fills the viewport, full-bleed, so the hero is the whole first screen and the
+ * next band arrives on scroll.
+ *
+ * `min-h-screen` (100vh) is the conventional desktop unit and resolves to the
+ * exact viewport height. Once a mobile design exists, `100svh` is the better
+ * choice there — it avoids the hero overshooting by the height of a collapsing
+ * URL bar.
+ *
+ * `tone="dark"` still applies `bg-canvas` underneath: the gradient is a
+ * background-image over it, so the ink ground is the fallback if it fails.
+ */
 function Hero() {
   return (
-    <Section tone="dark" spacing="none" className="pb-4xl pt-[calc(theme(spacing.4xl)*2)]">
+    <Section
+      tone="dark"
+      spacing="none"
+      className="flex min-h-screen items-center bg-gradient-b1 py-4xl"
+    >
       <div className="mx-auto flex max-w-[880px] flex-col items-center gap-3xl text-center">
         <div className="flex flex-col items-center gap-md">
           <Reveal>

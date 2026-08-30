@@ -1,5 +1,6 @@
 import type { ComponentPropsWithoutRef, ElementType, ReactNode } from 'react'
 import { cn } from '@/lib/cn'
+import ArrowRight from './icons/ArrowRight'
 
 /**
  * Button — the site's CTA in its three weights.
@@ -64,16 +65,8 @@ export function Button<T extends ElementType = 'button'>({
   return (
     <Component className={cn(base, variantClasses[variant][tone], className)} {...rest}>
       <span>{children}</span>
-      {icon && (
-        <img
-          src="/icons/arrow-right.svg"
-          alt=""
-          aria-hidden="true"
-          width={24}
-          height={24}
-          className="size-lg shrink-0"
-        />
-      )}
+      {/* Inherits the label colour via currentColor — see icons/ArrowRight. */}
+      {icon && <ArrowRight className="size-lg shrink-0" />}
     </Component>
   )
 }

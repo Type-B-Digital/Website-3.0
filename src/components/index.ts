@@ -9,6 +9,9 @@ export { default as Section } from './Section'
 export { default as Tag } from './Tag'
 export { default as Typography } from './Typography'
 
+export { default as ArrowRight } from './icons/ArrowRight'
+export { default as CaretDown } from './icons/CaretDown'
+
 export type { ButtonProps, ButtonTone, ButtonVariant } from './Button'
 export type { CardAspect, CardCrop, CardProps } from './Card'
 export type { ContainerProps } from './Container'

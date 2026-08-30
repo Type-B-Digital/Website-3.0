@@ -48,9 +48,10 @@ brief; `postcss.config.js` points at it explicitly.
 
 These are in the design, not the code. Each needs a design decision.
 
-1. **`h2` and `h3` are identical.** Both 48px/600 (nodes 3370:24754, 3386:25398).
-   The board labels the third sample `text-header-4`, suggesting a renumbering
-   that was never finished. Kept as two tokens so a fix lands in one place.
+1. ~~**`h2` and `h3` are identical.**~~ **RESOLVED 2026-08-30.** Both were
+   48px/600. The board update set `h3` to 40px and renamed the sample
+   `text-header-4` → `text-header-3`. Because they were separate tokens from the
+   start, the fix was one line in `tokens/index.ts`.
 
 2. **Tag label uses a different typeface.** The board sample (3383:25393) is
    **Inter Medium 12px**; every tag on the page (3390:26452 et al.) is **Reddit
@@ -152,3 +153,55 @@ entirely and shows true layout.
   `.gap-4xl{gap:80px}`, `.rounded-pill{border-radius:24px}`)
 - All three mood ramps present and distinct under `[data-mood]`
 - Rendered and visually compared against the artboard, band by band
+
+
+---
+
+## Update — 2026-08-30
+
+Hero pass, against an updated token board.
+
+### Added
+
+- **Eight gradient tokens** (`tokens.gradients`, `b1`–`b8`), from Figma styles
+  "Type B BG 1"–"Type B BG 8" (nodes 3430:26778 / 26784 / 26787 / 26792 / 26798
+  / 26801 / 27208 / 27213). Every stop resolves to an existing ramp value, so
+  they are composed from `palette` rather than restated as hex. Surfaced as
+  `bg-gradient-b1` … `bg-gradient-b8` and `--gradient-b1` … `--gradient-b8`.
+  Only `b1` is in use so far; the rest are extracted so the remaining bands and
+  the other 19 pages can reach for them without another Figma round trip.
+- **`ArrowRight` / `CaretDown`** icon components in `src/components/icons/`.
+
+### Changed
+
+- **Hero** is now full-bleed, full-viewport (`min-h-screen`), with `b1` as its
+  background. `tone="dark"` still applies `bg-canvas` beneath, so the ink ground
+  is the fallback. The next band arrives on normal scroll.
+- **`h3`: 48px → 40px.** See resolved inconsistency 1.
+- **Icons inherit `currentColor`.** Figma's exported SVGs bake in a fixed stroke
+  (`#040E19` on the arrow, `#F6F2EC` on the caret). The arrow was therefore dark
+  on dark grounds and effectively invisible in the secondary CTA — the defect
+  that prompted this change. Inlining the same path data with
+  `stroke="currentColor"` makes one component correct in every variant: light
+  arrow on the secondary CTA, dark arrow on the primary. `public/icons/
+  arrow-right.svg` and `caret-down.svg` are now unreferenced by the app.
+
+### A measurement worth recording
+
+The hero appeared to fall 88px short of the fold in headless screenshots. Two
+wrong diagnoses before the right one:
+
+1. Blamed `100svh` reserving mobile browser chrome. Switched to `100vh` — the
+   shortfall was unchanged, so that was wrong.
+2. Concluded it was a real layout bug, on the strength of a control page whose
+   plain `min-height:100vh` box filled its viewport exactly.
+
+Measuring the live DOM settled it: `window.innerHeight` was **813**, and the
+hero's computed height was **813** at `top: 0`. The hero fills the viewport
+exactly; the CSS was correct all along. Chrome's `--screenshot` had captured a
+900px-tall image from an 813px layout viewport, so the extra 87px of the next
+section in the image was below the real fold.
+
+**Screenshot dimensions are not viewport dimensions.** When a headless capture
+disagrees with expected layout, measure `window.innerHeight` against
+`getBoundingClientRect()` before changing any CSS.

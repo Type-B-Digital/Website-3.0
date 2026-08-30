@@ -92,7 +92,7 @@ Family: **Reddit Sans** (Google Fonts, variable 200–900), loaded in `globals.c
 |---|---|---|---|---|
 | `h1` | 72px | 1.2 | 600 | 3369:24533 |
 | `h2` | 48px | 1.2 | 600 | 3370:24754 |
-| `h3` | 48px | 1.2 | 600 | 3386:25398 |
+| `h3` | 40px | 1.2 | 600 | 3386:25398 |
 | `display` | 64px | 1.2 | 600 | 3390:26562 |
 | `subHeaderLarge` | 32px | 1.5 | 400 | 3386:25396 |
 | `subHeaderSmall` | 24px | 1.5 | 400 | 3373:24762 |
@@ -105,11 +105,39 @@ Family: **Reddit Sans** (Google Fonts, variable 200–900), loaded in `globals.c
 | `button` | 16px | 1.2 | 600 | 3369:24490 |
 | `navLink` | 16px | 1.2 | 400 (−0.01em) | 3390:26615 |
 
-> **`h2` and `h3` are identical** (both 48px/600) in the Figma file. Kept as two
-> tokens so a future correction lands in one place. See BUILD_LOG.
+> `h3` was 48px — identical to `h2` — until the 2026-08-30 board update, which
+> set it to 40px and renamed the sample `text-header-4` → `text-header-3`.
+> Keeping them as separate tokens meant the correction was a one-line change.
 
 Tailwind classes are kebab-cased: `text-h1`, `text-sub-header-large`,
 `text-copy-medium`, `text-nav-link`.
+
+---
+
+## Gradients — `gradients`
+
+Eight background gradients, added to the board **2026-08-30**. Figma styles
+**"Type B BG 1"–"Type B BG 8"**.
+
+Every stop is an existing ramp value, so `tokens.gradients` composes them from
+`palette` rather than restating hex. Tailwind exposes them as
+`bg-gradient-b1` … `bg-gradient-b8`; CSS as `--gradient-b1` … `--gradient-b8`.
+
+| Token | Node | Angle | Ramp stops | In use |
+|---|---|---|---|---|
+| `b1` | 3430:26778 | 230.52° | neutral900 → turquoise400 → amber300 → orange200 | **Hero background** |
+| `b2` | 3430:26784 | 230.49° | neutral50 → amber300 → orange400 → neutral800 | — |
+| `b3` | 3430:26787 | 50.55° | neutral900 → turquoise500 → neutral50 | — |
+| `b4` | 3430:26792 | 230.54° | neutral900 → orange400 → amber300 | — |
+| `b5` | 3430:26798 | 50.55° | turquoise500 → turquoise100 → neutral50 | — |
+| `b6` | 3430:26801 | 230.53° | neutral50 → orange300 → amber400 | — |
+| `b7` | 3430:27208 | 50.60° | amber700 → amber500 → neutral50 | — |
+| `b8` | 3430:27213 | 230.53° | neutral50 → amber200 → neutral200 → turquoise300 | — |
+
+> Several gradients have final stops **beyond 100%** (b1 at 110.67%, b3 at
+> 127.63%). That is intentional in the design — Figma extends the ramp past the
+> box so the last colour is approached but never fully reached. Do not
+> "normalise" these to 100%; it changes the rendered colour.
 
 ---
 

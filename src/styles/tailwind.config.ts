@@ -13,6 +13,7 @@ import {
   breakpoints,
   colors,
   fontFamily,
+  gradients,
   fontWeight,
   layout,
   motion,
@@ -113,6 +114,11 @@ export default {
         content: layout.maxWidth,
         frame: layout.frameWidth,
       },
+      // `bg-gradient-b1` … `bg-gradient-b8`. Distinct from Tailwind's built-in
+      // `bg-gradient-to-*` direction utilities, which stay available.
+      backgroundImage: Object.fromEntries(
+        Object.entries(gradients).map(([name, value]) => [`gradient-${name}`, value]),
+      ),
       transitionDuration,
       transitionTimingFunction,
     },

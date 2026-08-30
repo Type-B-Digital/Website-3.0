@@ -145,6 +145,26 @@ found in review, see BUILD_LOG.
 
 ---
 
+## Icons
+
+`src/components/icons/` — `ArrowRight` (node 3369:24491), `CaretDown` (node 3390:26616).
+
+Both are **inlined SVG with `stroke="currentColor"`**, not `<img>` tags. The
+assets Figma exports bake in a fixed stroke (`#040E19` on the arrow, `#F6F2EC`
+on the caret), so a single exported file cannot serve both light and dark
+grounds — the arrow rendered dark-on-dark and was invisible in the secondary
+CTA. Inheriting `currentColor` means the icon always matches the label beside
+it, in every variant, with no per-tone asset.
+
+Path data is the exported asset's, unmodified; the 24×24 box and 2px
+round-capped stroke are preserved exactly.
+
+```tsx
+<ArrowRight className="size-lg shrink-0" />
+```
+
+---
+
 ## Inventory
 
 | File | Lines | Figma node |
@@ -159,3 +179,5 @@ found in review, see BUILD_LOG.
 | `Section.tsx` | ~70 | 2761:1214 |
 | `Tag.tsx` | ~30 | 3383:25393 |
 | `Typography.tsx` | ~100 | 3366:23051 |
+| `icons/ArrowRight.tsx` | ~40 | 3369:24491 |
+| `icons/CaretDown.tsx` | ~35 | 3390:26616 |

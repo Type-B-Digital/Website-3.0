@@ -89,6 +89,55 @@ export const unmapped = {
 } as const
 
 /* ------------------------------------------------------------------ *
+ * GRADIENTS
+ *
+ * Eight background gradients, added to the token board on 2026-08-30.
+ * Figma styles "Type B BG 1"–"Type B BG 8" — nodes 3430:26778 / 26784 / 26787 /
+ * 26792 / 26798 / 26801 / 27208 / 27213.
+ *
+ * Every stop is an existing ramp value, so these are composed from `palette`
+ * rather than restated as hex. Angles and stop positions are Figma's, rounded
+ * to 2dp. Stops beyond 100% are intentional — Figma extends the ramp past the
+ * box so the final colour is approached but never fully reached.
+ * ------------------------------------------------------------------ */
+export const gradients = {
+  /** Ink -> turquoise -> amber -> peach. Hero background. */
+  b1:
+    `linear-gradient(230.52deg, ${palette.neutral[900]} 3.19%, ${palette.turquoise[400]} 54.91%, ` +
+    `${palette.amber[300]} 85.88%, ${palette.orange[200]} 110.67%)`,
+  /** Cream -> amber -> orange -> slate. */
+  b2:
+    `linear-gradient(230.49deg, ${palette.neutral[50]} 16.18%, ${palette.amber[300]} 53.93%, ` +
+    `${palette.orange[400]} 80.90%, ${palette.neutral[800]} 107.86%)`,
+  /** Ink -> deep turquoise -> cream. */
+  b3:
+    `linear-gradient(50.55deg, ${palette.neutral[900]} 0%, ${palette.turquoise[500]} 63.82%, ` +
+    `${palette.neutral[50]} 127.63%)`,
+  /** Ink -> orange -> amber. */
+  b4:
+    `linear-gradient(230.54deg, ${palette.neutral[900]} 0%, ${palette.orange[400]} 75.52%, ` +
+    `${palette.amber[300]} 115.50%)`,
+  /** Deep turquoise -> pale turquoise -> cream. */
+  b5:
+    `linear-gradient(50.55deg, ${palette.turquoise[500]} 0%, ${palette.turquoise[100]} 63.82%, ` +
+    `${palette.neutral[50]} 127.63%)`,
+  /** Cream -> coral -> amber. */
+  b6:
+    `linear-gradient(230.53deg, ${palette.neutral[50]} 0%, ${palette.orange[300]} 53.37%, ` +
+    `${palette.amber[400]} 100%)`,
+  /** Burnt amber -> bright amber -> cream. */
+  b7:
+    `linear-gradient(50.60deg, ${palette.amber[700]} 0%, ${palette.amber[500]} 53.34%, ` +
+    `${palette.neutral[50]} 106.67%)`,
+  /** Cream -> sand -> warm grey -> turquoise. */
+  b8:
+    `linear-gradient(230.53deg, ${palette.neutral[50]} 0%, ${palette.amber[200]} 30.73%, ` +
+    `${palette.neutral[200]} 63.94%, ${palette.turquoise[300]} 100%)`,
+} as const
+
+export type GradientToken = keyof typeof gradients
+
+/* ------------------------------------------------------------------ *
  * MOOD — accent selection
  *
  * Homepage v1 ships `deep`. The other two ramps are already extracted, so
@@ -186,10 +235,10 @@ export const typography = {
   h2: { fontSize: '48px', lineHeight: 1.2, fontWeight: fontWeight.semibold },
   /**
    * Figma: "Header 3" — node 3386:25398.
-   * NOTE: identical to h2 in the file (both 48px/600). Kept as a distinct token
-   * so a future correction in Figma lands here and nowhere else.
+   * Was 48px (identical to h2); corrected to 40px in the Aug 30 2026 board
+   * update, along with the sample being renamed text-header-4 -> text-header-3.
    */
-  h3: { fontSize: '48px', lineHeight: 1.2, fontWeight: fontWeight.semibold },
+  h3: { fontSize: '40px', lineHeight: 1.2, fontWeight: fontWeight.semibold },
   /** Full-bleed CTA band headline. Figma: 3390:26562 */
   display: { fontSize: '64px', lineHeight: 1.2, fontWeight: fontWeight.semibold },
   /** Figma: "Sub-Header Large" — node 3386:25396 */
@@ -348,6 +397,7 @@ export const elevation = {
 export const tokens = {
   palette,
   unmapped,
+  gradients,
   moods,
   colors,
   opacity,
