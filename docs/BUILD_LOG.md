@@ -444,3 +444,59 @@ They previously sat in a three-column grid in their own band.
 `scripts/scroll-verify.mjs` now accepts pointer stops (`3600@950,380`) — a
 screenshot without a real `mouseMoved` event only ever shows the blob at rest.
 It also reports `glowGround` so the crossfade can be measured rather than eyeballed.
+
+
+---
+
+## Update — 2026-08-31: introduction to highlight transition
+
+The seam between the introduction scene and the highlight section was visible as
+a hard horizontal line. Two separate causes, both fixed.
+
+### The line itself
+
+The highlight section's glow is clipped by the section's own box. While the
+section is still climbing into view, that clip is a hard edge straight across
+the viewport — the band above it is plain canvas, and the glow simply starts.
+
+Fixed by fading the whole scene in against its ENTRY progress. Note that
+`scrollYProgress` with `offset: ['start start', 'end end']` is clamped at 0
+until the panel pins, so it cannot describe the section rising into view at all;
+this needs a second tracker with `offset: ['start end', 'start start']`.
+
+The fade is deliberately late and short — `[0.88, 1]`. While the section climbs
+it is fully hidden and therefore indistinguishable from the canvas above it;
+it arrives over the last stretch. Widening that range brings the edge back: at
+`[0.55, 0.98]` the glow was already at 65% opacity while the boundary was still
+mid-viewport, which is exactly the artefact being removed.
+
+### Handing off the scroll
+
+`src/lib/useAutoAdvance.ts`. Once the introduction scene has finished playing,
+the next downward scroll goes to the top of the highlight section rather than
+leaving the visitor parked where both sections are half visible.
+
+It takes over one gesture, so it is scoped narrowly:
+
+- arms only once the scene is essentially complete (`armAt`, default 0.995)
+- ignores the gesture that armed it — a `settleDelay` means a fresh scroll is
+  required, not the tail of the one in progress
+- fires once, then disarms; scrolling back above `disarmBelow` re-arms it
+- never triggers on an upward scroll
+- disabled entirely under reduced motion (where nothing is pinned anyway)
+
+Verified with real input gestures:
+
+```
+scroll +120 -> 2220     (introduction still playing)
+scroll +120 -> 2340     (scene complete, armed)
+scroll +120 -> 3028     <- advanced to the highlight section
+scroll +120 -> 3148     (normal scrolling resumes, no further hijack)
+```
+
+and in reverse, that it does not fight the visitor:
+
+```
+up   -> 2778, 2528, 2278, 2028   (free)
+down -> 2228, 2428, 3028         (re-armed, advanced once more)
+```

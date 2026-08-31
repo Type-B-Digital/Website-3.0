@@ -38,6 +38,7 @@ import type { CardCrop } from '@/components'
 import ScrollFillText from '@/components/ScrollFillText'
 import CaretDown from '@/components/icons/CaretDown'
 import { cn } from '@/lib/cn'
+import useAutoAdvance from '@/lib/useAutoAdvance'
 import { colors as colorTokens, motion as motionTokens } from '@/tokens'
 
 /* ================================================================== *
@@ -119,6 +120,8 @@ const CLIENT_LOGOS = [
  * Figma: the component (node 3390:26748) sits at x=-26 with the words inset
  * 12.74% into its 1153.7px width, i.e. x=121 in the 1440 frame, 1006.72 wide.
  */
+const HIGHLIGHT_ID = 'highlight'
+
 const BBB_ARTWORK = {
   aspect: 1006.72 / 622.344,
   widthRatio: 1006.72 / 1440,
@@ -426,6 +429,15 @@ function Manifesto() {
     offset: ['start start', 'end end'],
   })
 
+  // Once the copy has filled and the stack has landed, the next scroll carries
+  // the visitor to the highlight section rather than leaving them parked in the
+  // half-and-half state where both sections are visible at once.
+  useAutoAdvance({
+    progress: scrollYProgress,
+    targetId: HIGHLIGHT_ID,
+    enabled: !prefersReduced,
+  })
+
   const stack = (
     <div
       data-scene="manifesto-stack"
@@ -531,6 +543,26 @@ function BoldBrilliantBeautiful() {
     offset: ['start start', 'end end'],
   })
 
+  /**
+   * A second tracker for the ENTRY phase — `scrollYProgress` above is clamped at
+   * 0 until the panel pins, so it cannot describe the section rising into view.
+   *
+   * This matters: the glow is clipped by the section's own box, so while the
+   * section is still climbing there is a hard horizontal edge where the glow
+   * stops. Fading the whole scene in as it arrives means the section reads as
+   * plain canvas during entry — identical to the band above it — and the edge
+   * never appears.
+   */
+  const { scrollYProgress: entryProgress } = useScroll({
+    target: sceneRef,
+    offset: ['start end', 'start start'],
+  })
+  // Deliberately late and short: the scene stays fully hidden while the section
+  // climbs, so during entry it is indistinguishable from the canvas band above
+  // it, then arrives over the last stretch. Widening this range brings the
+  // clipped-glow edge back.
+  const entryOpacity = useTransform(entryProgress, [0.88, 1], [0, 1])
+
   // Pointer in panel pixels. The springs are what make the blob trail the
   // cursor with weight instead of snapping to it.
   const rawX = useMotionValue(0)
@@ -602,7 +634,7 @@ function BoldBrilliantBeautiful() {
   // Reduced motion: no pin, no crossfade, blob parked at its resting spot.
   if (prefersReduced) {
     return (
-      <section className="relative min-h-screen w-full overflow-hidden bg-canvas text-on-dark">
+      <section id={HIGHLIGHT_ID} className="relative min-h-screen w-full overflow-hidden bg-canvas text-on-dark">
         <div ref={panelRef} className="absolute inset-0">
           {words}
           {stats}
@@ -613,6 +645,7 @@ function BoldBrilliantBeautiful() {
 
   return (
     <div
+      id={HIGHLIGHT_ID}
       ref={sceneRef}
       className="relative"
       style={{ height: `${glowScene.pinLength * 100}vh` }}
@@ -623,9 +656,11 @@ function BoldBrilliantBeautiful() {
         className="sticky top-0 h-screen w-full overflow-hidden text-on-dark"
         style={{ backgroundColor: background }}
       >
-        <fm.div className="absolute inset-0" style={{ opacity: contentOpacity }}>
-          {words}
-          {stats}
+        <fm.div className="absolute inset-0" style={{ opacity: entryOpacity }}>
+          <fm.div className="absolute inset-0" style={{ opacity: contentOpacity }}>
+            {words}
+            {stats}
+          </fm.div>
         </fm.div>
       </fm.div>
     </div>
