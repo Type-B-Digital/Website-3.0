@@ -577,3 +577,62 @@ still. That reads as "swipes as you scroll" and does not take over the scroll �
 but it does mean the start and end states are only briefly at rest. If the full
 travel should dwell, this wants the same sticky treatment as the introduction and
 highlight scenes; it is a contained change to `ScrollTrack`.
+
+
+---
+
+## Update — 2026-08-31: "We solve real problems" hover interaction
+
+Hovering a case study now shows its thumbnail large in the left column and puts
+a heavy scrim plus a "Learn more" CTA over the row's own thumbnail.
+
+The hover state was already drawn on the artboard, which gave exact values
+rather than guesses: row 1's thumbnail carries `rgba(4, 14, 25, 0.8)` — neutral
+900 at 80%, added as `colors.background.scrimStrong` — and the CTA is node
+3390:26633, a tertiary button centred on the thumbnail.
+
+### No preview at rest
+
+The left column is empty below the "View our work" CTA until a row is hovered.
+The artboard *does* include a `card-horizontal-medium` there (node 3390:26538),
+and the previous build showed it permanently; the prototype makes clear it only
+appears on hover. The box stays in the layout at 519x311 so nothing reflows when
+an image arrives — only the image fades.
+
+### Focus does what hover does
+
+`onFocus`/`onBlur` set the same state as `onMouseEnter`/`onMouseLeave`, so the
+preview works for anyone tabbing the list. The "Learn more" CTA renders as
+`as="span"` — it sits inside the row's own anchor, and a nested link would be
+invalid.
+
+Leaving a row only clears the preview if the row leaving is the one that set it.
+Without that check, moving between adjacent rows blanks the preview on the way
+past.
+
+### Six thumbnails, and another round of export failures
+
+Every row was sharing one image, which made the hover preview identical whichever
+row you were on. Getting the six real ones took three attempts:
+
+1. **Fill exports.** Three of six (rows 2, 3, 5) came back as **single-colour
+   images** — the same failure as `image-stack-3` earlier. Those rows rendered
+   with no visible thumbnail at all against the white ground.
+2. **Node renders** (`get_screenshot`) return the real artwork, but only at the
+   node's natural 201x120. Figma will not upscale a render, and 201px is far too
+   small for the 519px preview.
+3. **`download_assets` with `defaultScale: 4`** renders the node *as composed* at
+   804x480. That is the one to reach for when a fill export is degenerate and the
+   node is small.
+
+Row 4 needed the same treatment for a different reason: its thumbnail is a
+composite (a gradient behind a masked photo, node 3390:26499), not a single
+fill. Using the underlying photo directly lost the dark backing and the row read
+as a pale smear against the white page.
+
+**Rule of thumb for this file: if a fill export looks degenerate — one colour,
+solid black, a few KB for a large canvas — go to `download_assets` at scale 4
+rather than trusting the fill.**
+
+`public/images/work-feature.png` is deleted; it was only there for the
+always-on left image.

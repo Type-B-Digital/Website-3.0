@@ -11,8 +11,9 @@
  * breakpoint below `xl` is an engineering interpretation, not a reproduction of a
  * design. See docs/BUILD_LOG.md § Open questions.
  */
-import { useLayoutEffect, useRef, type PointerEvent as ReactPointerEvent } from 'react'
+import { useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import {
+  AnimatePresence,
   motion as fm,
   useMotionValue,
   useReducedMotion,
@@ -167,7 +168,16 @@ const STAGES = [
   { title: 'Enterprise & Mid Market', src: '/images/stage-enterprise.png' },
 ]
 
-/** Figma: nodes 3390:26445 … 26519 */
+/**
+ * Figma: nodes 3390:26445 … 26519. Each row has its OWN thumbnail — they were
+ * all sharing one image, which made the hover preview identical whichever row
+ * you were on.
+ *
+ * Three of the six fills (rows 2, 3 and 5) export from Figma as single-colour
+ * images, and row 4's thumbnail is a composite rather than one fill. All four
+ * come from `download_assets` at scale 4 instead, which renders the node as
+ * composed — see docs/BUILD_LOG.md.
+ */
 const CASE_STUDIES = [
   { name: 'Medtronic', description: 'Daily payout on autopilot mode.' },
   { name: 'Ferry', description: 'Project description and details here.' },
@@ -175,7 +185,11 @@ const CASE_STUDIES = [
   { name: 'Project Name', description: 'Project description and details here.' },
   { name: 'Project Name', description: 'Project description and details here.' },
   { name: 'Project Name', description: 'Project description and details here.' },
-].map((c) => ({ ...c, tags: ['Tag 1', 'Tag 2', 'Tag 3'], thumb: '/images/work-feature.png' }))
+].map((c, i) => ({
+  ...c,
+  tags: ['Tag 1', 'Tag 2', 'Tag 3'],
+  thumb: `/images/work/case-${i + 1}.png`,
+}))
 
 /** Figma: node 3390:26751 — the accent word alternates with the cream one. */
 const OFFERINGS = [
@@ -754,8 +768,30 @@ function Stages() {
   )
 }
 
-/** Figma: "Frame 1000003574" — node 3390:26750 */
+/**
+ * Figma: "Frame 1000003574" — node 3390:26750, hover CTA node 3390:26633.
+ *
+ * Hovering a case study on the right does two things: its thumbnail takes a
+ * heavy scrim with a "Learn more" CTA over it, and the same image appears large
+ * in the left column. There is deliberately NO preview at rest — the left
+ * column below the CTA is empty until a row is hovered.
+ *
+ * Focus drives the same state as hover, so the preview works for anyone moving
+ * through the list with a keyboard rather than a pointer.
+ */
 function Work() {
+  const [active, setActive] = useState<number | null>(null)
+  const prefersReduced = useReducedMotion()
+  const activeCase = active === null ? null : CASE_STUDIES[active]
+
+  // Only clear if the row leaving is the one that set it — otherwise moving
+  // between adjacent rows can blank the preview on the way past.
+  const clear = (index: number) => setActive((current) => (current === index ? null : current))
+
+  const transition = prefersReduced
+    ? { duration: 0 }
+    : { duration: motionTokens.duration.fast, ease: [...motionTokens.easing.out] }
+
   return (
     <Section tone="light" spacing="loose" id="work">
       <div className="grid gap-4xl lg:grid-cols-[519px_1fr]">
@@ -772,24 +808,46 @@ function Work() {
               </Button>
             </div>
           </Reveal>
-          <Reveal index={1}>
-            <ParallaxSection speed="subtle">
-              <Card
-                src="/images/work-feature.png"
-                alt="Featured project"
-                aspect="horizontalMedium"
-              />
-            </ParallaxSection>
-          </Reveal>
+
+          {/*
+            Hover preview — card-horizontal-medium, 519x311 (Figma node
+            3390:26538). The box is always in the layout so nothing reflows when
+            an image arrives; only the image itself fades.
+          */}
+          <div className="relative hidden aspect-[519/311] w-full lg:block">
+            <AnimatePresence>
+              {activeCase && (
+                <fm.div
+                  key={activeCase.thumb}
+                  className="absolute inset-0 overflow-hidden rounded-md"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={transition}
+                >
+                  <img
+                    src={activeCase.thumb}
+                    alt={`${activeCase.name} — project preview`}
+                    className="size-full object-cover"
+                  />
+                </fm.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         <ul className="flex flex-col">
-          {CASE_STUDIES.map((project, i) => (
-            <li key={`${project.name}-${i}`} className="border-b border-divider">
-              <Reveal index={i}>
+          {CASE_STUDIES.map((project, i) => {
+            const isActive = active === i
+            return (
+              <li key={`${project.name}-${i}`} className="border-b border-divider">
                 <a
                   href="#"
-                  className="flex items-center justify-between gap-lg py-md transition-opacity duration-fast ease-out hover:opacity-muted"
+                  onMouseEnter={() => setActive(i)}
+                  onMouseLeave={() => clear(i)}
+                  onFocus={() => setActive(i)}
+                  onBlur={() => clear(i)}
+                  className="flex items-center justify-between gap-lg py-md"
                 >
                   <div className="flex flex-col gap-lg">
                     <div className="flex flex-col gap-sm">
@@ -806,16 +864,30 @@ function Work() {
                       ))}
                     </div>
                   </div>
-                  <img
-                    src={project.thumb}
-                    alt=""
-                    aria-hidden="true"
-                    className="hidden h-[120px] w-[201px] shrink-0 rounded-md object-cover sm:block"
-                  />
+
+                  <div className="relative hidden h-[120px] w-[201px] shrink-0 overflow-hidden rounded-md sm:block">
+                    <img
+                      src={project.thumb}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 size-full object-cover"
+                    />
+                    {/* Scrim + CTA. `as="span"` because this sits inside the row link. */}
+                    <fm.div
+                      className="absolute inset-0 flex items-center justify-center bg-scrim-strong"
+                      initial={false}
+                      animate={{ opacity: isActive ? 1 : 0 }}
+                      transition={transition}
+                    >
+                      <Button as="span" variant="tertiary" tone="onDark">
+                        Learn more
+                      </Button>
+                    </fm.div>
+                  </div>
                 </a>
-              </Reveal>
-            </li>
-          ))}
+              </li>
+            )
+          })}
         </ul>
       </div>
     </Section>

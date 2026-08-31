@@ -168,8 +168,14 @@ export const colors = {
     chipAccent: palette.turquoise[600],
     /** Tag pill on light grounds — neutral.200 @ 40%. Figma: 3390:26451 */
     tag: 'rgba(198, 196, 194, 0.4)',
-    /** Scrim over case-study thumbnails — neutral.900 @ 40%. Figma: 3390:26457 */
+    /** Scrim over card imagery — neutral.900 @ 40%. Figma: 3390:26457 */
     scrim: 'rgba(4, 14, 25, 0.4)',
+    /**
+     * Hover scrim on a case-study thumbnail — neutral.900 @ 80%. Heavier than
+     * `scrim` because the "Learn more" label sits on top of it and has to hold
+     * contrast against photography. Figma: node 3390:26457 (hover state).
+     */
+    scrimStrong: 'rgba(4, 14, 25, 0.8)',
   },
   text: {
     /** Primary text on dark grounds. Figma: 3390:26584 */

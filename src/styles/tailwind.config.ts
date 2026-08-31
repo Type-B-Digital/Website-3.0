@@ -85,6 +85,7 @@ export default {
         canvas: colors.background.canvas,
         surface: colors.background.surface,
         scrim: colors.background.scrim,
+        'scrim-strong': colors.background.scrimStrong,
         'tag-bg': colors.background.tag,
       },
       textColor: {
