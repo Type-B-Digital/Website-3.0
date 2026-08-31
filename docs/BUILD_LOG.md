@@ -533,3 +533,47 @@ Measured curve — a symmetric S, 50% at the midpoint, settling gently:
 
 Cancellation check: interrupted 450ms in at scrollY 2611, an upward wheel left
 the visitor at 2491 rather than the 3028 target.
+
+
+---
+
+## Update — 2026-08-31: "What sets us apart" card row
+
+The row was a horizontally scrollable `overflow-x-auto` list inside a
+`Container`, which produced three problems at once: the cards were clipped at
+the content width on both sides, they needed a scrollbar to reach, and the row
+did not begin on the page margin.
+
+Rebuilt on a new `ScrollTrack` component:
+
+- **Full-bleed.** `Section` is now `bare`, so the row escapes the content width;
+  the header keeps its own `Container` and normal margins. The row begins at the
+  80px margin and runs off the right edge, which is what the artboard shows
+  (cards at x=80/514/948/1382, the last ending at 1792 in a 1440 frame).
+- **Driven by vertical scroll.** The row slides left as the section passes
+  through the viewport, over the middle 60% of that pass.
+- **No scrollbars.** There is no scroll container at all — the wrapper is
+  `overflow-hidden` and the row moves on a transform.
+
+Travel is measured rather than hard-coded: `scrollWidth + inset - viewportWidth`,
+which lands the last card exactly on the right margin at any viewport width, and
+clamps to zero when the row already fits.
+
+Verified at 1440px:
+
+```
+at rest      firstLeft  80   lastRight 1792   (starts on the margin, overflows right)
+fully moved  firstLeft -352  lastRight 1360   (last card on the 80px right margin)
+travel       432px = 1792 - 1360
+scrollers    []                               (no scrollable element in the section)
+docScrollW   1440 = innerWidth                (no horizontal page overflow)
+```
+
+Under reduced motion the items wrap into rows instead of sliding, so all four
+cards stay reachable without a scrollbar and without a transform.
+
+**Not pinned.** The row drifts as the section passes rather than holding the page
+still. That reads as "swipes as you scroll" and does not take over the scroll —
+but it does mean the start and end states are only briefly at rest. If the full
+travel should dwell, this wants the same sticky treatment as the introduction and
+highlight scenes; it is a contained change to `ScrollTrack`.

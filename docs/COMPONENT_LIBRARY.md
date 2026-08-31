@@ -174,6 +174,37 @@ only per-frame work is a composited translate. Geometry is measured with a
 `ResizeObserver` rather than expressed in percentages, because the mask, the
 solid layer and the blob all have to agree on one coordinate space.
 
+### `ScrollTrack`
+A row that starts flush with the page margin, runs off the right edge, and
+slides left as the page scrolls past it.
+
+| Prop | Default | Notes |
+|---|---|---|
+| `inset` | `spacing.4xl` (80px) | Page margin the row starts at |
+| `gapClassName` | `'gap-lg'` | Gap between items |
+| `range` | `[0.2, 0.8]` | Fraction of the row's viewport pass spent moving |
+
+Figma draws these rows overflowing the 1440 frame — the four "What sets us
+apart" cards sit at x=80/514/948/1382 with the last ending at 1792. That
+overflow is the intent, so the row is full-bleed rather than clipped to the
+content width.
+
+**Travel is measured, not hard-coded:** `scrollWidth + inset - viewportWidth`.
+That lands the last item exactly on the right margin at the end of the movement
+at any viewport width, and clamps to zero when the row already fits, so a wide
+display simply shows it static.
+
+There is no scroll container and therefore no scrollbar — the wrapper is
+`overflow-hidden` and the row moves on a transform. Under reduced motion the
+items wrap instead, so everything stays reachable with neither a scrollbar nor
+a transform.
+
+```tsx
+<ScrollTrack>
+  {items.map((item) => <li key={item.id} className="w-[410px] shrink-0">…</li>)}
+</ScrollTrack>
+```
+
 ### `ScrollFillText`
 Copy that fills from dim to bright one character at a time, driven by scroll
 position rather than time.

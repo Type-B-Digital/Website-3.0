@@ -30,6 +30,7 @@ import {
   Marquee,
   ParallaxSection,
   Reveal,
+  ScrollTrack,
   Section,
   Tag,
   Typography,
@@ -671,43 +672,49 @@ function BoldBrilliantBeautiful() {
 /** Figma: "Frame 1000003355" — node 3390:26429, cards nodes 3390:26539 … 26549 */
 function Pillars() {
   return (
-    <Section tone="light" spacing="loose">
+    // `bare` so the card row can run full-bleed past the content width; the
+    // header keeps its own Container and normal 80px margins.
+    <Section tone="light" spacing="loose" bare>
       <div className="flex flex-col gap-3xl">
-        <Reveal>
-          <div className="flex flex-col items-start gap-lg lg:flex-row lg:items-center">
-            <div className="flex flex-1 flex-col items-start gap-md">
-              <Eyebrow tone="onLight">We do things different</Eyebrow>
-              <Typography variant="h2" className="text-h3 md:text-h2">
-                What sets us apart
+        <Container>
+          <Reveal>
+            <div className="flex flex-col items-start gap-lg lg:flex-row lg:items-center">
+              <div className="flex flex-1 flex-col items-start gap-md">
+                <Eyebrow tone="onLight">We do things different</Eyebrow>
+                <Typography variant="h2" className="text-h3 md:text-h2">
+                  What sets us apart
+                </Typography>
+              </div>
+              <Typography variant="copyMedium" muted className="max-w-[411px]">
+                We work AI at four layers: the tools your whole team uses every day, the data
+                pipelines that make AI possible, and the agents and products that run on top.
               </Typography>
             </div>
-            <Typography variant="copyMedium" muted className="max-w-[411px]">
-              We work AI at four layers: the tools your whole team uses every day, the data
-              pipelines that make AI possible, and the agents and products that run on top.
-            </Typography>
-          </div>
-        </Reveal>
+          </Reveal>
+        </Container>
 
-        {/* The row overflows the 1440 frame in Figma — it scrolls horizontally. */}
-        <ul className="-mx-md flex snap-x snap-mandatory gap-lg overflow-x-auto px-md pb-md xl:mx-0 xl:px-0">
-          {PILLARS.map((pillar, i) => (
-            <li key={pillar.title} className="w-[410px] shrink-0 snap-start">
-              <Reveal index={i}>
-                <Card
-                  src="/images/scene.png"
-                  alt=""
-                  crop={pillar.crop}
-                  aspect="horizontalSmall"
-                  scrim
-                >
-                  <Typography variant="subHeaderSmall" as="h3" className="text-on-dark">
-                    {pillar.title}
-                  </Typography>
-                </Card>
-              </Reveal>
+        {/*
+          Figma: cards at x=80/514/948/1382, the last ending at 1792 — past the
+          1440 frame. The row starts on the left margin and slides left as the
+          page scrolls; no scroll container, so no scrollbar.
+        */}
+        <ScrollTrack>
+          {PILLARS.map((pillar) => (
+            <li key={pillar.title} className="w-[410px] shrink-0">
+              <Card
+                src="/images/scene.png"
+                alt=""
+                crop={pillar.crop}
+                aspect="horizontalSmall"
+                scrim
+              >
+                <Typography variant="subHeaderSmall" as="h3" className="text-on-dark">
+                  {pillar.title}
+                </Typography>
+              </Card>
             </li>
           ))}
-        </ul>
+        </ScrollTrack>
       </div>
     </Section>
   )
