@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { useMotionValueEvent, type MotionValue } from 'framer-motion'
+import { animate, useMotionValueEvent, type MotionValue } from 'framer-motion'
+import { motion as motionTokens } from '@/tokens'
 
 /**
  * useAutoAdvance — once a pinned scene has finished playing, send the next
@@ -18,6 +19,13 @@ import { useMotionValueEvent, type MotionValue } from 'framer-motion'
  * - It fires once, then disarms. Scrolling back up past `disarmBelow` re-arms it
  *   so the transition still works on a second pass.
  * - Upward scrolls never trigger it.
+ * - An upward scroll DURING the move cancels it, so the visitor can always
+ *   overrule the page.
+ *
+ * The move itself is animated by hand rather than with `behavior: 'smooth'`,
+ * which exposes no duration and is far too quick for a full-viewport travel —
+ * it reads as a jump cut. Duration and easing come from
+ * `tokens.motion.autoAdvance` and `tokens.motion.easing.scroll`.
  */
 export type AutoAdvanceOptions = {
   /** Scene progress, 0-1. */
@@ -32,8 +40,8 @@ export type AutoAdvanceOptions = {
   disarmBelow?: number
   /** Ms to wait after arming before a scroll can trigger the jump. */
   settleDelay?: number
-  /** Ms to ignore scrolls for while the programmatic scroll runs. */
-  advanceDuration?: number
+  /** Seconds the move takes. Defaults to `motion.autoAdvance.duration`. */
+  duration?: number
 }
 
 export function useAutoAdvance({
@@ -43,10 +51,11 @@ export function useAutoAdvance({
   armAt = 0.995,
   disarmBelow = 0.9,
   settleDelay = 220,
-  advanceDuration = 1100,
+  duration = motionTokens.autoAdvance.duration,
 }: AutoAdvanceOptions) {
   const armedAt = useRef<number | null>(null)
   const advancing = useRef(false)
+  const playback = useRef<{ stop: () => void } | null>(null)
 
   useMotionValueEvent(progress, 'change', (value) => {
     if (value >= armAt && armedAt.current === null && !advancing.current) {
@@ -61,6 +70,13 @@ export function useAutoAdvance({
 
     let lastY = window.scrollY
 
+    const finish = () => {
+      playback.current = null
+      advancing.current = false
+      lastY = window.scrollY
+      document.documentElement.style.scrollBehavior = ''
+    }
+
     const onScroll = () => {
       const y = window.scrollY
       const scrollingDown = y > lastY
@@ -74,21 +90,51 @@ export function useAutoAdvance({
       const target = document.getElementById(targetId)
       if (!target) return
 
+      const from = window.scrollY
+      const to = target.getBoundingClientRect().top + from
+      if (Math.abs(to - from) < 2) return
+
       advancing.current = true
       armedAt.current = null
-      window.scrollTo({
-        top: target.getBoundingClientRect().top + window.scrollY,
-        behavior: 'smooth',
+
+      // The stylesheet sets `scroll-behavior: smooth` globally, which would
+      // make every per-frame scrollTo start its own animation and fight this
+      // one. Suspend it for the duration.
+      document.documentElement.style.scrollBehavior = 'auto'
+
+      playback.current = animate(from, to, {
+        duration,
+        ease: [...motionTokens.easing.scroll],
+        onUpdate: (value) => window.scrollTo(0, value),
+        onComplete: finish,
+        onStop: finish,
       })
-      window.setTimeout(() => {
-        advancing.current = false
-        lastY = window.scrollY
-      }, advanceDuration)
+    }
+
+    // An upward gesture mid-move hands control straight back to the visitor.
+    const onWheel = (event: WheelEvent) => {
+      if (advancing.current && event.deltaY < 0) playback.current?.stop()
+    }
+    const onTouch = () => playback.current?.stop()
+    const onKey = (event: KeyboardEvent) => {
+      if (['ArrowUp', 'PageUp', 'Home', 'Escape'].includes(event.key)) {
+        playback.current?.stop()
+      }
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [enabled, targetId, settleDelay, advanceDuration])
+    window.addEventListener('wheel', onWheel, { passive: true })
+    window.addEventListener('touchstart', onTouch, { passive: true })
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('touchstart', onTouch)
+      window.removeEventListener('keydown', onKey)
+      playback.current?.stop()
+      document.documentElement.style.scrollBehavior = ''
+    }
+  }, [enabled, targetId, settleDelay, duration])
 }
 
 export default useAutoAdvance

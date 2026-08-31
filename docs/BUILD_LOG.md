@@ -500,3 +500,36 @@ and in reverse, that it does not fight the visitor:
 up   -> 2778, 2528, 2278, 2028   (free)
 down -> 2228, 2428, 3028         (re-armed, advanced once more)
 ```
+
+### The move is hand-animated, not `behavior: 'smooth'`
+
+The first version used the browser's smooth scroll, which reads as a jump cut:
+it exposes no duration and its default is far too quick to move a whole
+viewport. The move is now animated with Framer's `animate`, taking duration from
+`motion.autoAdvance.duration` (1.4s) and easing from `motion.easing.scroll`.
+
+`easing.scroll` is a new token — a classic `[0.42, 0, 0.58, 1]` ease-in-out. The
+existing `easing.inOut` (`[0.65, 0, 0.35, 1]`) accelerates hard through the
+middle, which is fine for a single element but lurches when the thing moving is
+the entire page.
+
+Two things that matter in the implementation:
+
+- **`scroll-behavior: smooth` is set globally in `globals.css`**, so every
+  per-frame `scrollTo` would start its own animation and fight the rAF loop. It
+  is suspended on the root element for the duration and restored afterwards
+  (verified restored, including when the move is cancelled).
+- **The move is cancellable.** An upward wheel, a touch, or Arrow-Up / PageUp /
+  Home / Escape stops it immediately, so the page can always be overruled.
+
+Measured curve — a symmetric S, 50% at the midpoint, settling gently:
+
+```
+   0ms   0%      600ms  45%     1100ms  93%
+ 150ms   5%      650ms  51%     1200ms  97%
+ 300ms  14%      800ms  69%     1300ms 100%
+ 450ms  28%      950ms  84%
+```
+
+Cancellation check: interrupted 450ms in at scrollY 2611, an upward wheel left
+the visitor at 2491 rather than the 3028 target.

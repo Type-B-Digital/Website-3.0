@@ -214,9 +214,17 @@ and incoming scenes are both half visible.
 | `armAt` | `0.995` | Progress at which the scene counts as finished |
 | `disarmBelow` | `0.9` | Scrolling back above this re-arms it |
 | `settleDelay` | `220` | Ms before an armed scene can be triggered |
+| `duration` | `motion.autoAdvance.duration` | Seconds the move takes |
 
 It takes over one gesture, so it only ever fires once per pass, never on an
 upward scroll, and never on the same gesture that armed it.
+
+The move is animated by hand with `motion.easing.scroll`, not
+`behavior: 'smooth'` — the browser exposes no duration there and its default is
+too quick for a full-viewport travel. It suspends the global
+`scroll-behavior: smooth` while it runs (otherwise each frame's `scrollTo`
+starts its own animation), and an upward wheel, a touch or Arrow-Up / PageUp /
+Home / Escape cancels it.
 
 ---
 

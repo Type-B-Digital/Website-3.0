@@ -378,8 +378,27 @@ export const motion = {
     out: [0.16, 1, 0.3, 1],
     /** Symmetric, for state changes that reverse. */
     inOut: [0.65, 0, 0.35, 1],
+    /**
+     * Classic ease-in-out, for moving the page itself. Gentler through the
+     * middle than `inOut`, which accelerates hard and reads as a lurch when
+     * what is moving is the whole viewport rather than one element.
+     */
+    scroll: [0.42, 0, 0.58, 1],
     /** Linear, for continuous motion (marquee). */
     linear: [0, 0, 1, 1],
+  },
+
+  /**
+   * Programmatic scroll hand-off between scenes (see lib/useAutoAdvance).
+   *
+   * The browser's `behavior: 'smooth'` exposes no duration, and its default is
+   * far too quick for a full-viewport move — it reads as a jump cut. This is
+   * animated by hand instead so the page eases away and eases back in.
+   */
+  autoAdvance: {
+    duration: 1.4,
+    /** Grace period after the move before the visitor can retrigger it. */
+    settle: 0.25,
   },
   /**
    * Parallax travel as a fraction of the scroll distance through a section.
