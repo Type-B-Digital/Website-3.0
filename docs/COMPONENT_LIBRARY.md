@@ -230,35 +230,6 @@ label, so assistive tech reads the sentence once, normally.
 
 ---
 
-## Hooks
-
-### `useAutoAdvance` (`src/lib/useAutoAdvance.ts`)
-Once a pinned scene finishes, sends the next downward scroll to the top of the
-following section — so the visitor never rests in the stretch where the outgoing
-and incoming scenes are both half visible.
-
-| Option | Default | Notes |
-|---|---|---|
-| `progress` | — | Scene progress MotionValue |
-| `targetId` | — | `id` of the element to scroll to |
-| `enabled` | `true` | Pass `false` under reduced motion |
-| `armAt` | `0.995` | Progress at which the scene counts as finished |
-| `disarmBelow` | `0.9` | Scrolling back above this re-arms it |
-| `settleDelay` | `220` | Ms before an armed scene can be triggered |
-| `duration` | `motion.autoAdvance.duration` | Seconds the move takes |
-
-It takes over one gesture, so it only ever fires once per pass, never on an
-upward scroll, and never on the same gesture that armed it.
-
-The move is animated by hand with `motion.easing.scroll`, not
-`behavior: 'smooth'` — the browser exposes no duration there and its default is
-too quick for a full-viewport travel. It suspends the global
-`scroll-behavior: smooth` while it runs (otherwise each frame's `scrollTo`
-starts its own animation), and an upward wheel, a touch or Arrow-Up / PageUp /
-Home / Escape cancels it.
-
----
-
 ## Icons
 
 `src/components/icons/` — `ArrowRight` (node 3369:24491), `CaretDown` (node 3390:26616).

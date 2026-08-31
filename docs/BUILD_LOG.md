@@ -636,3 +636,87 @@ rather than trusting the fill.**
 
 `public/images/work-feature.png` is deleted; it was only there for the
 always-on left image.
+
+
+---
+
+## Update — 2026-08-31 (second pass): transitions and the offerings tabs
+
+### The auto-scroll hand-off is removed
+
+Reported symptom: scrolling from the introduction to the highlight section
+"jumps up and down before settling". That is the scroll hand-off, not a fade — a
+fade cannot move scroll position.
+
+Cause: the hand-off animated `window.scrollTo` frame by frame while the
+visitor's trackpad momentum was still being applied by the browser. The two
+interleave, and the result oscillates. Longer duration and gentler easing made
+it worse, not better, because there was more time to fight over.
+
+`useAutoAdvance` is deleted rather than tuned. Programmatic scroll cannot be
+made to cooperate with in-flight momentum; the honest fix is not to take the
+gesture. Verified monotonic afterwards — 120 samples through the boundary,
+**zero backward jumps**.
+
+**The arrival fade is kept.** It was doing the other half of the job: while the
+highlight section climbs, its content is hidden, so the section is
+indistinguishable from the canvas band above and the clipped-glow edge never
+shows. Removing the hand-off does not bring the seam back.
+
+### Light-to-turquoise crossfade into "How we partner"
+
+The white "We solve real problems" band met the turquoise band on a hard line.
+Now the offerings scene is pinned and its ground crossfades `surface` -> `accent`.
+
+The important detail — and the mistake worth recording — is **which progress the
+fade is measured against.** The first attempt used entry progress, so the ground
+was already mid-turquoise while the section was still climbing, which drew a
+crisp line at the boundary: exactly the artefact being removed. Measuring
+against the PINNED progress instead keeps the ground pure `surface` for the whole
+climb, so the boundary is invisible, and moves the colour change to after the
+panel fills the viewport, where there is no edge to give it away.
+
+Measured:
+
+```
+climbing   ground rgb(255,255,255)   content 0     (boundary invisible)
+climbing   ground rgb(255,255,255)   content 0
+pinned     ground rgb(200,206,208)   content 0.05  (fade under way)
+pinned     ground rgb(19,80,93)      content 1     accent-600 reached
+```
+
+Content fades in behind the ground rather than with it — cream type over a
+half-transitioned ground has almost no contrast.
+
+### Advisory / Product / Teams as scroll-driven tabs
+
+Scroll now steps through the three offerings, each showing its copy on the left
+and its image on the right, with Advisory selected by default. Selection occupies
+the progress left after the ground has settled (`selectStart`).
+
+Clicking an offering **scrolls to the middle of its segment** rather than only
+setting state. That keeps scroll the single source of truth: with a plain state
+set, a click followed by any nudge of the wheel would immediately revert, which
+reads as broken. Verified:
+
+```
+start                     Advisory @8526
+after clicking Teams      Teams    @9124
+after clicking Product    Product  @8844
+after clicking Advisory   Advisory @8563
+```
+
+### The image was another degenerate export
+
+The right-hand image read as "missing" because `partner-visual.png` was a
+**single-colour** PNG — the fill-export failure documented above, for the fourth
+time in this file. Replaced with `download_assets` at scale 4 (node 3390:26553,
+1208x1208) as `images/partner/offering-1.png`.
+
+### ⚠ Per-offering content is still needed
+
+The artboard provides copy and imagery for only ONE selected state (Product is
+the one drawn), so all three offerings currently share that placeholder lorem
+and that image. **The selection mechanism is complete and the layout is right,
+but switching offerings currently changes only which word is highlighted.**
+Filling in real content is one line per offering in `OFFERINGS` and nothing else.

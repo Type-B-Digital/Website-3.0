@@ -453,6 +453,33 @@ export const motion = {
   },
 
   /**
+   * Pinned "How we partner" scene. Scroll steps through the three offerings;
+   * the ground crossfades from the previous section's surface into the accent
+   * band as it arrives, so the two never meet on a hard line.
+   *
+   * ⚠ Timings authored.
+   */
+  offeringScene: {
+    /** Viewport heights of scroll — roughly one per offering, plus dwell. */
+    pinLength: 2.5,
+    /**
+     * Ground: surface -> accent. Measured against the PINNED progress, not
+     * entry progress — while the section is still climbing it stays `surface`,
+     * so it is indistinguishable from the light band above it and the boundary
+     * is invisible. The colour change then happens once the panel fills the
+     * viewport and there is no edge left to give it away.
+     */
+    groundFade: { start: 0, end: 0.18 },
+    /**
+     * Content fades in behind the ground: cream type over a half-transitioned
+     * ground has almost no contrast.
+     */
+    contentFade: { start: 0.06, end: 0.24 },
+    /** Offerings start stepping once the ground has settled. */
+    selectStart: 0.26,
+  },
+
+  /**
    * Schedule for the pinned Manifesto scene, in normalised scroll progress
    * (0 = scene pins, 1 = scene releases).
    *

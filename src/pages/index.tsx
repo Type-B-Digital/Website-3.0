@@ -16,6 +16,7 @@ import {
   AnimatePresence,
   motion as fm,
   useMotionValue,
+  useMotionValueEvent,
   useReducedMotion,
   useScroll,
   useSpring,
@@ -40,7 +41,6 @@ import type { CardCrop } from '@/components'
 import ScrollFillText from '@/components/ScrollFillText'
 import CaretDown from '@/components/icons/CaretDown'
 import { cn } from '@/lib/cn'
-import useAutoAdvance from '@/lib/useAutoAdvance'
 import { colors as colorTokens, motion as motionTokens } from '@/tokens'
 
 /* ================================================================== *
@@ -191,11 +191,22 @@ const CASE_STUDIES = [
   thumb: `/images/work/case-${i + 1}.png`,
 }))
 
-/** Figma: node 3390:26751 — the accent word alternates with the cream one. */
+/**
+ * Figma: words node 3390:26751, copy node 3390:26555, image node 3390:26553.
+ *
+ * ⚠ The artboard only provides copy and imagery for ONE selected state (Product
+ * is the one drawn), so all three entries currently share that placeholder
+ * lorem and that image. The selection mechanism is complete — filling in real
+ * per-offering content is one line each here and nothing else.
+ */
+const OFFERING_PLACEHOLDER_COPY =
+  'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis at the ' +
+  'praesentium voluptatum deleniti.'
+
 const OFFERINGS = [
-  { label: 'Advisory', accent: true },
-  { label: 'Product', accent: false },
-  { label: 'Teams', accent: true },
+  { label: 'Advisory', copy: OFFERING_PLACEHOLDER_COPY, image: '/images/partner/offering-1.png' },
+  { label: 'Product', copy: OFFERING_PLACEHOLDER_COPY, image: '/images/partner/offering-1.png' },
+  { label: 'Teams', copy: OFFERING_PLACEHOLDER_COPY, image: '/images/partner/offering-1.png' },
 ]
 
 /** Figma: node 3390:26760 */
@@ -442,15 +453,6 @@ function Manifesto() {
   const { scrollYProgress } = useScroll({
     target: sceneRef,
     offset: ['start start', 'end end'],
-  })
-
-  // Once the copy has filled and the stack has landed, the next scroll carries
-  // the visitor to the highlight section rather than leaving them parked in the
-  // half-and-half state where both sections are visible at once.
-  useAutoAdvance({
-    progress: scrollYProgress,
-    targetId: HIGHLIGHT_ID,
-    enabled: !prefersReduced,
   })
 
   const stack = (
@@ -894,61 +896,159 @@ function Work() {
   )
 }
 
-/** Figma: "Frame 1000003577" on the bg-turquoise band — nodes 3390:26754 / 26776 */
+/**
+ * How we partner — a pinned scene that steps through the three offerings.
+ *
+ * Figma: "Frame 1000003577" on the bg-turquoise band — nodes 3390:26754 /
+ * 26776; row layout node 3390:26753 (copy 302 / words 291 / image 302, which
+ * `justify-between` reproduces at the 1280 content width).
+ *
+ * Two things happen on scroll. The ground crossfades from the previous
+ * section's surface into the accent band as the scene arrives, so light and
+ * turquoise never meet on a hard line. And progress selects each offering in
+ * turn, showing its copy on the left and its image on the right.
+ *
+ * Clicking an offering scrolls to the middle of its segment rather than just
+ * setting state — that keeps scroll the single source of truth, so a click
+ * followed by a nudge of the wheel cannot disagree with itself.
+ */
 function Partner() {
-  return (
-    <Section tone="accent" spacing="loose">
+  const sceneRef = useRef<HTMLDivElement>(null)
+  const prefersReduced = useReducedMotion()
+  const { offeringScene } = motionTokens
+  const [index, setIndex] = useState(0)
+
+  const { scrollYProgress } = useScroll({
+    target: sceneRef,
+    offset: ['start start', 'end end'],
+  })
+  const background = useTransform(
+    scrollYProgress,
+    [offeringScene.groundFade.start, offeringScene.groundFade.end],
+    [colorTokens.background.surface, colorTokens.background.accent],
+  )
+  const contentOpacity = useTransform(
+    scrollYProgress,
+    [offeringScene.contentFade.start, offeringScene.contentFade.end],
+    [0, 1],
+  )
+
+  // Selection occupies the progress left after the ground has settled.
+  const { selectStart } = offeringScene
+  const fractionFor = (target: number) =>
+    selectStart + (1 - selectStart) * ((target + 0.5) / OFFERINGS.length)
+
+  useMotionValueEvent(scrollYProgress, 'change', (value) => {
+    const local = (value - selectStart) / (1 - selectStart)
+    const next = Math.floor(Math.max(0, Math.min(0.999, local)) * OFFERINGS.length)
+    setIndex(Math.max(0, Math.min(OFFERINGS.length - 1, next)))
+  })
+
+  const goTo = (target: number) => {
+    const scene = sceneRef.current
+    if (!scene || prefersReduced) {
+      setIndex(target)
+      return
+    }
+    const range = scene.offsetHeight - window.innerHeight
+    window.scrollTo({ top: scene.offsetTop + range * fractionFor(target), behavior: 'smooth' })
+  }
+
+  const active = OFFERINGS[index]
+
+  const body = (
+    <Container>
       <div className="flex flex-col gap-[68px]">
-        <Reveal>
-          <div className="flex max-w-[351px] flex-col items-start gap-md">
-            <Eyebrow tone="onAccent">Core offerings</Eyebrow>
-            <Typography variant="h2" className="text-h3 md:text-h2">
-              How we partner
-            </Typography>
+        <div className="flex max-w-[351px] flex-col items-start gap-md">
+          <Eyebrow tone="onAccent">Core offerings</Eyebrow>
+          <Typography variant="h2" className="text-h3 md:text-h2">
+            How we partner
+          </Typography>
+        </div>
+
+        <div className="flex flex-col items-center justify-between gap-4xl lg:flex-row lg:items-center">
+          {/* Copy for the selected offering. Fixed box so switching cannot reflow. */}
+          <div className="relative min-h-[72px] w-full lg:w-[302px]">
+            <AnimatePresence mode="wait">
+              <fm.div
+                key={`copy-${index}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: prefersReduced ? 0 : motionTokens.duration.fast }}
+              >
+                <Typography variant="copyMedium">{active.copy}</Typography>
+              </fm.div>
+            </AnimatePresence>
           </div>
-        </Reveal>
 
-        <div className="grid items-center gap-4xl lg:grid-cols-3">
-          <Reveal>
-            <Typography variant="copyMedium" className="max-w-[302px]">
-              At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis at the
-              praesentium voluptatum deleniti.
-            </Typography>
-          </Reveal>
-
-          <Reveal index={1}>
-            <ul className="flex flex-col items-center gap-lg text-center">
-              {OFFERINGS.map((offering) => (
+          {/* The three offerings. Selected reads cream, the rest accent. */}
+          <ul className="flex w-full flex-col items-center gap-lg text-center lg:w-[291px]">
+            {OFFERINGS.map((offering, i) => {
+              const selected = i === index
+              return (
                 <li key={offering.label}>
-                  <Typography
-                    variant="h1"
-                    as="span"
-                    className={
-                      offering.accent
-                        ? 'text-h2 text-accent-400 md:text-h1'
-                        : 'text-h2 text-on-dark-muted md:text-h1'
-                    }
+                  <button
+                    type="button"
+                    onClick={() => goTo(i)}
+                    aria-current={selected ? 'true' : undefined}
+                    className={cn(
+                      'text-h2 transition-colors duration-fast ease-out md:text-h1',
+                      selected ? 'text-on-dark-muted' : 'text-accent-400 hover:text-accent-300',
+                    )}
                   >
                     {offering.label}
-                  </Typography>
+                  </button>
                 </li>
-              ))}
-            </ul>
-          </Reveal>
+              )
+            })}
+          </ul>
 
-          <Reveal index={2}>
-            <ParallaxSection speed="subtle">
-              <img
-                src="/images/partner-visual.png"
+          {/* Image for the selected offering. Figma: 302x302, node 3390:26553. */}
+          <div className="relative aspect-square w-full max-w-[302px] shrink-0">
+            <AnimatePresence>
+              <fm.img
+                key={`image-${index}`}
+                src={active.image}
                 alt=""
                 aria-hidden="true"
-                className="aspect-square w-full rounded-md object-cover object-bottom"
+                className="absolute inset-0 size-full rounded-md object-cover object-bottom"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: prefersReduced ? 0 : motionTokens.duration.fast }}
               />
-            </ParallaxSection>
-          </Reveal>
+            </AnimatePresence>
+          </div>
         </div>
       </div>
-    </Section>
+    </Container>
+  )
+
+  // Reduced motion: no pin, no crossfade, the accent ground applied directly.
+  if (prefersReduced) {
+    return (
+      <Section tone="accent" spacing="loose" bare>
+        {body}
+      </Section>
+    )
+  }
+
+  return (
+    <div
+      ref={sceneRef}
+      className="relative"
+      style={{ height: `${offeringScene.pinLength * 100}vh` }}
+    >
+      <fm.div
+        className="sticky top-0 flex h-screen w-full items-center overflow-hidden text-on-dark-muted"
+        style={{ backgroundColor: background }}
+      >
+        <fm.div className="w-full" style={{ opacity: contentOpacity }}>
+          {body}
+        </fm.div>
+      </fm.div>
+    </div>
   )
 }
 
