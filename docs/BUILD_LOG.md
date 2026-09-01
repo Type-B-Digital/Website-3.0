@@ -720,3 +720,73 @@ the one drawn), so all three offerings currently share that placeholder lorem
 and that image. **The selection mechanism is complete and the layout is right,
 but switching offerings currently changes only which word is highlighted.**
 Filling in real content is one line per offering in `OFFERINGS` and nothing else.
+
+
+---
+
+## Update — 2026-08-31 (third pass): hero sweep, counters, and section polish
+
+Nine changes. The notable ones:
+
+### Hero gradient sweeps on the first gesture
+
+The first downward gesture plays an 800ms slide instead of moving the page; the
+next scrolls normally. The track is a new `gradients.b1Sweep` — b1 followed by
+its mirror across double width — so the whole effect is one transform on one
+strip rather than a crossfade between two gradients. Showing the first half is
+the start state, translating -50% is the end state.
+
+This swallows one gesture, so it is bounded hard: only at the very top of the
+page, only downward, only once per load, and only for the length of the sweep.
+Worth distinguishing from the section hand-off removed earlier today: that
+animated `scrollY` *against* the browser's momentum, which oscillated. This only
+*prevents* default. Nothing fights over the scroll position.
+
+Verified: `scrollY` 0 -> gesture -> still 0 with the track at -1440px -> gesture
+-> 400. Edge colours flip from `(20,43,53)`/`(250,178,133)` to
+`(250,178,147)`/`(29,57,68)`.
+
+### Light-to-turquoise, revisited
+
+Previous pass faded the ground once the offerings scene had pinned, which left a
+stretch of plain white before the turquoise arrived. The blend now happens in the
+section ABOVE, as a gradient bridge across the last half-viewport of the light
+band, so the colour has already changed before the boundary is anywhere near the
+screen. The offerings ground is simply solid accent, and `offeringScene` lost its
+`groundFade` and `contentFade` entirely.
+
+### A latent ParallaxSection bug, found by the CTA background
+
+The new CTA artwork rendered at 0x0. Cause: `ParallaxSection` composed its class
+list as `cn('relative', className)`, so a caller passing `absolute inset-0` got
+**both**. Tailwind emits `.relative` after `.absolute` in the stylesheet, so
+`relative` won, the wrapper fell back into normal flow, and its height collapsed
+to zero — taking any `size-full` child with it.
+
+It only surfaced now because previous callers passed children with explicit
+pixel or percentage sizes, which do not depend on the parent's box. The wrapper
+now applies `relative` only when the caller has not supplied its own
+positioning, and the motion layer fills its parent. Both prior callers
+re-verified.
+
+### Everything else
+
+- Logo row inset 80px -> 40px (measured at exactly 40 to the row's top; the
+  short Deloitte mark sits 14px lower, centred in the 47px row).
+- Introduction copy at 120% line height.
+- Stat numbers count from zero, gated on the scene's own reveal rather than
+  intersection — inside a pinned scene they are technically on screen from the
+  moment it starts climbing, behind opacity 0, so a plain in-view trigger spends
+  the whole count behind a fade.
+- "Bold. Brilliant. Beautiful." outline opacity 0.4 -> 0.6.
+- Offerings header top-aligned on a 120px inset (new `spacing.5xl`), and the
+  values marquee moved inside that scene, riding its arc (node 3390:26557). The
+  standalone values band is gone.
+- Closing CTA artwork replaced with the 1440x720 image Eduardo supplied, which
+  needs no crop transform.
+- Footer glow added (node 3483:27261). Built from CSS gradients rather than the
+  exported SVG: that file is a 1551x1194 canvas whose gaussian falloff is clipped
+  as soon as it is scaled into a differently-proportioned box, which left visible
+  diamond edges. Same colours, `mix-blend-hard-light`, no edge to clip.
+- `arrow-right.svg` and `caret-down.svg` deleted — superseded by the inline
+  `currentColor` icon components.

@@ -86,6 +86,8 @@ export const unmapped = {
   inkSoft: '#071B27',
   /** Eyebrow chip background on light sections. Figma: 3390:26431 */
   white: '#FFFFFF',
+  /** Footer ground — a shade below the canvas. Figma: node 3483:27261 */
+  footerGround: '#030B15',
 } as const
 
 /* ------------------------------------------------------------------ *
@@ -101,6 +103,16 @@ export const unmapped = {
  * box so the final colour is approached but never fully reached.
  * ------------------------------------------------------------------ */
 export const gradients = {
+  /**
+   * Hero sweep: b1 followed by its mirror across a double-width track. Showing
+   * the first half gives the start state (ink left, warm right); translating
+   * -50% shows the second half, which is the end state (warm left, ink right).
+   * One strip, one transform — no crossfade between two gradients.
+   */
+  b1Sweep:
+    `linear-gradient(230.52deg, ${palette.neutral[900]} 1.6%, ${palette.turquoise[400]} 27.5%, ` +
+    `${palette.amber[300]} 42.9%, ${palette.orange[200]} 50%, ${palette.amber[300]} 57.1%, ` +
+    `${palette.turquoise[400]} 72.5%, ${palette.neutral[900]} 98.4%)`,
   /** Ink -> turquoise -> amber -> peach. Hero background. */
   b1:
     `linear-gradient(230.52deg, ${palette.neutral[900]} 3.19%, ${palette.turquoise[400]} 54.91%, ` +
@@ -309,6 +321,11 @@ export const spacing = {
   '2xl': '40px',
   '3xl': '48px',
   '4xl': '80px',
+  /**
+   * Section top inset for the offerings scene. Off the board (which tops out at
+   * 80px) but 80 + 40, so it sits on the scale rather than beside it.
+   */
+  '5xl': '120px',
 } as const
 
 export type SpacingToken = keyof typeof spacing
@@ -441,8 +458,11 @@ export const motion = {
     blobSize: 900,
     /** Figma gaussian stdDeviation on the glow ellipses (node 3390:26688). */
     blur: 120,
-    /** Outline layer opacity on the artboard. */
-    strokeOpacity: 0.4,
+    /**
+     * Outline layer opacity. The artboard has 0.4; raised by half at Eduardo's
+     * request because the strokes read too faintly in motion.
+     */
+    strokeOpacity: 0.6,
     /** Ambient haze strength. Tuned against the motion mockups, which read
      *  considerably more muted than a full-strength screen blend. */
     ambientOpacity: 0.5,
@@ -451,6 +471,15 @@ export const motion = {
     /** Resting position as a fraction of the panel, before the pointer arrives. */
     rest: { x: 0.32, y: 0.52 },
   },
+
+  /**
+   * Hero gradient sweep. The first scroll gesture plays this instead of moving
+   * the page; the next one scrolls normally.
+   */
+  heroSweep: { duration: 0.8 },
+
+  /** Stat numbers counting up from zero when they come into view. */
+  countUp: { duration: 1.6 },
 
   /**
    * Pinned "How we partner" scene. Scroll steps through the three offerings;
@@ -463,20 +492,11 @@ export const motion = {
     /** Viewport heights of scroll — roughly one per offering, plus dwell. */
     pinLength: 2.5,
     /**
-     * Ground: surface -> accent. Measured against the PINNED progress, not
-     * entry progress — while the section is still climbing it stays `surface`,
-     * so it is indistinguishable from the light band above it and the boundary
-     * is invisible. The colour change then happens once the panel fills the
-     * viewport and there is no edge left to give it away.
+     * Offerings start stepping almost immediately now. The light-to-turquoise
+     * blend no longer happens inside this scene — see the bridge on the section
+     * above — so nothing has to finish before selection can begin.
      */
-    groundFade: { start: 0, end: 0.18 },
-    /**
-     * Content fades in behind the ground: cream type over a half-transitioned
-     * ground has almost no contrast.
-     */
-    contentFade: { start: 0.06, end: 0.24 },
-    /** Offerings start stepping once the ground has settled. */
-    selectStart: 0.26,
+    selectStart: 0.1,
   },
 
   /**

@@ -105,6 +105,7 @@
   --spacing-2xl: 40px;
   --spacing-3xl: 48px;
   --spacing-4xl: 80px;
+  --spacing-5xl: 120px; /* off-board; see tokens/index.ts */
 
   /* --- radius (Figma: radius-corner, node 3386:25427) ------------- */
   --radius-sm: 4px;
@@ -284,4 +285,23 @@
     /* Keep the glow, drop the transition cost. */
     will-change: auto;
   }
+}
+
+
+/**
+ * Footer glow — Figma node 3483:27261.
+ *
+ * Two blurred ellipses in orange.500 / amber.500 under `hard-light`, which is
+ * what turns them crimson against the near-black footer ground rather than
+ * orange. Built from gradients rather than the exported SVG: that file is a
+ * 1551x1194 canvas whose gaussian falloff gets clipped the moment it is scaled
+ * into a differently-proportioned box, which left visible diamond edges.
+ */
+.footer-glow {
+  pointer-events: none;
+  mix-blend-mode: hard-light;
+  background:
+    radial-gradient(58% 34% at 38% 42%, var(--color-glow-warm) 0%, transparent 72%),
+    radial-gradient(52% 30% at 62% 58%, var(--color-glow-amber) 0%, transparent 72%);
+  filter: blur(var(--bbb-blur));
 }

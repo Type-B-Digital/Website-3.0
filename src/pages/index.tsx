@@ -11,9 +11,16 @@
  * breakpoint below `xl` is an engineering interpretation, not a reproduction of a
  * design. See docs/BUILD_LOG.md § Open questions.
  */
-import { useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from 'react'
 import {
   AnimatePresence,
+  animate,
   motion as fm,
   useMotionValue,
   useMotionValueEvent,
@@ -27,6 +34,7 @@ import {
   Button,
   Card,
   Container,
+  CountUp,
   Eyebrow,
   GlowText,
   Marquee,
@@ -41,7 +49,7 @@ import type { CardCrop } from '@/components'
 import ScrollFillText from '@/components/ScrollFillText'
 import CaretDown from '@/components/icons/CaretDown'
 import { cn } from '@/lib/cn'
-import { colors as colorTokens, motion as motionTokens } from '@/tokens'
+import { colors as colorTokens, gradients as gradientTokens, motion as motionTokens } from '@/tokens'
 
 /* ================================================================== *
  * CONTENT
@@ -130,11 +138,15 @@ const BBB_ARTWORK = {
   leftRatio: 121 / 1440,
 }
 
-/** Figma: nodes 3390:26720 / 26724 / 26727 */
+/**
+ * Figma: nodes 3390:26720 / 26724 / 26727.
+ * Split into prefix/number/suffix so the numeral can count up while the
+ * surrounding characters stay put.
+ */
 const STATS = [
-  { value: '~100', label: 'Collective years building products & brands' },
-  { value: '25+', label: 'Global customers served' },
-  { value: '7', label: 'Countries in our delivery network' },
+  { to: 100, prefix: '~', suffix: '', label: 'Collective years building products & brands' },
+  { to: 25, prefix: '', suffix: '+', label: 'Global customers served' },
+  { to: 7, prefix: '', suffix: '', label: 'Countries in our delivery network' },
 ]
 
 /**
@@ -278,25 +290,91 @@ function SiteHeader() {
  * Figma: "Frame 1000003409" — node 3390:26582
  * Background: gradient `b1` — Figma style "Type B BG 1", node 3430:26778
  *
- * Fills the viewport, full-bleed, so the hero is the whole first screen and the
- * next band arrives on scroll.
+ * Fills the viewport, full-bleed, so the hero is the whole first screen.
  *
- * `min-h-screen` (100vh) is the conventional desktop unit and resolves to the
- * exact viewport height. Once a mobile design exists, `100svh` is the better
- * choice there — it avoids the hero overshooting by the height of a collapsing
- * URL bar.
+ * The gradient sweeps once. The first downward gesture plays an 800ms slide
+ * instead of moving the page; the next one scrolls normally. The track is
+ * `b1Sweep` — b1 followed by its mirror across double width — so the whole
+ * effect is one transform on one strip rather than a crossfade between two
+ * gradients.
  *
- * `tone="dark"` still applies `bg-canvas` underneath: the gradient is a
- * background-image over it, so the ink ground is the fallback if it fails.
+ * This does swallow one gesture, so it is bounded hard: it only ever arms at the
+ * very top of the page, only on a downward gesture, and only once per load. It
+ * blocks scrolling only for the length of the sweep. Note this is prevention,
+ * not a programmatic scroll — nothing is animating `scrollY` against the
+ * browser's momentum, which is what made the old section hand-off oscillate.
  */
 function Hero() {
+  const prefersReduced = useReducedMotion()
+  const sweep = useMotionValue(0)
+  const offset = useTransform(sweep, (value) => `${value}%`)
+  const played = useRef(false)
+  const sweeping = useRef(false)
+
+  useEffect(() => {
+    if (prefersReduced) {
+      sweep.set(-50)
+      played.current = true
+      return
+    }
+
+    const play = (event: Event, goingDown: boolean) => {
+      if (played.current) return
+      // Only at the very top; if the visitor is already past the hero, retire it.
+      if (window.scrollY > 4) {
+        played.current = true
+        return
+      }
+      if (!goingDown) return
+      event.preventDefault()
+      if (sweeping.current) return
+      sweeping.current = true
+      animate(sweep, -50, {
+        duration: motionTokens.heroSweep.duration,
+        ease: [...motionTokens.easing.inOut],
+      }).then(() => {
+        played.current = true
+        sweeping.current = false
+      })
+    }
+
+    const onWheel = (event: WheelEvent) => play(event, event.deltaY > 0)
+    let touchY = 0
+    const onTouchStart = (event: TouchEvent) => {
+      touchY = event.touches[0]?.clientY ?? 0
+    }
+    const onTouchMove = (event: TouchEvent) => {
+      play(event, (event.touches[0]?.clientY ?? 0) < touchY)
+    }
+
+    window.addEventListener('wheel', onWheel, { passive: false })
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchmove', onTouchMove, { passive: false })
+    return () => {
+      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchmove', onTouchMove)
+    }
+  }, [prefersReduced, sweep])
+
   return (
     <Section
       tone="dark"
       spacing="none"
-      className="flex min-h-screen items-center bg-gradient-b1 py-4xl"
+      className="relative flex min-h-screen items-center overflow-hidden py-4xl"
     >
-      <div className="mx-auto flex max-w-[880px] flex-col items-center gap-3xl text-center">
+      {/*
+        Double-width gradient track. It is a sibling BEFORE the content rather
+        than a `-z-10` layer: negative z-index would put it behind the Section's
+        own `bg-canvas`, which then paints over it. As an earlier child it lands
+        on top of that background colour, which stays as the fallback.
+      */}
+      <fm.div
+        aria-hidden
+        className="absolute inset-y-0 left-0 w-[200%] will-change-transform"
+        style={{ x: offset, backgroundImage: gradientTokens.b1Sweep }}
+      />
+      <div className="relative mx-auto flex max-w-[880px] flex-col items-center gap-3xl text-center">
         <div className="flex flex-col items-center gap-md">
           <Reveal>
             <Typography variant="h1" className="text-h2 md:text-h1">
@@ -489,14 +567,14 @@ function Manifesto() {
   const row = (
     <div className="mx-auto flex w-full max-w-[1240px] items-center justify-between gap-4xl">
       {prefersReduced ? (
-        <Typography variant="h2" as="p" className="w-[640px] leading-normal">
+        <Typography variant="h2" as="p" className="w-[640px] leading-[1.2]">
           {MANIFESTO_TEXT}
         </Typography>
       ) : (
         <ScrollFillText
           text={MANIFESTO_TEXT}
           progress={scrollYProgress}
-          className="w-[640px] text-h2 leading-normal text-on-dark"
+          className="w-[640px] text-h2 leading-[1.2] text-on-dark"
         />
       )}
       {stack}
@@ -523,7 +601,8 @@ function Manifesto() {
     >
       {/* overflow-hidden clips entering images at the viewport edge. */}
       <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
-        <div className="shrink-0 pt-4xl">
+        {/* 40px from the top, per the artboard. */}
+        <div className="shrink-0 pt-2xl">
           <ClientLogos />
         </div>
         <div className="flex flex-1 items-center">
@@ -580,6 +659,13 @@ function BoldBrilliantBeautiful() {
   // clipped-glow edge back.
   const entryOpacity = useTransform(entryProgress, [0.88, 1], [0, 1])
 
+  // Gate the stat count-up on the scene actually being visible: the numbers are
+  // technically on screen the whole time the section climbs, behind opacity 0.
+  const [revealed, setRevealed] = useState(false)
+  useMotionValueEvent(entryProgress, 'change', (value) => {
+    if (value > 0.92) setRevealed(true)
+  })
+
   // Pointer in panel pixels. The springs are what make the blob trail the
   // cursor with weight instead of snapping to it.
   const rawX = useMotionValue(0)
@@ -625,7 +711,7 @@ function BoldBrilliantBeautiful() {
       {STATS.map((stat) => (
         <div key={stat.label} className="flex flex-col gap-sm">
           <Typography variant="h1" as="p" className="text-on-dark-muted">
-            {stat.value}
+            <CountUp to={stat.to} prefix={stat.prefix} suffix={stat.suffix} start={revealed} />
           </Typography>
           <Typography variant="copyMedium" as="p" muted className="text-on-dark-muted">
             {stat.label}
@@ -795,8 +881,22 @@ function Work() {
     : { duration: motionTokens.duration.fast, ease: [...motionTokens.easing.out] }
 
   return (
-    <Section tone="light" spacing="loose" id="work">
-      <div className="grid gap-4xl lg:grid-cols-[519px_1fr]">
+    <Section tone="light" spacing="loose" id="work" className="relative">
+      {/*
+        The light band fades into the turquoise of the offerings scene BEFORE it
+        ends, so the two never meet on a line and there is no stretch of plain
+        white in between. Doing it here rather than inside the next scene means
+        the blend has finished by the time the boundary arrives, whatever the
+        viewport height.
+      */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[50vh]"
+        style={{
+          backgroundImage: `linear-gradient(to bottom, transparent, ${colorTokens.background.accent})`,
+        }}
+      />
+      <div className="relative grid gap-4xl lg:grid-cols-[519px_1fr]">
         <div className="flex flex-col gap-3xl">
           <Reveal>
             <div className="flex flex-col items-start gap-3xl">
@@ -899,18 +999,21 @@ function Work() {
 /**
  * How we partner — a pinned scene that steps through the three offerings.
  *
- * Figma: "Frame 1000003577" on the bg-turquoise band — nodes 3390:26754 /
- * 26776; row layout node 3390:26753 (copy 302 / words 291 / image 302, which
- * `justify-between` reproduces at the 1280 content width).
+ * Figma: nodes 3390:26754 / 26776; row layout node 3390:26753 (copy 302 /
+ * words 291 / image 302, which `justify-between` reproduces at the 1280 content
+ * width). Values line node 3390:26760, arc node 3390:26557.
  *
- * Two things happen on scroll. The ground crossfades from the previous
- * section's surface into the accent band as the scene arrives, so light and
- * turquoise never meet on a hard line. And progress selects each offering in
- * turn, showing its copy on the left and its image on the right.
+ * Laid out as a column rather than a centred block: header pinned to the top on
+ * a 120px inset, the offerings row taking the space between, and the values
+ * marquee riding the bottom edge over its arc.
  *
- * Clicking an offering scrolls to the middle of its segment rather than just
- * setting state — that keeps scroll the single source of truth, so a click
- * followed by a nudge of the wheel cannot disagree with itself.
+ * The ground is solid accent. The light-to-turquoise blend happens in the
+ * section ABOVE via a gradient bridge, which is what removes both the dividing
+ * line and the stretch of white that used to sit between the two.
+ *
+ * Scroll selects each offering in turn; clicking one scrolls to the middle of
+ * its segment rather than just setting state, so scroll stays the single source
+ * of truth and a click cannot be undone by the next flick of the wheel.
  */
 function Partner() {
   const sceneRef = useRef<HTMLDivElement>(null)
@@ -922,18 +1025,7 @@ function Partner() {
     target: sceneRef,
     offset: ['start start', 'end end'],
   })
-  const background = useTransform(
-    scrollYProgress,
-    [offeringScene.groundFade.start, offeringScene.groundFade.end],
-    [colorTokens.background.surface, colorTokens.background.accent],
-  )
-  const contentOpacity = useTransform(
-    scrollYProgress,
-    [offeringScene.contentFade.start, offeringScene.contentFade.end],
-    [0, 1],
-  )
 
-  // Selection occupies the progress left after the ground has settled.
   const { selectStart } = offeringScene
   const fractionFor = (target: number) =>
     selectStart + (1 - selectStart) * ((target + 0.5) / OFFERINGS.length)
@@ -955,81 +1047,109 @@ function Partner() {
   }
 
   const active = OFFERINGS[index]
+  const swap = { duration: prefersReduced ? 0 : motionTokens.duration.fast }
 
-  const body = (
+  const header = (
     <Container>
-      <div className="flex flex-col gap-[68px]">
-        <div className="flex max-w-[351px] flex-col items-start gap-md">
-          <Eyebrow tone="onAccent">Core offerings</Eyebrow>
-          <Typography variant="h2" className="text-h3 md:text-h2">
-            How we partner
-          </Typography>
+      <div className="flex max-w-[351px] flex-col items-start gap-md">
+        <Eyebrow tone="onAccent">Core offerings</Eyebrow>
+        <Typography variant="h2" className="text-h3 md:text-h2">
+          How we partner
+        </Typography>
+      </div>
+    </Container>
+  )
+
+  const row = (
+    <Container>
+      <div className="flex flex-col items-center justify-between gap-4xl lg:flex-row">
+        {/* Copy for the selected offering. Fixed box so switching cannot reflow. */}
+        <div className="relative min-h-[72px] w-full lg:w-[302px]">
+          <AnimatePresence mode="wait">
+            <fm.div
+              key={`copy-${index}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={swap}
+            >
+              <Typography variant="copyMedium">{active.copy}</Typography>
+            </fm.div>
+          </AnimatePresence>
         </div>
 
-        <div className="flex flex-col items-center justify-between gap-4xl lg:flex-row lg:items-center">
-          {/* Copy for the selected offering. Fixed box so switching cannot reflow. */}
-          <div className="relative min-h-[72px] w-full lg:w-[302px]">
-            <AnimatePresence mode="wait">
-              <fm.div
-                key={`copy-${index}`}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: prefersReduced ? 0 : motionTokens.duration.fast }}
-              >
-                <Typography variant="copyMedium">{active.copy}</Typography>
-              </fm.div>
-            </AnimatePresence>
-          </div>
+        <ul className="flex w-full flex-col items-center gap-lg text-center lg:w-[291px]">
+          {OFFERINGS.map((offering, i) => {
+            const selected = i === index
+            return (
+              <li key={offering.label}>
+                <button
+                  type="button"
+                  onClick={() => goTo(i)}
+                  aria-current={selected ? 'true' : undefined}
+                  className={cn(
+                    'text-h2 transition-colors duration-fast ease-out md:text-h1',
+                    selected ? 'text-on-dark-muted' : 'text-accent-400 hover:text-accent-300',
+                  )}
+                >
+                  {offering.label}
+                </button>
+              </li>
+            )
+          })}
+        </ul>
 
-          {/* The three offerings. Selected reads cream, the rest accent. */}
-          <ul className="flex w-full flex-col items-center gap-lg text-center lg:w-[291px]">
-            {OFFERINGS.map((offering, i) => {
-              const selected = i === index
-              return (
-                <li key={offering.label}>
-                  <button
-                    type="button"
-                    onClick={() => goTo(i)}
-                    aria-current={selected ? 'true' : undefined}
-                    className={cn(
-                      'text-h2 transition-colors duration-fast ease-out md:text-h1',
-                      selected ? 'text-on-dark-muted' : 'text-accent-400 hover:text-accent-300',
-                    )}
-                  >
-                    {offering.label}
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
-
-          {/* Image for the selected offering. Figma: 302x302, node 3390:26553. */}
-          <div className="relative aspect-square w-full max-w-[302px] shrink-0">
-            <AnimatePresence>
-              <fm.img
-                key={`image-${index}`}
-                src={active.image}
-                alt=""
-                aria-hidden="true"
-                className="absolute inset-0 size-full rounded-md object-cover object-bottom"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: prefersReduced ? 0 : motionTokens.duration.fast }}
-              />
-            </AnimatePresence>
-          </div>
+        {/* Figma: 302x302, node 3390:26553. */}
+        <div className="relative aspect-square w-full max-w-[302px] shrink-0">
+          <AnimatePresence>
+            <fm.img
+              key={`image-${index}`}
+              src={active.image}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 size-full rounded-md object-cover object-bottom"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={swap}
+            />
+          </AnimatePresence>
         </div>
       </div>
     </Container>
   )
 
-  // Reduced motion: no pin, no crossfade, the accent ground applied directly.
+  /* Values line — Figma node 3390:26760, riding the arc at node 3390:26557. */
+  const values = (
+    <div className="relative">
+      <img
+        src="/vectors/values-arc.svg"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-0 left-1/2 w-[70%] -translate-x-1/2"
+      />
+      <Marquee speed="marqueeSlow" className="relative">
+        {VALUES.map((value) => (
+          <Typography key={value} variant="h1" as="span" className="whitespace-nowrap">
+            {value}
+            <span aria-hidden className="pl-4xl opacity-muted">
+              ·
+            </span>
+          </Typography>
+        ))}
+      </Marquee>
+    </div>
+  )
+
+  // Reduced motion: no pin, the accent ground applied directly.
   if (prefersReduced) {
     return (
-      <Section tone="accent" spacing="loose" bare>
-        {body}
+      <Section tone="accent" spacing="none" bare className="pb-4xl pt-5xl">
+        <div className="flex flex-col gap-4xl">
+          {header}
+          {row}
+          {values}
+        </div>
       </Section>
     )
   }
@@ -1040,33 +1160,14 @@ function Partner() {
       className="relative"
       style={{ height: `${offeringScene.pinLength * 100}vh` }}
     >
-      <fm.div
-        className="sticky top-0 flex h-screen w-full items-center overflow-hidden text-on-dark-muted"
-        style={{ backgroundColor: background }}
-      >
-        <fm.div className="w-full" style={{ opacity: contentOpacity }}>
-          {body}
-        </fm.div>
-      </fm.div>
+      <div className="sticky top-0 h-screen w-full overflow-hidden bg-accent-600 text-on-dark-muted">
+        <div className="flex size-full flex-col justify-between pt-5xl">
+          {header}
+          <div className="flex flex-1 items-center py-4xl">{row}</div>
+          {values}
+        </div>
+      </div>
     </div>
-  )
-}
-
-/** Figma: node 3390:26760 — 2445px of copy inside a 1440px frame. */
-function Values() {
-  return (
-    <Section tone="accent" spacing="compact" bare>
-      <Marquee>
-        {VALUES.map((value) => (
-          <Typography key={value} variant="h1" as="span" className="whitespace-nowrap">
-            {value}
-            <span aria-hidden className="pl-4xl opacity-muted">
-              ·
-            </span>
-          </Typography>
-        ))}
-      </Marquee>
-    </Section>
   )
 }
 
@@ -1076,23 +1177,21 @@ function ClosingCta() {
     <Section tone="dark" spacing="none" bare id="contact">
       <div className="relative isolate flex min-h-[720px] items-center justify-center overflow-hidden">
         {/*
-          scene.png is a 4x4 contact sheet; Figma selects one cell via an
-          image-fill transform. Reproduced here rather than object-cover, which
-          would show the whole grid. Figma: node 3390:26559
+          Replaced 2026-08-31 with the artwork Eduardo supplied at the band's own
+          1440x720, so it needs no crop transform — just object-cover.
         */}
         <ParallaxSection speed="base" className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 overflow-hidden">
+          {/*
+            The inner wrapper is what gives the image a box: ParallaxSection's
+            motion layer is auto-height, so `size-full` on the image alone has
+            nothing to resolve against and it collapses to its natural size.
+          */}
+          <div className="absolute inset-0">
             <img
-              src="/images/scene.png"
+              src="/images/cta-band.png"
               alt=""
               aria-hidden="true"
-              className="absolute max-w-none"
-              style={{
-                width: '501.69%',
-                height: '470.7%',
-                left: '-256.03%',
-                top: '-351.57%',
-              }}
+              className="size-full scale-110 object-cover"
             />
           </div>
         </ParallaxSection>
@@ -1120,8 +1219,19 @@ function ClosingCta() {
 /** Figma: "Frame 1000003406" — node 3390:26636 */
 function SiteFooter() {
   return (
-    <footer className="relative overflow-hidden bg-canvas pt-4xl text-on-dark">
-      <Container>
+    <footer className="relative overflow-hidden bg-footer-ground pt-4xl text-on-dark">
+      {/*
+        Red glow behind the wordmark. Figma: node 3483:27261 — orange/amber
+        ellipses at `mix-blend-hard-light`, which is what reads as crimson
+        against the near-black ground. Rotated to match the artboard's diagonal.
+        See `.footer-glow` in globals.css for why this is gradients rather than
+        the exported SVG.
+      */}
+      <div
+        aria-hidden
+        className="footer-glow absolute left-[-10%] top-[10%] h-[110%] w-[120%] rotate-[8deg]"
+      />
+      <Container className="relative">
         {/* Figma: 440px statement column, nav columns to its right — node 3390:26636 */}
         <div className="grid gap-4xl lg:grid-cols-[minmax(0,440px)_1fr]">
           <div className="flex flex-col gap-lg">
@@ -1164,7 +1274,7 @@ function SiteFooter() {
       </Container>
 
       {/* Oversized wordmark bleeding off both edges. Figma: node 3390:26763 */}
-      <ParallaxSection speed="subtle" className="mt-4xl">
+      <ParallaxSection speed="subtle" className="relative mt-4xl">
         <img
           src="/icons/wordmark.svg"
           alt=""
@@ -1192,7 +1302,6 @@ export function HomePage() {
         <Stages />
         <Work />
         <Partner />
-        <Values />
         <ClosingCta />
       </main>
       <SiteFooter />

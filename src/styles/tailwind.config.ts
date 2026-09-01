@@ -81,6 +81,7 @@ export default {
           900: 'var(--color-accent-900)',
         },
         paper: unmapped.paper,
+        'footer-ground': unmapped.footerGround,
         'ink-soft': unmapped.inkSoft,
         canvas: colors.background.canvas,
         surface: colors.background.surface,

@@ -15,7 +15,14 @@ import { cn } from '@/lib/cn'
  * `speed` is the fraction of the element's own height it travels across the
  * full scroll pass. `subtle` (0.08) is right for large images; `strong` (0.32)
  * reads as an obvious effect and should be used sparingly.
+ *
+ * Positioning: the wrapper defaults to `relative`, but a caller passing its own
+ * `absolute`/`fixed`/`sticky` gets that instead. Emitting both is not harmless —
+ * Tailwind orders `.relative` after `.absolute` in the stylesheet, so `relative`
+ * would silently win and collapse the wrapper to zero height, taking any
+ * `size-full` child with it.
  */
+const POSITIONED = /(^|\s)(absolute|fixed|sticky)(\s|$)/
 export type ParallaxSpeed = keyof typeof motionTokens.parallax
 
 export type ParallaxSectionProps = {
@@ -45,18 +52,23 @@ export function ParallaxSection({
   const travel = motionTokens.parallax[speed] * 100
   const offset = useTransform(scrollYProgress, [0, 1], [`${travel / 2}%`, `${-travel / 2}%`])
 
+  const wrapper = cn(!POSITIONED.test(className ?? '') && 'relative', className)
+
   // Honour the OS-level reduced-motion setting: render static, no transform.
   if (prefersReduced) {
     return (
-      <div ref={ref} className={cn('relative', className)}>
+      <div ref={ref} className={wrapper}>
         {children}
       </div>
     )
   }
 
   return (
-    <div ref={ref} className={cn('relative', className)}>
-      <fm.div style={axis === 'y' ? { y: offset } : { x: offset }} className="will-change-transform">
+    <div ref={ref} className={wrapper}>
+      <fm.div
+        style={axis === 'y' ? { y: offset } : { x: offset }}
+        className="size-full will-change-transform"
+      >
         {children}
       </fm.div>
     </div>
