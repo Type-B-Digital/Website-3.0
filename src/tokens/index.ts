@@ -104,15 +104,17 @@ export const unmapped = {
  * ------------------------------------------------------------------ */
 export const gradients = {
   /**
-   * Hero sweep: b1 followed by its mirror across a double-width track. Showing
-   * the first half gives the start state (ink left, warm right); translating
-   * -50% shows the second half, which is the end state (warm left, ink right).
-   * One strip, one transform — no crossfade between two gradients.
+   * b1's colour stops without a direction, so the hero can animate the ANGLE.
+   *
+   * The sweep needs the dark corner to travel along the top (left to right)
+   * while the warm corner travels along the bottom (right to left). That is a
+   * rotation of the gradient, not a translation of it: sliding a fixed-angle
+   * strip moves the bands but cannot change which diagonal they run along, so
+   * one end state or the other always comes out mirrored.
    */
-  b1Sweep:
-    `linear-gradient(230.52deg, ${palette.neutral[900]} 1.6%, ${palette.turquoise[400]} 27.5%, ` +
-    `${palette.amber[300]} 42.9%, ${palette.orange[200]} 50%, ${palette.amber[300]} 57.1%, ` +
-    `${palette.turquoise[400]} 72.5%, ${palette.neutral[900]} 98.4%)`,
+  b1Stops:
+    `${palette.neutral[900]} 3.19%, ${palette.turquoise[400]} 54.91%, ` +
+    `${palette.amber[300]} 85.88%, ${palette.orange[200]} 110.67%`,
   /** Ink -> turquoise -> amber -> peach. Hero background. */
   b1:
     `linear-gradient(230.52deg, ${palette.neutral[900]} 3.19%, ${palette.turquoise[400]} 54.91%, ` +
@@ -476,7 +478,13 @@ export const motion = {
    * Hero gradient sweep. The first scroll gesture plays this instead of moving
    * the page; the next one scrolls normally.
    */
-  heroSweep: { duration: 0.8 },
+  heroSweep: {
+    duration: 0.8,
+    /** 135deg: dark top-left, warm bottom-right. */
+    from: 135,
+    /** 225deg: dark top-right, warm bottom-left. */
+    to: 225,
+  },
 
   /** Stat numbers counting up from zero when they come into view. */
   countUp: { duration: 1.6 },

@@ -886,3 +886,41 @@ whole point and the thing the gradient could never do.
 
 The offerings content fades in behind the ground rather than with it — its type
 is cream, and over a half-transitioned ground it has almost no contrast.
+
+
+---
+
+## Update — 2026-08-31 (sixth pass): the hero sweep rotates, it does not slide
+
+The brief: the warm corner should travel along the bottom from right to left,
+and the dark corner along the top from left to right.
+
+The first build slid a double-width strip. That is the wrong mechanism, and no
+choice of angle fixes it — translating a gradient moves its bands but cannot
+change which diagonal they run along. Measured across candidate angles:
+
+```
+225deg  start  TL teal  TR warm  BL DARK  BR warm   dark bottom-left, wanted top-left
+225deg  end    TL warm  TR DARK  BL warm  BR teal   correct
+135deg  start  TL DARK  TR teal  BL teal  BR warm   correct
+135deg  end    TL warm  TR teal  BL warm  BR DARK   dark bottom-right, wanted top-right
+```
+
+Whichever angle is chosen, one end state comes out mirrored, because the start
+and end the brief describes have their bands on *different* diagonals.
+
+So the sweep now animates the gradient's ANGLE, 135deg to 225deg, over the same
+800ms. It passes through 180deg — dark across the top, warm across the bottom —
+which is the exact midpoint of the movement described. Verified at both ends:
+
+```
+start  TL(4,14,25) dark      BR(250,178,129) warm
+end    TR(4,14,25) dark      BL(250,178,129) warm
+```
+
+`gradients.b1Sweep` (the doubled strip) is gone, replaced by `gradients.b1Stops`
+— b1's stop list without a direction, so the angle can be driven separately.
+
+Trade-off worth noting: rebuilding the gradient string each frame repaints,
+where a transform would not. Acceptable for a single 800ms one-shot, and there
+is no way to rotate a gradient's direction on the compositor.

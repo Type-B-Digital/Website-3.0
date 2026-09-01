@@ -22,6 +22,7 @@ import {
   AnimatePresence,
   animate,
   motion as fm,
+  useMotionTemplate,
   useMotionValue,
   useMotionValueEvent,
   useReducedMotion,
@@ -292,11 +293,17 @@ function SiteHeader() {
  *
  * Fills the viewport, full-bleed, so the hero is the whole first screen.
  *
- * The gradient sweeps once. The first downward gesture plays an 800ms slide
- * instead of moving the page; the next one scrolls normally. The track is
- * `b1Sweep` — b1 followed by its mirror across double width — so the whole
- * effect is one transform on one strip rather than a crossfade between two
- * gradients.
+ * The gradient sweeps once. The first downward gesture plays an 800ms sweep
+ * instead of moving the page; the next one scrolls normally.
+ *
+ * The sweep ROTATES the gradient from 135deg to 225deg rather than sliding it.
+ * The dark corner has to travel along the top from left to right while the warm
+ * corner travels along the bottom from right to left — that is a change of which
+ * diagonal the bands run along, and translating a fixed-angle strip cannot do it
+ * (it moves the bands but leaves their orientation alone, so one end state or
+ * the other always comes out mirrored). Rotating passes through 180deg, where
+ * dark sits across the top and warm across the bottom, which is the midpoint of
+ * exactly the movement described.
  *
  * This does swallow one gesture, so it is bounded hard: it only ever arms at the
  * very top of the page, only on a downward gesture, and only once per load. It
@@ -306,14 +313,16 @@ function SiteHeader() {
  */
 function Hero() {
   const prefersReduced = useReducedMotion()
-  const sweep = useMotionValue(0)
-  const offset = useTransform(sweep, (value) => `${value}%`)
+  // Widened: `as const` on the tokens narrows `from` to the literal 135,
+  // which would make the value unassignable to the end angle.
+  const angle = useMotionValue<number>(motionTokens.heroSweep.from)
+  const backgroundImage = useMotionTemplate`linear-gradient(${angle}deg, ${gradientTokens.b1Stops})`
   const played = useRef(false)
   const sweeping = useRef(false)
 
   useEffect(() => {
     if (prefersReduced) {
-      sweep.set(-50)
+      angle.set(motionTokens.heroSweep.to)
       played.current = true
       return
     }
@@ -329,7 +338,7 @@ function Hero() {
       event.preventDefault()
       if (sweeping.current) return
       sweeping.current = true
-      animate(sweep, -50, {
+      animate(angle, motionTokens.heroSweep.to, {
         duration: motionTokens.heroSweep.duration,
         ease: [...motionTokens.easing.inOut],
       }).then(() => {
@@ -355,7 +364,7 @@ function Hero() {
       window.removeEventListener('touchstart', onTouchStart)
       window.removeEventListener('touchmove', onTouchMove)
     }
-  }, [prefersReduced, sweep])
+  }, [prefersReduced, angle])
 
   return (
     <Section
@@ -364,16 +373,16 @@ function Hero() {
       className="relative flex min-h-screen items-center overflow-hidden py-4xl"
     >
       {/*
-        Double-width gradient track. It is a sibling BEFORE the content rather
-        than a `-z-10` layer: negative z-index would put it behind the Section's
-        own `bg-canvas`, which then paints over it. As an earlier child it lands
-        on top of that background colour, which stays as the fallback.
+        The gradient layer is a sibling BEFORE the content rather than a `-z-10`
+        layer: negative z-index would put it behind the Section's own
+        `bg-canvas`, which then paints over it. As an earlier child it lands on
+        top of that background colour, which stays as the fallback.
+
+        Rebuilding the gradient string each frame repaints, where a transform
+        would not — acceptable for a single 800ms one-shot, and the only way to
+        rotate a gradient's direction.
       */}
-      <fm.div
-        aria-hidden
-        className="absolute inset-y-0 left-0 w-[200%] will-change-transform"
-        style={{ x: offset, backgroundImage: gradientTokens.b1Sweep }}
-      />
+      <fm.div aria-hidden className="absolute inset-0" style={{ backgroundImage }} />
       <div className="relative mx-auto flex max-w-[880px] flex-col items-center gap-3xl text-center">
         <div className="flex flex-col items-center gap-md">
           <Reveal>
