@@ -12,7 +12,7 @@ import Container from './Container'
  * Figma: homepage bands — node 2761:1214
  * https://www.figma.com/design/LASrWn0jXyj5nBaphi2jgI/TypeB-Creative-Exploration?node-id=2761-1214
  */
-export type SectionTone = 'dark' | 'light' | 'accent'
+export type SectionTone = 'dark' | 'light' | 'accent' | 'none'
 export type SectionSpacing = 'none' | 'compact' | 'default' | 'loose'
 
 export type SectionProps = {
@@ -29,6 +29,13 @@ const toneClasses: Record<SectionTone, string> = {
   dark: 'bg-canvas text-on-dark',
   light: 'bg-surface text-on-light',
   accent: 'bg-accent-600 text-on-dark-muted',
+  /**
+   * No ground of its own — an ancestor paints it. Used where two sections have
+   * to share ONE animated background so the colour change reads as a single
+   * crossfade across the whole viewport rather than as a boundary between two
+   * differently-coloured boxes. Set the text colour via `className`.
+   */
+  none: '',
 }
 
 /** Derived from the gaps between homepage bands (48 / 80 / 80+). */

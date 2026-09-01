@@ -492,6 +492,23 @@ export const motion = {
     /** Viewport heights of scroll — roughly one per offering, plus dwell. */
     pinLength: 2.5,
     /**
+     * White -> turquoise, measured across the viewport-height of scroll before
+     * the offerings panel pins. Both the light band and the scene share one
+     * animated ground (see WorkToOfferings), so this is a single crossfade of
+     * the whole screen rather than a gradient travelling through it.
+     *
+     * Starts once the light band's content has largely cleared and finishes just
+     * before the panel locks, so there is no stretch of flat white waiting for
+     * the colour to arrive.
+     */
+    groundFade: { start: 0.34, end: 0.92 },
+    /**
+     * Offerings content fades in behind the ground, not with it. Its type is
+     * cream: over a half-transitioned ground it has almost no contrast, so it
+     * waits until the turquoise has largely arrived.
+     */
+    contentFade: { start: 0.72, end: 0.98 },
+    /**
      * Offerings start stepping almost immediately now. The light-to-turquoise
      * blend no longer happens inside this scene — see the bridge on the section
      * above — so nothing has to finish before selection can begin.

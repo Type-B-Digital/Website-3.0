@@ -881,18 +881,8 @@ function Work() {
     : { duration: motionTokens.duration.fast, ease: [...motionTokens.easing.out] }
 
   return (
-    <Section tone="light" spacing="loose" id="work" className="relative">
-      {/*
-        The light band fades into the turquoise of the offerings scene BEFORE it
-        ends, so the two never meet on a line and there is no stretch of plain
-        white in between. Doing it here rather than inside the next scene means
-        the blend has finished by the time the boundary arrives, whatever the
-        viewport height.
-      */}
-      <div
-        aria-hidden
-        className="section-bridge pointer-events-none absolute inset-x-0 bottom-0 h-[60vh]"
-      />
+    /* Ground comes from WorkToOfferings, which crossfades it into the accent. */
+    <Section tone="none" spacing="loose" id="work" className="relative text-on-light">
       <div className="relative grid gap-4xl lg:grid-cols-[519px_1fr]">
         <div className="flex flex-col gap-3xl">
           <Reveal>
@@ -1022,6 +1012,18 @@ function Partner() {
     target: sceneRef,
     offset: ['start start', 'end end'],
   })
+
+  // Entry progress, for fading the content in once the shared ground has
+  // actually turned turquoise — cream type over a pale ground is unreadable.
+  const { scrollYProgress: entryProgress } = useScroll({
+    target: sceneRef,
+    offset: ['start end', 'start start'],
+  })
+  const contentOpacity = useTransform(
+    entryProgress,
+    [offeringScene.contentFade.start, offeringScene.contentFade.end],
+    [0, 1],
+  )
 
   const { selectStart } = offeringScene
   const fractionFor = (target: number) =>
@@ -1158,14 +1160,71 @@ function Partner() {
       className="relative"
       style={{ height: `${offeringScene.pinLength * 100}vh` }}
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden bg-accent-600 text-on-dark-muted">
-        <div className="flex size-full flex-col justify-between pt-5xl">
+      {/* No ground here either — WorkToOfferings paints it. */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden text-on-dark-muted">
+        <fm.div className="flex size-full flex-col justify-between pt-5xl" style={{ opacity: contentOpacity }}>
           {header}
           <div className="flex flex-1 items-center py-4xl">{row}</div>
           {values}
-        </div>
+        </fm.div>
       </div>
     </div>
+  )
+}
+
+/**
+ * WorkToOfferings — the light band and the offerings scene share ONE animated
+ * ground so the change from white to turquoise happens as a single crossfade
+ * across the whole viewport.
+ *
+ * This mirrors how the highlight scene hands over to the light section above:
+ * there, a pinned panel's own background colour animates, so the entire screen
+ * changes at once and there is never a moment with both colours on it.
+ *
+ * A vertical gradient cannot do that. Even a well-eased one puts white at the
+ * top of the screen and turquoise at the bottom simultaneously, which reads as
+ * a band travelling through the page rather than as the page changing colour.
+ *
+ * The marker is a zero-height element at the boundary; tracking it from
+ * 'start end' to 'start start' gives progress across exactly the viewport-height
+ * of scroll before the offerings panel pins, which is the window the crossfade
+ * has to finish in.
+ */
+function WorkToOfferings() {
+  const markerRef = useRef<HTMLDivElement>(null)
+  const prefersReduced = useReducedMotion()
+  const { scrollYProgress } = useScroll({
+    target: markerRef,
+    offset: ['start end', 'start start'],
+  })
+
+  const background = useTransform(
+    scrollYProgress,
+    [
+      motionTokens.offeringScene.groundFade.start,
+      motionTokens.offeringScene.groundFade.end,
+    ],
+    [colorTokens.background.surface, colorTokens.background.accent],
+  )
+
+  if (prefersReduced) {
+    return (
+      <>
+        <div className="bg-surface">
+          <Work />
+        </div>
+        <Partner />
+      </>
+    )
+  }
+
+  return (
+    <fm.div style={{ backgroundColor: background }}>
+      <Work />
+      {/* Zero-height boundary marker the crossfade is timed against. */}
+      <div ref={markerRef} aria-hidden className="h-0" />
+      <Partner />
+    </fm.div>
   )
 }
 
@@ -1303,8 +1362,7 @@ export function HomePage() {
         <BoldBrilliantBeautiful />
         <Pillars />
         <Stages />
-        <Work />
-        <Partner />
+        <WorkToOfferings />
         <ClosingCta />
       </main>
       <SiteFooter />

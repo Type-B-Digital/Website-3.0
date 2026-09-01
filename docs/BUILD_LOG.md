@@ -836,3 +836,53 @@ edge. Now `scale-125`, which covers ±12.5%.
 - Footer glow reshaped: wide and horizontal, sitting on the bottom edge and
   translated down by half its height so the lower half falls below the fold,
   rather than a rotated blob centred in the component.
+
+
+---
+
+## Update — 2026-08-31 (fifth pass): the white-to-turquoise change, done properly
+
+Two previous attempts were both wrong, in different ways, and it is worth being
+precise about why.
+
+**Attempt one** faded the offerings scene's own ground once it had pinned. That
+left a long stretch of flat white first — the panel has to climb a full viewport
+before it pins, and it was white the whole way.
+
+**Attempt two** put an eased vertical gradient at the bottom of the light band.
+That removed the white stretch and had no measurable discontinuity, but it was
+still the wrong *kind* of transition: a gradient necessarily puts white at the
+top of the screen and turquoise at the bottom **at the same time**, so it reads
+as a band travelling through the page rather than the page changing colour.
+
+The dark-to-light handover above works because a pinned panel's own
+`background-color` animates: the whole screen changes at once, and there is
+never a frame with both colours on it. That is the behaviour to mirror, and a
+gradient cannot produce it.
+
+### What it is now
+
+`WorkToOfferings` wraps the light band and the offerings scene and owns **one
+animated background** between them. Both sections render with `tone="none"` — a
+new Section tone meaning "an ancestor paints the ground" — so there is a single
+colour behind both, crossfading as the boundary approaches.
+
+Timed against a zero-height marker at the boundary, tracked `'start end'` ->
+`'start start'`, which is exactly the viewport-height of scroll before the panel
+pins.
+
+Verified by sampling a column down the whole viewport at each stage. Spread is
+the largest channel difference between top and bottom of the screen:
+
+```
+entry 0.3   (255,255,255) .. (255,255,255)   spread 0
+entry 0.5   (217,221,222) .. (217,221,222)   spread 0
+entry 0.7   (158,169,173) .. (158,169,173)   spread 0
+entry 0.9   ( 51, 92,103) .. ( 51, 92,103)   spread 0
+```
+
+Spread 0 at every stage: the screen is one flat colour throughout, which is the
+whole point and the thing the gradient could never do.
+
+The offerings content fades in behind the ground rather than with it — its type
+is cream, and over a half-transitioned ground it has almost no contrast.

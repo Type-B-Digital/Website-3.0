@@ -307,29 +307,3 @@
 }
 
 
-/**
- * Section bridge — fades a light band into the accent ground before the two
- * ever meet on an edge.
- *
- * The stops follow an ease rather than a straight ramp. A linear
- * `transparent -> accent` is numerically continuous but still reads as a line:
- * the colour changes at a constant rate and then stops dead at the boundary,
- * and the eye picks up that discontinuity in the RATE as a Mach band. Easing
- * flattens both ends so there is nothing for it to catch on.
- *
- * `color-mix` keeps this tied to the accent token, so it follows a mood swap
- * instead of freezing the turquoise in place.
- */
-.section-bridge {
-  background-image: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--color-accent-600) 0%, transparent) 0%,
-    color-mix(in srgb, var(--color-accent-600) 3%, transparent) 24%,
-    color-mix(in srgb, var(--color-accent-600) 14%, transparent) 44%,
-    color-mix(in srgb, var(--color-accent-600) 38%, transparent) 62%,
-    color-mix(in srgb, var(--color-accent-600) 68%, transparent) 77%,
-    color-mix(in srgb, var(--color-accent-600) 88%, transparent) 88%,
-    color-mix(in srgb, var(--color-accent-600) 97%, transparent) 95%,
-    var(--color-accent-600) 100%
-  );
-}
