@@ -790,3 +790,49 @@ re-verified.
   diamond edges. Same colours, `mix-blend-hard-light`, no edge to clip.
 - `arrow-right.svg` and `caret-down.svg` deleted — superseded by the inline
   `currentColor` icon components.
+
+
+---
+
+## Update — 2026-08-31 (fourth pass): five corrections
+
+### The white-to-turquoise bridge was numerically fine and still looked broken
+
+Scanning the pixel column across the boundary showed no discontinuity at all —
+the gradient reached `rgb(19,80,93)` exactly, and the section below was the same
+value. The problem was the **rate**: a straight `transparent -> accent` ramp
+changes at a constant ~0.6/px right up to the boundary and then stops dead, and
+the eye reads that discontinuity in the derivative as an edge. A Mach band.
+
+The bridge is now `.section-bridge` in globals.css with eased stops, so the
+change decelerates into the final colour. Measured rate approaching the boundary:
+
+```
+before   6  6  6  6  6  6  6 -> 0     (constant, then a cliff)
+after   11 10  9  8  7  5  3 -> 0     (decelerating)
+```
+
+It also uses `color-mix` against `--color-accent-600` rather than a baked hex,
+so it follows a mood swap instead of freezing the turquoise in place.
+
+### The gap under the values marquee was the parallax running out of image
+
+Layout was innocent: the offerings scene ends at 10021 and the CTA section
+starts at 10021, gap of exactly 0. The dark band was the closing CTA's own ground
+showing through — `ParallaxSection` at `base` speed travels ±9% of the element
+height, and the image was only `scale-110`, so at the extremes of the travel it
+no longer covered and the section's dark background appeared as a strip along one
+edge. Now `scale-125`, which covers ±12.5%.
+
+**Rule: a full-bleed parallax image must be scaled by at least
+`1 + 2 × parallax[speed]`, or it will uncover at the ends of its travel.**
+
+### Also
+
+- Values marquee now `accent-400`, the same colour as an unselected offering, so
+  the band reads as one family.
+- Closing CTA at `min-h-screen` (verified 757 = viewport height) instead of a
+  fixed 720px.
+- Footer glow reshaped: wide and horizontal, sitting on the bottom edge and
+  translated down by half its height so the lower half falls below the fold,
+  rather than a rotated blob centred in the component.

@@ -891,10 +891,7 @@ function Work() {
       */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[50vh]"
-        style={{
-          backgroundImage: `linear-gradient(to bottom, transparent, ${colorTokens.background.accent})`,
-        }}
+        className="section-bridge pointer-events-none absolute inset-x-0 bottom-0 h-[60vh]"
       />
       <div className="relative grid gap-4xl lg:grid-cols-[519px_1fr]">
         <div className="flex flex-col gap-3xl">
@@ -1128,7 +1125,8 @@ function Partner() {
         aria-hidden="true"
         className="pointer-events-none absolute bottom-0 left-1/2 w-[70%] -translate-x-1/2"
       />
-      <Marquee speed="marqueeSlow" className="relative">
+      {/* Same colour as an unselected offering, so the band reads as one family. */}
+      <Marquee speed="marqueeSlow" className="relative text-accent-400">
         {VALUES.map((value) => (
           <Typography key={value} variant="h1" as="span" className="whitespace-nowrap">
             {value}
@@ -1175,7 +1173,7 @@ function Partner() {
 function ClosingCta() {
   return (
     <Section tone="dark" spacing="none" bare id="contact">
-      <div className="relative isolate flex min-h-[720px] items-center justify-center overflow-hidden">
+      <div className="relative isolate flex min-h-screen items-center justify-center overflow-hidden">
         {/*
           Replaced 2026-08-31 with the artwork Eduardo supplied at the band's own
           1440x720, so it needs no crop transform — just object-cover.
@@ -1187,11 +1185,16 @@ function ClosingCta() {
             nothing to resolve against and it collapses to its natural size.
           */}
           <div className="absolute inset-0">
+            {/*
+              scale-125, not 110: ParallaxSection travels +/-9% of the height at
+              `base` speed, so a 110% image runs out of cover at the extremes and
+              lets the section's dark ground show as a band along one edge.
+            */}
             <img
               src="/images/cta-band.png"
               alt=""
               aria-hidden="true"
-              className="size-full scale-110 object-cover"
+              className="size-full scale-125 object-cover"
             />
           </div>
         </ParallaxSection>
@@ -1229,7 +1232,7 @@ function SiteFooter() {
       */}
       <div
         aria-hidden
-        className="footer-glow absolute left-[-10%] top-[10%] h-[110%] w-[120%] rotate-[8deg]"
+        className="footer-glow absolute inset-x-[-8%] bottom-0 h-[85%] translate-y-1/2"
       />
       <Container className="relative">
         {/* Figma: 440px statement column, nav columns to its right — node 3390:26636 */}
