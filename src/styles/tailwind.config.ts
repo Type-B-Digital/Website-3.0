@@ -88,6 +88,7 @@ export default {
         scrim: colors.background.scrim,
         'scrim-strong': colors.background.scrimStrong,
         'tag-bg': colors.background.tag,
+        'chip-light': colors.background.chipLight,
       },
       textColor: {
         'on-dark': colors.text.onDark,

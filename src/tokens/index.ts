@@ -178,8 +178,14 @@ export const colors = {
     surface: unmapped.white,
     /** Accent band — "How we partner". Figma: "bg-turquoise" — node 3390:26776 */
     accent: palette.turquoise[600],
-    /** Eyebrow chip on accent grounds. Figma: 3390:26567 */
+    /** Eyebrow chip on accent grounds — #13505D. Figma: 3390:26567 */
     chipAccent: palette.turquoise[600],
+    /**
+     * Eyebrow chip on light grounds — #F7DDC1, i.e. amber.100.
+     * Was white, which is invisible on a white section; the artboard uses the
+     * warm tint. Figma: nodes 3390:26431 and 3390:26437.
+     */
+    chipLight: palette.amber[100],
     /** Tag pill on light grounds — neutral.200 @ 40%. Figma: 3390:26451 */
     tag: 'rgba(198, 196, 194, 0.4)',
     /** Scrim over card imagery — neutral.900 @ 40%. Figma: 3390:26457 */

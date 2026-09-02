@@ -496,7 +496,18 @@ function StackImage({
   const start = scene.images.start + index * scene.images.stagger
   const end = start + scene.images.duration
 
-  const x = useTransform(progress, [start, end], [`${scene.imageEnter}%`, '0%'])
+  const travel = useTransform(progress, [start, end], [scene.imageEnter, 0])
+  /*
+    A spring per image, on top of the scene's already-smoothed progress. The
+    scene lag makes the whole frame trail the scroll; this makes each card
+    settle on its own, so the three do not arrive locked together. Damping
+    rises slightly with index so later cards settle a touch softer.
+  */
+  const lagged = useSpring(travel, {
+    ...motionTokens.scrollLag,
+    damping: motionTokens.scrollLag.damping + index * 3,
+  })
+  const x = useTransform(lagged, (value) => `${value}%`)
   const opacity = useTransform(progress, [start, start + 0.03], [0, 1])
 
   return (
@@ -797,7 +808,12 @@ function Pillars() {
   return (
     // `bare` so the card row can run full-bleed past the content width; the
     // header keeps its own Container and normal 80px margins.
-    <Section tone="light" spacing="loose" bare>
+    /*
+      Bottom trimmed to 80px so that with the next section's 80px top the
+      boundary is 160px total, matching the artboard (cards end y=3416, the next
+      frame starts y=3569). Two `loose` sections would otherwise stack to 320.
+    */
+    <Section tone="light" spacing="loose" bare className="pb-4xl xl:pb-4xl">
       <div className="flex flex-col gap-3xl">
         <Container>
           <Reveal>
@@ -822,19 +838,21 @@ function Pillars() {
           page scrolls; no scroll container, so no scrollbar.
         */}
         <ScrollTrack>
-          {PILLARS.map((pillar) => (
+          {PILLARS.map((pillar, i) => (
             <li key={pillar.title} className="w-[410px] shrink-0">
-              <Card
-                src="/images/scene.png"
-                alt=""
-                crop={pillar.crop}
-                aspect="horizontalSmall"
-                scrim
-              >
-                <Typography variant="subHeaderSmall" as="h3" className="text-on-dark">
-                  {pillar.title}
-                </Typography>
-              </Card>
+              <Reveal index={i}>
+                <Card
+                  src="/images/scene.png"
+                  alt=""
+                  crop={pillar.crop}
+                  aspect="horizontalSmall"
+                  scrim
+                >
+                  <Typography variant="subHeaderSmall" as="h3" className="text-on-dark">
+                    {pillar.title}
+                  </Typography>
+                </Card>
+              </Reveal>
             </li>
           ))}
         </ScrollTrack>
@@ -846,7 +864,7 @@ function Pillars() {
 /** Figma: "Frame 1000003413" — node 3390:26435 */
 function Stages() {
   return (
-    <Section tone="light" spacing="loose">
+    <Section tone="light" spacing="loose" className="pt-4xl xl:pt-4xl">
       <div className="flex flex-col items-center gap-3xl">
         <Reveal>
           <div className="flex flex-col items-center gap-md text-center">
@@ -962,6 +980,7 @@ function Work() {
             const isActive = active === i
             return (
               <li key={`${project.name}-${i}`} className="border-b border-divider">
+                <Reveal index={i}>
                 <a
                   href="#"
                   onMouseEnter={() => setActive(i)}
@@ -1006,6 +1025,7 @@ function Work() {
                     </fm.div>
                   </div>
                 </a>
+                </Reveal>
               </li>
             )
           })}

@@ -995,3 +995,53 @@ to change back.
   footer and BBB glows.
 - Values marquee: 24px between words and divider dots, 16px below. Verified
   `padding-left 24px / column-gap 24px / padding-bottom 16px`.
+
+
+---
+
+## Update — 2026-09-02 (second pass): reveals, spacing, eyebrow colour
+
+### Eyebrow chips on light sections were the wrong colour
+
+They were `bg-surface` — white, on a white section, so effectively invisible.
+The artboard uses **`#F7DDC1`** (amber.100) with ink text: nodes 3390:26431
+("We do things different") and 3390:26437 ("Who we serve"). The accent-band chip
+was already right at `#13505D` (node 3390:26567).
+
+Added as `colors.background.chipLight`. Verified computed:
+`rgb(247,221,193)` on both light chips, `rgb(19,80,93)` on the accent one.
+
+**Separate discrepancy, not changed:** the artboard sets eyebrow text at Regular
+weight, while `typography.eyebrow` is SemiBold — that came from the token
+board's own sample, which disagrees with every in-page instance. Left on the
+token since only the background was in scope; worth a decision.
+
+### Intro images now lag individually
+
+The scene's progress was already smoothed, which made the whole frame trail the
+scroll — but the three cards still moved in lockstep. Each now has its own
+spring on top of that, with damping rising slightly by index so later cards
+settle a touch softer. Measured `translateX`:
+
+```
+progress 0.15   [491, 680, 717]   all still out to the right
+progress 0.45   [  4, 436, 717]   first settled, second entering
+progress 0.75   [  0,   6, 414]   third entering
+progress 1.00   [  0,   0,   9]   last few px still easing in
+```
+
+That trailing 9px is the point: the value arrives after the scroll does.
+
+### Feathered reveals extended
+
+Added to the four "What sets us apart" cards and to the "We solve real problems"
+list rows, both staggered. The "Who we serve" copy already had one. The card row
+lives inside `ScrollTrack`, so each card is now both translated by the track and
+revealed on its own trigger; the two compose without interfering because the
+track moves the row and the reveal moves the item.
+
+### 160px between the two light sections
+
+Both were `spacing="loose"`, which stacks 160 + 160 = 320. Trimmed to 80 each,
+verified `pb 80 + pt 80 = 160px`. The artboard has the cards ending at y=3416
+and the next frame starting at y=3569.
