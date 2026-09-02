@@ -1211,3 +1211,46 @@ grain. A tall `Emulation.setDeviceMetricsOverride` is also useless on these
 pages, since it stretches every `100vh` section and moves each offset. The
 working recipe for full-section shots: real 1440×900 viewport, step-scroll the
 document once to fire every `once: true` reveal, then clip.
+
+## navigation-dark on What We Do (Sep 2, 2026)
+
+Figma node 3605:1436. The name describes the *elements*, not the ground —
+"navigation-dark" is the ink-on-cream variant, for pages whose hero is light.
+`SiteHeader`'s `tone` prop keeps naming the ground instead (`onLight` renders
+navigation-dark), since that is what a caller knows about its own hero.
+
+Three parts invert between the variants, and only the links had been doing so:
+
+| | onDark (navigation-main) | onLight (navigation-dark) |
+|---|---|---|
+| logo | `#F6F2EC` | `#040E19` |
+| links | `#F6F2EC` @ 80% | `#040E19` @ 80% (3605:1458) |
+| CTA | cream pill, ink label | ink pill, cream label (3605:1472) |
+
+The CTA was the visible miss: a cream pill carried over onto the light hero,
+where it reads as a hole punched in the page. The artboard fills it `#040E19`
+with `#F6F2EC` text, which is exactly `variant="primary" tone="onLight"`, so
+the fix is passing `tone` through rather than pinning it to `onDark`.
+
+**The logo became a component.** The two artboards export it as separate SVGs,
+but stripped of their `fill` attribute the two files are byte-identical — the
+only difference is the baked colour. `icons/TypeBLogo.tsx` draws it with
+`fill="currentColor"` instead, the same treatment `ArrowRight` and `CaretDown`
+already had, so the header's tone drives the mark and there is no second 6KB
+file to drift. `public/icons/type-b-logo.svg` is deleted; the footer uses the
+component too.
+
+Two details worth keeping: the mark is one boolean-operation path whose
+counters are subpaths, so it needs `fillRule="evenodd"` or the bowl of the B
+fills solid. And the tone classes pin to `neutral-50` / `neutral-900` rather
+than the semantic `text-on-dark`, which resolves to `paper` (#F6F6F6) and would
+have drifted the homepage mark a shade off its own nav links — measured
+`rgb(246, 246, 246)` against links at `rgb(246, 242, 236)` before it was
+pinned.
+
+Verified computed styles on both routes:
+
+```
+/what-we-do  logo #040E19  links #040E19 @ .8  CTA #040E19 on #F6F2EC
+/            logo #F6F2EC  links #F6F2EC @ .8  CTA #F6F2EC on #040E19
+```

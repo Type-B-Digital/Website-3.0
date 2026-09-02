@@ -1,4 +1,5 @@
 import { Container, ParallaxSection, Typography } from '@/components'
+import TypeBLogo from '@/components/icons/TypeBLogo'
 
 /**
  * Site footer — shared by every page. Figma node 3390:26636 on the homepage and
@@ -43,7 +44,9 @@ export function SiteFooter() {
         {/* Figma: 440px statement column, nav columns to its right — node 3390:26636 */}
         <div className="grid gap-4xl lg:grid-cols-[minmax(0,440px)_1fr]">
           <div className="flex flex-col gap-lg">
-            <img src="/icons/type-b-logo.svg" alt="Type B Digital" width={97} height={32} />
+            {/* Cream on the footer ground; see the note in SiteHeader on why
+                this pins to the ramp rather than `text-on-dark`. */}
+            <TypeBLogo className="text-neutral-50" />
             <Typography variant="subHeaderSmall" className="max-w-[440px]">
               Most partners do one slice. We do the whole stack.
             </Typography>

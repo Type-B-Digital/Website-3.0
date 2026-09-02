@@ -2,18 +2,30 @@ import { Link } from 'react-router-dom'
 import { Button, Container } from '@/components'
 import { cn } from '@/lib/cn'
 import CaretDown from '@/components/icons/CaretDown'
+import TypeBLogo from '@/components/icons/TypeBLogo'
 
 /**
- * Site header — shared by every page. Figma "navigation-main": node 3390:26593
- * on the homepage, node 3604:1352 on What We Do; identical, so one component.
+ * Site header — shared by every page. Figma ships two variants:
+ *   navigation-main  node 3390:26593 (homepage)
+ *   navigation-dark  node 3605:1436  (What We Do and every light-hero page)
  *
- * `tone` picks which ground the links are drawn for. The homepage hero is dark
- * so the links are cream; the What We Do hero is a light-to-orange gradient and
- * the artboard draws them in ink there (node 3604:1374 is `#040E19`) — cream is
- * genuinely unreadable over it.
+ * Figma's names describe the *elements*, not the ground: "navigation-dark" is
+ * the ink-on-cream variant. `tone` here names the ground instead — `onLight`
+ * renders navigation-dark — because that is what a caller actually knows about
+ * its own hero.
  *
- * The CTA pill is unchanged between the two: cream with ink text reads on both
- * grounds, and the artboard reuses the same component instance.
+ * Every part of the mark inverts between the two, not just the links:
+ *
+ *   |         | onDark (navigation-main) | onLight (navigation-dark) |
+ *   |---------|--------------------------|---------------------------|
+ *   | logo    | cream                    | ink                       |
+ *   | links   | cream @ 80%              | ink @ 80%   (3605:1458)   |
+ *   | CTA     | cream pill, ink label    | ink pill, cream label     |
+ *
+ * The CTA was the part that had been missed: a cream pill was carried over to
+ * the light nav, where it reads as a hole punched in the page. The artboard
+ * fills it `#040E19` with `#F6F2EC` text (node 3605:1472/1473) — which is
+ * exactly `Button variant="primary" tone="onLight"`.
  */
 /**
  * Nav items carry their route where one exists. The rest stay inert until their
@@ -30,13 +42,24 @@ const NAV_LINKS: { label: string; to?: string }[] = [
 export type SiteHeaderTone = 'onDark' | 'onLight'
 
 export function SiteHeader({ tone = 'onDark' }: { tone?: SiteHeaderTone }) {
-  const linkColour = tone === 'onDark' ? 'text-on-dark-muted' : 'text-on-light'
+  const onDark = tone === 'onDark'
+  const linkColour = onDark ? 'text-on-dark-muted' : 'text-on-light'
   return (
     <header className="absolute inset-x-0 top-0 z-50 pt-xl">
       <Container>
         <nav className="flex items-center justify-between" aria-label="Primary">
-          <Link to="/" className="shrink-0" aria-label="Type B Digital — home">
-            <img src="/icons/type-b-logo.svg" alt="Type B Digital" width={97} height={32} />
+          {/*
+            The ramp ends, not the semantic text tokens: both artboard exports
+            bake the mark at exactly `neutral-50` / `neutral-900`, and
+            `text-on-dark` resolves to `paper` (#F6F6F6), which would drift the
+            homepage mark a shade off its own nav links.
+          */}
+          <Link
+            to="/"
+            className={cn('shrink-0', onDark ? 'text-neutral-50' : 'text-neutral-900')}
+            aria-label="Type B Digital — home"
+          >
+            <TypeBLogo />
           </Link>
 
           <ul className="hidden items-center gap-lg opacity-muted lg:flex">
@@ -65,7 +88,8 @@ export function SiteHeader({ tone = 'onDark' }: { tone?: SiteHeaderTone }) {
             })}
           </ul>
 
-          <Button as="a" href="#contact" variant="primary" tone="onDark">
+          {/* Inverts with the ground: cream pill on dark, ink pill on light. */}
+          <Button as="a" href="#contact" variant="primary" tone={tone}>
             Let’s talk!
           </Button>
         </nav>
