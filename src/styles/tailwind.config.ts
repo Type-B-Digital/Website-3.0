@@ -25,8 +25,18 @@ import {
   unmapped,
 } from '../tokens'
 
-/** `subHeaderLarge` -> `sub-header-large`, so classes read `text-sub-header-large`. */
-const kebab = (s: string) => s.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
+/**
+ * `subHeaderLarge` -> `sub-header-large`, so classes read `text-sub-header-large`.
+ *
+ * The second pass handles consecutive capitals. Without it `copyXSmall` became
+ * `copy-xsmall` while Typography asked for `text-copy-x-small`, so that variant
+ * silently had no font-size at all and inherited 16px — everywhere it was used.
+ */
+const kebab = (s: string) =>
+  s
+    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
+    .toLowerCase()
 
 /** Tailwind wants `[size, { lineHeight, fontWeight, letterSpacing }]` tuples. */
 const fontSize: Record<string, [string, Record<string, string>]> = Object.fromEntries(

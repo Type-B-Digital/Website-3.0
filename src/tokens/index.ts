@@ -181,8 +181,15 @@ export const colors = {
   background: {
     /** Page ground for dark sections. Figma: homepage hero + stats bands */
     canvas: palette.neutral[900],
-    /** Page ground for light sections. Figma: "bg-white" — node 3390:26422 */
-    surface: unmapped.white,
+    /**
+     * Page ground for light sections — `#F6F2EC` (neutral.50).
+     *
+     * Was `#FFFFFF`, taken from the Figma layer literally named "bg-white"
+     * (node 3390:26422). The layer name was misleading: the light body ground
+     * is the brand cream. Moving it here also retires one of the three
+     * off-board colours in `unmapped`.
+     */
+    surface: palette.neutral[50],
     /** Accent band — "How we partner". Figma: "bg-turquoise" — node 3390:26776 */
     accent: palette.turquoise[600],
     /** Eyebrow chip on accent grounds — #13505D. Figma: 3390:26567 */

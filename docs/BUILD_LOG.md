@@ -1119,3 +1119,95 @@ marked at its use site.
 **One of these needs a decision, not an export:** the comparison matrix marks
 each cell with one of several screenshot placeholders, so which cells read as
 "covered" is not recoverable from the file. Every cell currently draws the same.
+
+## What We Do — fix pass (Sep 2, 2026)
+
+Ten corrections from review of the first What We Do build.
+
+**`copyXSmall` was silently 16px everywhere.** `tailwind.config.ts` kebab-cases
+the typography token keys, and the single-pass regex turned `copyXSmall` into
+`copy-xsmall` while `Typography` asked for `text-copy-x-small`. That class was
+never generated, so every 12px variant on the site inherited 16px — including
+the homepage footer copyright. Added a second pass for consecutive capitals:
+
+```ts
+.replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+.replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
+```
+
+`.text-copy-x-small{font-size:12px;line-height:1.5;font-weight:400}` now emits.
+Worth noting the failure mode: a missing Tailwind class is silent, and the
+inherited 16px is close enough to 12px to survive a glance.
+
+**Light page ground is `#F6F2EC`, not white.** `colors.background.surface` was
+`#FFFFFF`, taken from a Figma layer literally named "bg-white" (node
+3390:26422). The name was misleading — the light body ground is the brand cream,
+which is already `palette.neutral[50]`. Pointing the token at the ramp also
+retires one of the three off-board colours in `unmapped`. Verified computed
+section background `rgb(246, 242, 236)`.
+
+**Service rows.** "Learn more" is now `variant="secondary"` (outlined —
+measured `1px rgba(7, 27, 39, 0.24)`). The offering name takes
+`whitespace-nowrap` so it stays on one line per the artboard, and the audience
+column and case-study card copy are 12px. The icon circles were present but
+invisible: a 8% fill on cream renders as nothing, so they now carry
+`bg-neutral-900/10` plus an inset ring and an inner ringed dot. Still
+placeholders — the artboard's icon is a `Dummy_Square_Circle` instance.
+
+**Case-study card bottom-alignment was a symptom, not the bug.** The card
+overhung the image by 34px. The artboard's right column is exactly as tall as
+the image — the card at node 3604:1049 sits at y=279 with height 96, so it ends
+at 375 — and the overhang came from three intrinsic sizes being wrong, not from
+a missing alignment rule:
+
+| | artboard | was | now |
+|---|---|---|---|
+| offering row pitch | 56 | 65 | 57 |
+| "Services" label block | 45 | 37 | 45 |
+| Services block total | 213 | 233 | 217 |
+| right column | 375 | 409 | 375 |
+
+Row padding went `py-md` → `py-tag` (16 → 12, giving 12+32+12) and the label gap
+`gap-md` → `gap-lg` (16 → 24). The residual 1px per row is the divider, which
+Figma draws as a zero-thickness line.
+
+With those right, the column's content comes to ~337px — less than the image —
+so the image drives the grid row height and `justify-between` lands the card
+flush against its bottom. The hard `gap-4xl` (80px) that was there before was
+what pushed the column past the image in the first place; it is now `gap-lg`, a
+floor rather than a fixed gap. Measured: image and column both 375, both
+bottoming at the same y.
+
+**Why we exist** was rebuilt as a single CSS grid. The first pass gave each row
+its own flex container, so the cells, row labels and column labels shared no
+column tracks and nothing lined up. Coverage is now explicit, and Type B's row
+is filled in the warm accent against ink for the others, so the point of the
+section reads at a glance:
+
+```ts
+const COVERAGE: Record<string, readonly string[]> = {
+  'AI Shops': ['AI'],
+  'Staffing agencies': ['Teams'],
+  'Product studios': ['Strategy', 'Design', 'Build'],
+  'Type B Digital': MATRIX_COLUMNS,
+}
+```
+
+**How we package it** — the lead quadrant is now a dark card (`bg-canvas`,
+`text-on-dark`) with the three tiers on `border-y border-divider`; all four
+columns end on the same line via `justify-between`. Column icons remain
+placeholders (Chart_Line, House_02, Heart_01, Mobile_Button).
+
+**Senior teams** carries the seven 80×80 gradient blocks from Source to Onboard,
+one per gradient `b1`–`b7`. Verified: 7 blocks, all `80x80`.
+
+### Verification note
+
+`Page.captureScreenshot` with `captureBeyondViewport` produced a hard
+horizontal seam across the service section — the fixed `.page-grain` overlay is
+laid out against the real viewport and does not tile into the expanded capture.
+It is a capture artifact, not a defect; plain in-viewport captures show uniform
+grain. A tall `Emulation.setDeviceMetricsOverride` is also useless on these
+pages, since it stretches every `100vh` section and moves each offset. The
+working recipe for full-section shots: real 1440×900 viewport, step-scroll the
+document once to fire every `once: true` reveal, then clip.

@@ -15,6 +15,7 @@
  * icon instances on the artboard. They reuse assets already in the repo, marked
  * at each use. The three service photographs ARE the real exports.
  */
+import { Fragment } from 'react'
 import {
   Button,
   Eyebrow,
@@ -101,7 +102,24 @@ const MATRIX_ROWS = [
   { name: 'Product studios', note: 'Not AI native' },
   { name: 'Type B Digital', note: 'Able to serve end to end' },
 ]
-const MATRIX_COLUMNS = ['AI', 'Strategy', 'Design', 'Build', 'Teams']
+const MATRIX_COLUMNS = ['AI', 'Strategy', 'Design', 'Build', 'Teams'] as const
+
+/**
+ * Which capabilities each kind of vendor actually covers.
+ *
+ * ⚠ INFERRED, not extracted. The artboard marks every cell with one of several
+ * screenshot placeholders, so the covered/uncovered state is not recoverable
+ * from the file. This reading follows each row's own subtitle — AI shops build
+ * the agent, staffing agencies place people, product studios are "not AI
+ * native" — and the section's argument, which is that only Type B covers all
+ * five. Correct the map if the intent differs.
+ */
+const COVERAGE: Record<string, readonly string[]> = {
+  'AI Shops': ['AI'],
+  'Staffing agencies': ['Teams'],
+  'Product studios': ['Strategy', 'Design', 'Build'],
+  'Type B Digital': MATRIX_COLUMNS,
+}
 
 /** Figma: node 3604:1261 */
 const PACKAGES = [
@@ -133,14 +151,19 @@ const PACKAGES = [
 ]
 
 /** Figma: node 3604:1172 */
+/**
+ * The seven intake steps. Each carries an 80x80 block; the artboard uses
+ * screenshot placeholders, so these use the brand gradients (b1-b7) in sequence,
+ * which reads as a progression and stays on tokens.
+ */
 const PROCESS = [
-  'Source',
-  'Screen',
-  'Assess',
-  'Tech Interview',
-  'Client Interview',
-  'Contract',
-  'Onboard',
+  { label: 'Source', gradient: gradients.b1 },
+  { label: 'Screen', gradient: gradients.b2 },
+  { label: 'Assess', gradient: gradients.b3 },
+  { label: 'Tech Interview', gradient: gradients.b4 },
+  { label: 'Client Interview', gradient: gradients.b5 },
+  { label: 'Contract', gradient: gradients.b6 },
+  { label: 'Onboard', gradient: gradients.b7 },
 ]
 
 /* ================================================================== *
@@ -192,20 +215,31 @@ function Hero() {
 /** One offering row inside a service block. Figma: node 3604:1028 et al. */
 function OfferingRow({ name, audience }: { name: string; audience: string }) {
   return (
-    <li className="flex items-center justify-between gap-lg border-t border-divider py-md">
-      <span className="flex items-center gap-md">
-        {/* icon-circle-grey, node 3604:1030 — placeholder mark for the icon instance */}
+    <li className="flex items-center justify-between gap-md border-t border-divider py-tag">
+      <span className="flex min-w-0 items-center gap-md">
+        {/*
+          icon-circle-grey, node 3604:1030. The icon inside is a
+          Dummy_Square_Circle instance on the artboard, so this is a placeholder
+          mark — but a visible one: at 8% on cream the previous fill was
+          invisible.
+        */}
         <span
           aria-hidden
-          className="flex size-xl shrink-0 items-center justify-center rounded-full bg-neutral-900/8"
+          className="flex size-xl shrink-0 items-center justify-center rounded-full bg-neutral-900/10 ring-1 ring-inset ring-neutral-900/15"
         >
-          <span className="size-sm rounded-full bg-neutral-900/32" />
+          <span className="size-md rounded-full border border-neutral-900/40" />
         </span>
-        <Typography variant="copyMedium" as="span">
+        {/* One line, per the artboard — the name never wraps. */}
+        <Typography variant="copyMedium" as="span" className="whitespace-nowrap">
           {name}
         </Typography>
       </span>
-      <Typography variant="copyXSmall" as="span" muted className="text-right">
+      <Typography
+        variant="copyXSmall"
+        as="span"
+        muted
+        className="shrink-0 text-right text-copy-x-small"
+      >
         {audience}
       </Typography>
     </li>
@@ -232,7 +266,7 @@ function ServiceBlock({ service }: { service: (typeof SERVICES)[number] }) {
                 {service.body}
               </Typography>
             </div>
-            <Button as="a" href="#" variant="tertiary" tone="onLight" className="shrink-0">
+            <Button as="a" href="#" variant="secondary" tone="onLight" className="shrink-0">
               Learn more
             </Button>
           </div>
@@ -247,9 +281,20 @@ function ServiceBlock({ service }: { service: (typeof SERVICES)[number] }) {
             />
           </Reveal>
 
-          <Reveal index={2}>
-            <div className="flex max-w-[519px] flex-col gap-4xl">
-              <div className="flex flex-col gap-md">
+          {/*
+            The artboard's right column is exactly as tall as the image (375px:
+            the case-study card at node 3604:1049 sits at y=279 + 96 = 375), so
+            the card's bottom edge meets the image's.
+
+            That falls out of the layout rather than being pinned: the Services
+            block plus the card come to ~337px, less than the image, so the
+            image drives the row height and `justify-between` pushes the card to
+            the bottom of it. The gap is only a floor — a hard `gap-4xl` here
+            made the column 409px and overhung the image by 34px.
+          */}
+          <Reveal index={2} className="h-full">
+            <div className="flex h-full max-w-[519px] flex-col justify-between gap-lg">
+              <div className="flex flex-col gap-lg">
                 <Typography variant="copySmall" as="h3" muted>
                   Services
                 </Typography>
@@ -268,18 +313,14 @@ function ServiceBlock({ service }: { service: (typeof SERVICES)[number] }) {
                   aria-hidden="true"
                   className="size-[96px] shrink-0 rounded-md object-cover"
                 />
-                <div className="flex w-[200px] flex-col gap-sm rounded-md bg-neutral-900/4 px-md py-sm">
+                <div className="flex w-[200px] flex-col justify-center gap-sm rounded-md bg-neutral-900/5 px-md py-sm">
                   <span className="flex items-center justify-between gap-sm">
-                    <Typography variant="copyXSmall" as="span">
-                      {service.study.name}
-                    </Typography>
+                    <span className="text-copy-x-small">{service.study.name}</span>
                     <span aria-hidden className="text-copy-x-small">
                       ↗
                     </span>
                   </span>
-                  <Typography variant="copyXSmall" as="span" muted>
-                    {service.study.result}
-                  </Typography>
+                  <span className="text-copy-x-small opacity-muted">{service.study.result}</span>
                 </div>
               </a>
             </div>
@@ -291,12 +332,15 @@ function ServiceBlock({ service }: { service: (typeof SERVICES)[number] }) {
 }
 
 /**
- * Why we exist — Figma node 3604:1187. Competitor rows down the left, capability
- * columns across.
+ * Why we exist — Figma node 3604:1187. Vendor rows down the left, capability
+ * columns across, with the capability labels beneath the grid as on the artboard.
  *
- * ⚠ The artboard marks each cell with one of several screenshot placeholders, so
- * which cells read as "covered" is not recoverable from the file. Every cell is
- * drawn the same here; the per-cell state needs a spec.
+ * Built as one CSS grid so the cells, the row labels and the column labels all
+ * share the same column tracks. The first pass positioned each with its own
+ * flex row, which is why nothing lined up.
+ *
+ * Type B's row is filled in the warm accent and the others in ink, so the point
+ * of the section — one row covering every column — reads at a glance.
  */
 function WhyWeExist() {
   return (
@@ -312,44 +356,58 @@ function WhyWeExist() {
         </Reveal>
 
         <Reveal index={1}>
-          <div className="grid gap-4xl lg:grid-cols-[193px_1fr]">
-            <ul className="flex flex-col gap-xl">
-              {MATRIX_ROWS.map((row) => (
-                <li key={row.name} className="flex flex-col gap-sm">
-                  <Typography variant="copyLarge" as="span">
-                    {row.name}
-                  </Typography>
-                  <Typography variant="copyMedium" as="span" muted>
-                    {row.note}
-                  </Typography>
-                </li>
-              ))}
-            </ul>
+          <div className="grid grid-cols-[minmax(150px,193px)_repeat(5,minmax(0,1fr))] items-center gap-x-md gap-y-xl">
+            {MATRIX_ROWS.map((row) => {
+              const covered = COVERAGE[row.name] ?? []
+              const isUs = row.name === 'Type B Digital'
+              return (
+                <Fragment key={row.name}>
+                  <div className="flex flex-col gap-xs pr-md">
+                    <Typography variant="copyLarge" as="span">
+                      {row.name}
+                    </Typography>
+                    <Typography variant="copySmall" as="span" muted>
+                      {row.note}
+                    </Typography>
+                  </div>
+                  {MATRIX_COLUMNS.map((column) => {
+                    const on = covered.includes(column)
+                    return (
+                      <span key={column} className="flex justify-center">
+                        <span
+                          aria-hidden
+                          className={cn(
+                            'size-lg rounded-full',
+                            on
+                              ? isUs
+                                ? 'bg-orange-500'
+                                : 'bg-neutral-900'
+                              : 'border border-neutral-900/20',
+                          )}
+                        />
+                        <span className="sr-only">
+                          {`${row.name} ${on ? 'covers' : 'does not cover'} ${column}`}
+                        </span>
+                      </span>
+                    )
+                  })}
+                </Fragment>
+              )
+            })}
 
-            <div className="flex flex-col gap-xl">
-              {MATRIX_ROWS.map((row) => (
-                <div key={row.name} className="flex items-center gap-sm">
-                  {MATRIX_COLUMNS.map((column, c) => (
-                    <span key={column} className="flex flex-1 items-center gap-sm">
-                      <span
-                        aria-hidden
-                        className="size-lg shrink-0 rounded-full border border-on-light"
-                      />
-                      {c < MATRIX_COLUMNS.length - 1 && (
-                        <span aria-hidden className="h-px flex-1 bg-divider" />
-                      )}
-                    </span>
-                  ))}
-                </div>
-              ))}
-              <div className="flex items-center gap-sm">
-                {MATRIX_COLUMNS.map((column) => (
-                  <Typography key={column} variant="copyMedium" as="span" muted className="flex-1">
-                    {column}
-                  </Typography>
-                ))}
-              </div>
-            </div>
+            {/* Column labels sit below the grid on the artboard (node 3604:1249). */}
+            <span aria-hidden />
+            {MATRIX_COLUMNS.map((column) => (
+              <Typography
+                key={column}
+                variant="copyMedium"
+                as="span"
+                muted
+                className="text-center"
+              >
+                {column}
+              </Typography>
+            ))}
           </div>
         </Reveal>
       </div>
@@ -358,8 +416,13 @@ function WhyWeExist() {
 }
 
 /**
- * How we package it — Figma node 3604:1255. Four 280px columns; the first names
- * the three practices and the rest are the Entry / Core / Expanded tiers.
+ * How we package it — Figma node 3604:1255. Four columns: the first names the
+ * three practices, the rest are the Entry / Core / Expanded tiers.
+ *
+ * The lead column is a dark card; the tiers are open with a rule above and
+ * below. Notes are italic. Spacing is a three-part column — icon, then the
+ * title block, then the items — with the items pushed to the bottom so all four
+ * columns end on the same line whatever their copy length.
  *
  * ⚠ The artboard uses icon-set instances (Chart_Line, House_02, Heart_01,
  * Mobile_Button) that are not exported here; each column shows a placeholder mark.
@@ -377,37 +440,44 @@ function Packaging() {
           </div>
         </Reveal>
 
-        <ul className="grid gap-lg md:grid-cols-2 xl:grid-cols-4">
+        <ul className="grid items-stretch gap-lg md:grid-cols-2 xl:grid-cols-4">
           {PACKAGES.map((pkg, i) => (
             <li key={pkg.title}>
-              <Reveal index={i}>
+              <Reveal index={i} className="h-full">
                 <div
                   className={cn(
-                    'flex h-full flex-col gap-4xl py-lg',
-                    // Only the tiers carry rules on the artboard; the lead column does not.
-                    !pkg.lead && 'border-y border-divider',
+                    'flex h-full flex-col justify-between gap-3xl',
+                    pkg.lead
+                      ? 'rounded-md bg-canvas p-lg text-on-dark'
+                      : 'border-y border-divider py-lg',
                   )}
                 >
-                  <span aria-hidden className="size-lg rounded-sm bg-neutral-900/12" />
-                  <div className="flex flex-col gap-4xl">
-                    <div className="flex flex-col gap-sm">
+                  <div className="flex flex-col gap-3xl">
+                    <span
+                      aria-hidden
+                      className={cn(
+                        'size-lg rounded-sm',
+                        pkg.lead ? 'bg-paper/25' : 'bg-neutral-900/15',
+                      )}
+                    />
+                    <div className="flex flex-col gap-xs">
                       <Typography variant="copyLarge" as="h3">
                         {pkg.title}
                       </Typography>
-                      <Typography variant="copySmall" muted>
+                      <Typography variant="copySmall" muted className="italic">
                         {pkg.note}
                       </Typography>
                     </div>
-                    <ul className="flex flex-col gap-lg">
-                      {pkg.items.map((item) => (
-                        <li key={item}>
-                          <Typography variant="copyMedium" as="span">
-                            {item}
-                          </Typography>
-                        </li>
-                      ))}
-                    </ul>
                   </div>
+                  <ul className="flex flex-col gap-lg">
+                    {pkg.items.map((item) => (
+                      <li key={item}>
+                        <Typography variant="copyMedium" as="span">
+                          {item}
+                        </Typography>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </Reveal>
             </li>
@@ -447,15 +517,16 @@ function ManagedEndToEnd() {
         </Reveal>
         <ol className="flex w-full flex-wrap items-start justify-between gap-lg">
           {PROCESS.map((step, i) => (
-            <li key={step} className="flex flex-col items-center gap-md">
+            <li key={step.label} className="flex flex-col items-center gap-md">
               <Reveal index={i}>
                 <div className="flex flex-col items-center gap-md">
                   <span
                     aria-hidden
-                    className="size-[80px] rounded-md bg-neutral-900/8"
+                    className="size-[80px] rounded-md"
+                    style={{ backgroundImage: step.gradient }}
                   />
                   <Typography variant="copyMedium" as="span" className="whitespace-nowrap">
-                    {step}
+                    {step.label}
                   </Typography>
                 </div>
               </Reveal>
