@@ -119,6 +119,13 @@ export const gradients = {
   b1:
     `linear-gradient(230.52deg, ${palette.neutral[900]} 3.19%, ${palette.turquoise[400]} 54.91%, ` +
     `${palette.amber[300]} 85.88%, ${palette.orange[200]} 110.67%)`,
+  /**
+   * b2's stops without a direction. The What We Do hero uses the same ramp at
+   * 116.67deg (Figma node 3604:1004) where the token board has it at 230.49deg.
+   */
+  b2Stops:
+    `${palette.neutral[50]} 16.13%, ${palette.amber[300]} 53.76%, ` +
+    `${palette.orange[400]} 80.65%, ${palette.neutral[800]} 107.53%`,
   /** Cream -> amber -> orange -> slate. */
   b2:
     `linear-gradient(230.49deg, ${palette.neutral[50]} 16.18%, ${palette.amber[300]} 53.93%, ` +

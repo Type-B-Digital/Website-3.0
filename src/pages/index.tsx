@@ -39,7 +39,6 @@ import {
   Eyebrow,
   GlowText,
   Marquee,
-  ParallaxSection,
   Reveal,
   ScrollTrack,
   Section,
@@ -48,7 +47,7 @@ import {
 } from '@/components'
 import type { CardCrop } from '@/components'
 import ScrollFillText from '@/components/ScrollFillText'
-import CaretDown from '@/components/icons/CaretDown'
+import { PageShell } from '@/components/layout'
 import { cn } from '@/lib/cn'
 import useLaggedProgress from '@/lib/useLaggedProgress'
 import { colors as colorTokens, gradients as gradientTokens, motion as motionTokens } from '@/tokens'
@@ -58,8 +57,6 @@ import { colors as colorTokens, gradients as gradientTokens, motion as motionTok
  * Copy lifted verbatim from the artboard. Kept at the top of the file so
  * a content edit never means touching layout.
  * ================================================================== */
-
-const NAV_LINKS = ['What we do', 'Industries', 'Case studies', 'Who we are', 'Publications']
 
 /**
  * Figma: node 3390:26570.
@@ -234,59 +231,9 @@ const VALUES = [
   'Approachable',
 ]
 
-/** Figma: node 3390:26640 */
-const FOOTER_COLUMNS = [
-  {
-    heading: 'What We Do',
-    links: ['Advisory', 'Product & AI Development', 'Teams', 'Industries'],
-  },
-  {
-    heading: 'Case Studies',
-    links: ['Ferry Pay', 'Class-fi', 'MatchDay Health', 'Mave AI', 'View All'],
-  },
-  { heading: 'Who We Are', links: ['About Us', 'We’re Hiring!', 'Contact'] },
-  {
-    heading: 'Publications',
-    links: ['News', 'Substack', 'Linkedin', 'Clutch (4.9)', 'Privacy Policy'],
-  },
-]
-
 /* ================================================================== *
  * SECTIONS
  * ================================================================== */
-
-/** Figma: "Frame 106" — node 3390:26593 */
-function SiteHeader() {
-  return (
-    <header className="absolute inset-x-0 top-0 z-50 pt-xl">
-      <Container>
-        <nav className="flex items-center justify-between" aria-label="Primary">
-          <a href="#" className="shrink-0" aria-label="Type B Digital — home">
-            <img src="/icons/type-b-logo.svg" alt="Type B Digital" width={97} height={32} />
-          </a>
-
-          <ul className="hidden items-center gap-lg opacity-muted lg:flex">
-            {NAV_LINKS.map((link) => (
-              <li key={link}>
-                <a
-                  href="#"
-                  className="flex items-center gap-xs text-nav-link text-on-dark-muted transition-opacity duration-fast ease-out hover:opacity-muted"
-                >
-                  {link}
-                  <CaretDown className="size-lg shrink-0" />
-                </a>
-              </li>
-            ))}
-          </ul>
-
-          <Button as="a" href="#contact" variant="primary" tone="onDark">
-            Let’s talk!
-          </Button>
-        </nav>
-      </Container>
-    </header>
-  )
-}
 
 /**
  * Figma: "Frame 1000003409" — node 3390:26582
@@ -1295,145 +1242,20 @@ function WorkToOfferings() {
   )
 }
 
-/** Figma: "Frame 1000003433" over the full-bleed band — nodes 3390:26561 / 26559 */
-function ClosingCta() {
-  return (
-    <Section tone="dark" spacing="none" bare id="contact">
-      <div className="relative isolate flex min-h-screen items-center justify-center overflow-hidden">
-        {/*
-          Replaced 2026-08-31 with the artwork Eduardo supplied at the band's own
-          1440x720, so it needs no crop transform — just object-cover.
-        */}
-        <ParallaxSection speed="base" className="absolute inset-0 -z-10">
-          {/*
-            The inner wrapper is what gives the image a box: ParallaxSection's
-            motion layer is auto-height, so `size-full` on the image alone has
-            nothing to resolve against and it collapses to its natural size.
-          */}
-          <div className="absolute inset-0">
-            {/*
-              scale-125, not 110: ParallaxSection travels +/-9% of the height at
-              `base` speed, so a 110% image runs out of cover at the extremes and
-              lets the section's dark ground show as a band along one edge.
-            */}
-            <img
-              src="/images/cta-band.png"
-              alt=""
-              aria-hidden="true"
-              className="size-full scale-125 object-cover"
-            />
-          </div>
-        </ParallaxSection>
-        <div aria-hidden className="absolute inset-0 -z-10 bg-scrim" />
-
-        <Container>
-          <Reveal>
-            <div className="flex flex-col items-center gap-3xl text-center">
-              <Typography variant="display" className="text-h2 md:text-display">
-                We believe in
-                <br />
-                what you’re building
-              </Typography>
-              <Button as="a" href="#" variant="secondary" tone="onDark">
-                Let’s talk!
-              </Button>
-            </div>
-          </Reveal>
-        </Container>
-      </div>
-    </Section>
-  )
-}
-
-/** Figma: "Frame 1000003406" — node 3390:26636 */
-function SiteFooter() {
-  return (
-    <footer className="relative overflow-hidden bg-footer-ground pt-4xl text-on-dark">
-      {/*
-        Red glow behind the wordmark. Figma: node 3483:27261 — orange/amber
-        ellipses at `mix-blend-hard-light`, which is what reads as crimson
-        against the near-black ground. Rotated to match the artboard's diagonal.
-        See `.footer-glow` in globals.css for why this is gradients rather than
-        the exported SVG.
-      */}
-      <div
-        aria-hidden
-        className="footer-glow absolute inset-x-[-8%] bottom-0 h-[85%] translate-y-1/2"
-      />
-      <Container className="relative">
-        {/* Figma: 440px statement column, nav columns to its right — node 3390:26636 */}
-        <div className="grid gap-4xl lg:grid-cols-[minmax(0,440px)_1fr]">
-          <div className="flex flex-col gap-lg">
-            <img src="/icons/type-b-logo.svg" alt="Type B Digital" width={97} height={32} />
-            <Typography variant="subHeaderSmall" className="max-w-[440px]">
-              Most partners do one slice. We do the whole stack.
-            </Typography>
-            <Typography variant="copyXSmall" muted>
-              © 2026 Type B Digital. All Rights Reserved.
-            </Typography>
-          </div>
-
-          {/*
-            Columns size to their content and never wrap a link, matching the
-            artboard. Figma's 96px column gap is off the 8-based spacing scale,
-            so this uses the nearest token (80px). Logged in BUILD_LOG.md.
-          */}
-          <nav className="flex flex-wrap gap-x-4xl gap-y-xl" aria-label="Footer">
-            {FOOTER_COLUMNS.map((column) => (
-              <div key={column.heading} className="flex w-max max-w-[124px] flex-col gap-md">
-                <Typography variant="copySmall" as="h2" className="opacity-subtle">
-                  {column.heading}
-                </Typography>
-                <ul className="flex flex-col gap-md">
-                  {column.links.map((link) => (
-                    <li key={link}>
-                      <a
-                        href="#"
-                        className="text-copy-medium text-paper transition-opacity duration-fast ease-out hover:opacity-muted"
-                      >
-                        {link}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </nav>
-        </div>
-      </Container>
-
-      {/* Oversized wordmark bleeding off both edges. Figma: node 3390:26763 */}
-      <ParallaxSection speed="subtle" className="relative mt-4xl">
-        <img
-          src="/icons/wordmark.svg"
-          alt=""
-          aria-hidden="true"
-          className="w-full min-w-frame px-md"
-        />
-      </ParallaxSection>
-    </footer>
-  )
-}
-
 /* ================================================================== *
  * PAGE
  * ================================================================== */
 
 export function HomePage() {
   return (
-    <>
-      <SiteHeader />
-      <main>
-        <Hero />
-        <Manifesto />
-        <BoldBrilliantBeautiful />
-        <Pillars />
-        <Stages />
-        <WorkToOfferings />
-        <ClosingCta />
-      </main>
-      <SiteFooter />
-    </>
+    <PageShell>
+      <Hero />
+      <Manifesto />
+      <BoldBrilliantBeautiful />
+      <Pillars />
+      <Stages />
+      <WorkToOfferings />
+    </PageShell>
   )
 }
 

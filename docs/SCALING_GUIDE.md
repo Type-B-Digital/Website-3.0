@@ -46,43 +46,43 @@ instead of guessing from copy that may itself have changed.
 
 ---
 
-## Routing
+## Routing — done
 
-Homepage v1 has no router; `main.tsx` renders `HomePage` directly. Page two is
-the moment to add one:
-
-```bash
-npm install react-router-dom
-```
+`react-router-dom`, wired in `src/main.tsx`:
 
 ```tsx
-// src/main.tsx
-<BrowserRouter>
-  <Routes>
-    <Route path="/" element={<HomePage />} />
-    <Route path="/about" element={<AboutPage />} />
-  </Routes>
-</BrowserRouter>
+<Routes>
+  <Route path="/" element={<HomePage />} />
+  <Route path="/what-we-do" element={<WhatWeDoPage />} />
+</Routes>
 ```
 
-Deliberately deferred — routing choice belongs to whoever knows the hosting
-target, and adding it now would have been a guess.
+Add a route per page. Nav items carry their path in `SiteHeader`'s `NAV_LINKS`;
+items without one render as inert text rather than a link that 404s, so add the
+path at the same time as the route.
+
+The page grain lives outside `<Routes>` so every page inherits it.
 
 ---
 
-## Shared chrome
+## Shared chrome — done
 
-`SiteHeader` and `SiteFooter` currently live inside `src/pages/index.tsx`. They
-are page-agnostic. **Before building page two**, lift them:
+`SiteHeader`, `ClosingCta` and `SiteFooter` now live in
+`src/components/layout/`, composed by `PageShell`:
 
+```tsx
+<PageShell headerTone="onLight">
+  <Hero />
+  <YourSections />
+</PageShell>
 ```
-src/components/layout/SiteHeader.tsx
-src/components/layout/SiteFooter.tsx
-src/components/layout/PageShell.tsx   ← header + <main> + footer
-```
 
-Then each page becomes just its bands. This is the single highest-value
-refactor available and it gets more expensive with every page added.
+A page is just its own bands. `PageShell` renders the closing CTA by default
+(`closing={false}` opts out) and `headerTone` picks whether the nav links are
+drawn for a dark or light hero — the homepage is dark, What We Do is light.
+
+The Figma nodes for all three are identical across artboards, which is why they
+are one component and not three copies.
 
 ---
 

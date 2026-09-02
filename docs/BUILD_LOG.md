@@ -1063,3 +1063,59 @@ which is exactly the "a little low" that was reported.
 
 Header and marquee are now pinned to the panel's edges and the row centres on
 the panel itself. Verified: panel centre 379, row centre 378.
+
+
+---
+
+## Update — 2026-09-02 (fourth pass): What We Do, and the shared-chrome refactor
+
+Figma: "2. What We Do" — node 2894:10946.
+
+### The refactor the scaling guide had been recommending
+
+`SiteHeader`, `ClosingCta` and `SiteFooter` are now in
+`src/components/layout/`, composed by `PageShell`. The Figma nodes for all three
+are byte-identical across both artboards (3390:26593 / 3604:1352, 3390:26561 /
+3604:1182, 3390:26636 / 3604:1309), so "the sections that repeat" is one
+component each rather than three copies to keep in sync. `react-router-dom` is
+wired with two routes.
+
+Page grain and reveal timing needed nothing: the grain lives outside `<Routes>`
+in `main.tsx` and `Reveal` is a shared component, so the new page inherited both.
+
+### The header needed a tone, and the instruction conflicted with the artboard
+
+The brief said the nav repeats "in navigation-dark mode". Built that way, it was
+illegible: this hero is a light-to-orange gradient and cream links vanish into
+it. Checking the artboard, node 3604:1374 draws them at **`#040E19`** — the
+light variant.
+
+`SiteHeader` now takes `tone`. Verified per page: `rgb(4,14,25)` on What We Do,
+`rgb(246,242,236)` still on the homepage. The CTA pill is unchanged between the
+two — cream with ink text reads on both grounds, and the artboard reuses the
+same instance.
+
+### Hero
+
+Fixed 720px rather than the homepage's viewport. The gradient turned out to be
+**b2's own ramp at a different angle** — 116.67deg here against 230.49deg on the
+token board — so it reuses a new `gradients.b2Stops` rather than a fourth
+hard-coded gradient. The three circles are r=320 at cx 240 / 720 / 1200 in a
+1440x640 box, so the middle is centred and all three overlap (node 3604:1005).
+Copy is vertically centred: the artboard puts it at y=264, height 192, in 720.
+
+### ⚠ Placeholder imagery on this page
+
+The three service photographs are real exports at 2x. These are NOT:
+
+- comparison-matrix cell marks (uniform circles),
+- case-study thumbnails (reusing `images/work/case-*.png`),
+- packaging column icons (Chart_Line, House_02, Heart_01, Mobile_Button),
+- the seven process steps (80px blocks).
+
+All are generic screenshots or icon-set instances on the artboard. Each is
+marked at its use site.
+
+**One of these needs a decision, not an export:** the comparison matrix marks
+each cell with one of several screenshot placeholders, so which cells read as
+"covered" is not recoverable from the file. Every cell currently draws the same.
