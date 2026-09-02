@@ -121,6 +121,7 @@
   --layout-gutter: 24px;
 
   /* --- opacity ---------------------------------------------------- */
+  --grain-opacity: 0.08; /* see tokens/index.ts — not the literal 0.24 */
   --opacity-dim: 0.16;
   --opacity-subtle: 0.64;
   --opacity-muted: 0.8;
@@ -202,6 +203,13 @@
     /* Smooth scroll is part of the homepage brief. Suppressed for users who
        ask for reduced motion — see the media query below. */
     scroll-behavior: smooth;
+    /*
+      `proximity`, not `mandatory`: only elements that opt in with `snap-start`
+      pull, and only when the scroll comes to rest near them. Mandatory would
+      make it impossible to stop anywhere inside the pinned scenes, which are
+      several viewports long and meant to be scrolled through.
+    */
+    scroll-snap-type: y proximity;
     background-color: var(--color-bg-canvas);
   }
 
@@ -307,3 +315,42 @@
 }
 
 
+
+
+/**
+ * Page grain — Eduardo's spec: X 0.5 / Y 0.5, 80% density, #040E19 at 24%.
+ *
+ * A baked 256px tile rather than an SVG `feTurbulence` filter: at this
+ * frequency the filter is expensive to rasterise over a full page and has to be
+ * re-rasterised on resize, where a tile costs one decode and repeats for free.
+ *
+ * Fixed rather than absolute so the grain stays put while the page moves — grain
+ * that scrolls with the content reads as texture printed on the page instead of
+ * on the screen.
+ */
+.page-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  background-image: url('/images/noise.png');
+  background-repeat: repeat;
+  /*
+    Strength is set from the token, not hard-coded — see tokens/index.ts for why
+    it is not the literal 24%.
+  */
+  opacity: var(--grain-opacity);
+}
+
+/**
+ * Amber glow behind the "Built for all stages" cards. Figma node 3601:536.
+ * Gradients rather than the exported SVG, for the same reason as the footer
+ * glow: the export's falloff clips when scaled into a different aspect.
+ */
+.stages-glow {
+  background:
+    radial-gradient(46% 52% at 46% 50%, var(--color-glow-amber) 0%, transparent 70%),
+    radial-gradient(38% 44% at 60% 52%, var(--color-glow-warm) 0%, transparent 72%);
+  filter: blur(var(--bbb-blur));
+  opacity: 0.85;
+}

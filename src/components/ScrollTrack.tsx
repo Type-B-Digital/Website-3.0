@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { motion as fm, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { spacing } from '@/tokens'
 import { cn } from '@/lib/cn'
+import useLaggedProgress from '@/lib/useLaggedProgress'
 
 /**
  * ScrollTrack — a row that starts flush with the page margin, runs off the
@@ -66,10 +67,12 @@ export function ScrollTrack({
 
   // Progress across the row's own pass through the viewport, so the row is at
   // its start position when it arrives and at its end before it leaves.
-  const { scrollYProgress } = useScroll({
+  const { scrollYProgress: rawProgress } = useScroll({
     target: wrapperRef,
     offset: ['start end', 'end start'],
   })
+  // Smoothed like the other scroll-driven scenes, so the row trails and settles.
+  const scrollYProgress = useLaggedProgress(rawProgress)
   const x = useTransform(scrollYProgress, range, [0, -travel])
 
   // Reduced motion: no sliding and no hidden overflow — the cards wrap instead,

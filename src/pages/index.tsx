@@ -50,6 +50,7 @@ import type { CardCrop } from '@/components'
 import ScrollFillText from '@/components/ScrollFillText'
 import CaretDown from '@/components/icons/CaretDown'
 import { cn } from '@/lib/cn'
+import useLaggedProgress from '@/lib/useLaggedProgress'
 import { colors as colorTokens, gradients as gradientTokens, motion as motionTokens } from '@/tokens'
 
 /* ================================================================== *
@@ -537,10 +538,12 @@ function StackImage({
 function Manifesto() {
   const sceneRef = useRef<HTMLDivElement>(null)
   const prefersReduced = useReducedMotion()
-  const { scrollYProgress } = useScroll({
+  const { scrollYProgress: rawProgress } = useScroll({
     target: sceneRef,
     offset: ['start start', 'end end'],
   })
+  // Smoothed so the fill and the stack trail the scroll and settle.
+  const scrollYProgress = useLaggedProgress(rawProgress)
 
   const stack = (
     <div
@@ -643,10 +646,11 @@ function BoldBrilliantBeautiful() {
   const prefersReduced = useReducedMotion()
   const { glowScene } = motionTokens
 
-  const { scrollYProgress } = useScroll({
+  const { scrollYProgress: rawProgress } = useScroll({
     target: sceneRef,
     offset: ['start start', 'end end'],
   })
+  const scrollYProgress = useLaggedProgress(rawProgress)
 
   /**
    * A second tracker for the ENTRY phase — `scrollYProgress` above is clamped at
@@ -658,10 +662,11 @@ function BoldBrilliantBeautiful() {
    * plain canvas during entry — identical to the band above it — and the edge
    * never appears.
    */
-  const { scrollYProgress: entryProgress } = useScroll({
+  const { scrollYProgress: rawEntry } = useScroll({
     target: sceneRef,
     offset: ['start end', 'start start'],
   })
+  const entryProgress = useLaggedProgress(rawEntry)
   // Deliberately late and short: the scene stays fully hidden while the section
   // climbs, so during entry it is indistinguishable from the canvas band above
   // it, then arrives over the last stretch. Widening this range brings the
@@ -759,7 +764,14 @@ function BoldBrilliantBeautiful() {
     <div
       id={HIGHLIGHT_ID}
       ref={sceneRef}
-      className="relative"
+      /*
+        `snap-start` plus `scroll-snap-type: y proximity` on the root hands the
+        introduction-to-highlight boundary to the browser's own snapping, so it
+        arrives in place rather than being crawled through. Native snapping
+        cooperates with trackpad momentum; the JS hand-off this replaces fought
+        it and oscillated.
+      */
+      className="relative snap-start"
       style={{ height: `${glowScene.pinLength * 100}vh` }}
     >
       <fm.div
@@ -845,7 +857,17 @@ function Stages() {
           </div>
         </Reveal>
 
-        <ul className="grid w-full gap-lg md:grid-cols-3">
+        {/*
+          Amber glow behind the cards. Figma node 3601:536 — a soft ellipse at
+          mix-blend-hard-light. Built from gradients for the same reason as the
+          footer glow: the exported SVG's falloff clips when scaled.
+        */}
+        <div className="relative w-full">
+          <div
+            aria-hidden
+            className="stages-glow pointer-events-none absolute inset-x-[-6%] top-[8%] h-[70%]"
+          />
+          <ul className="relative grid w-full gap-lg md:grid-cols-3">
           {STAGES.map((stage, i) => (
             <li key={stage.title}>
               <Reveal index={i}>
@@ -859,7 +881,8 @@ function Stages() {
               </Reveal>
             </li>
           ))}
-        </ul>
+          </ul>
+        </div>
       </div>
     </Section>
   )
@@ -1017,17 +1040,19 @@ function Partner() {
   const { offeringScene } = motionTokens
   const [index, setIndex] = useState(0)
 
-  const { scrollYProgress } = useScroll({
+  const { scrollYProgress: rawProgress } = useScroll({
     target: sceneRef,
     offset: ['start start', 'end end'],
   })
+  const scrollYProgress = useLaggedProgress(rawProgress)
 
   // Entry progress, for fading the content in once the shared ground has
   // actually turned turquoise — cream type over a pale ground is unreadable.
-  const { scrollYProgress: entryProgress } = useScroll({
+  const { scrollYProgress: rawEntry } = useScroll({
     target: sceneRef,
     offset: ['start end', 'start start'],
   })
+  const entryProgress = useLaggedProgress(rawEntry)
   const contentOpacity = useTransform(
     entryProgress,
     [offeringScene.contentFade.start, offeringScene.contentFade.end],
@@ -1137,11 +1162,15 @@ function Partner() {
         className="pointer-events-none absolute bottom-0 left-1/2 w-[70%] -translate-x-1/2"
       />
       {/* Same colour as an unselected offering, so the band reads as one family. */}
-      <Marquee speed="marqueeSlow" className="relative text-accent-400">
+      <Marquee
+        speed="marqueeSlow"
+        gapClassName="gap-lg"
+        className="relative pb-md text-accent-400"
+      >
         {VALUES.map((value) => (
           <Typography key={value} variant="h1" as="span" className="whitespace-nowrap">
             {value}
-            <span aria-hidden className="pl-4xl opacity-muted">
+            <span aria-hidden className="pl-lg opacity-muted">
               ·
             </span>
           </Typography>
@@ -1202,10 +1231,11 @@ function Partner() {
 function WorkToOfferings() {
   const markerRef = useRef<HTMLDivElement>(null)
   const prefersReduced = useReducedMotion()
-  const { scrollYProgress } = useScroll({
+  const { scrollYProgress: rawProgress } = useScroll({
     target: markerRef,
     offset: ['start end', 'start start'],
   })
+  const scrollYProgress = useLaggedProgress(rawProgress)
 
   const background = useTransform(
     scrollYProgress,

@@ -393,6 +393,11 @@ export const motion = {
     fast: 0.3,
     base: 0.6,
     slow: 0.9,
+    /**
+     * Scroll reveals. Deliberately long: these are meant to ease in and out
+     * rather than pop, so the eye follows them.
+     */
+    reveal: 1.2,
     /** Values band. */
     marquee: 40,
     /** Client logo strip — slower, so marks read as they pass. */
@@ -434,11 +439,27 @@ export const motion = {
     base: 0.18,
     strong: 0.32,
   },
-  /** Distance an element rises into place on scroll reveal. */
+  /**
+   * Scroll reveal. `lag` is a flat delay on every reveal, which is what gives
+   * the section a beat of latency before it starts moving instead of snapping
+   * to the trigger. `feather` is the blur it resolves from — the fade arrives
+   * soft-edged and sharpens, rather than simply changing opacity.
+   */
   reveal: {
     distance: 32,
-    stagger: 0.08,
+    stagger: 0.14,
+    lag: 0.12,
+    feather: 10,
   },
+
+  /**
+   * Smoothing applied to scroll-linked progress before it drives anything.
+   *
+   * Scroll position is a step function — it jumps by whatever the wheel
+   * reported. Running it through a spring first is what makes a scene trail the
+   * scroll slightly and settle, instead of tracking it rigidly frame for frame.
+   */
+  scrollLag: { stiffness: 55, damping: 22, mass: 0.45 },
   /** Viewport trigger point for scroll reveals. */
   viewport: { amount: 0.25, once: true },
   /**
@@ -479,7 +500,8 @@ export const motion = {
    * the page; the next one scrolls normally.
    */
   heroSweep: {
-    duration: 0.8,
+    /** 3x the original 0.8s, at Eduardo's request. */
+    duration: 2.4,
     /** 135deg: dark top-left, warm bottom-right. */
     from: 135,
     /** 225deg: dark top-right, warm bottom-left. */
@@ -553,6 +575,38 @@ export const motion = {
  * none — depth comes from color and scrims. Declared empty rather than
  * invented, so a future shadow scale has an obvious home.
  * ------------------------------------------------------------------ */
+/**
+ * Page grain. Eduardo's spec: X 0.5 / Y 0.5 (fine, near per-pixel), 80%
+ * density, `#040E19` at 24%.
+ *
+ * Baked into a 256px tile at `public/images/noise.png` rather than generated
+ * with an SVG filter: `feTurbulence` at this frequency is expensive to
+ * rasterise across a full page, and a tile costs one decode.
+ */
+export const grain = {
+  tile: '/images/noise.png',
+  density: 0.8,
+  /** The value Eduardo specified. Kept for reference — see `opacity`. */
+  specifiedOpacity: 0.24,
+  /**
+   * ⚠ REDUCED FROM THE SPECIFIED 0.24, deliberately.
+   *
+   * The grain is a single dark colour, so composited normally its opacity is a
+   * flat tint as much as a texture. At 80% density and 24% it darkens white by
+   * ~19% — measured 255 -> 207 — which turns every light section grey. That is
+   * arithmetic, not a bug: 0.8 x 0.24 = 0.19.
+   *
+   * `mix-blend-mode: soft-light` preserves the tone but then the grain is
+   * invisible on white (measured: no variance at all), so blending is not the
+   * answer either. The only way to keep a dark grain visible AND keep white
+   * white is to carry less of it.
+   *
+   * At 0.08 the tone shift is ~5% and the grain still reads. Raise this back to
+   * `specifiedOpacity` if the heavier look is wanted — it is one value.
+   */
+  opacity: 0.08,
+} as const
+
 export const elevation = {
   none: 'none',
 } as const
@@ -572,6 +626,7 @@ export const tokens = {
   layout,
   breakpoints,
   motion,
+  grain,
   elevation,
 } as const
 

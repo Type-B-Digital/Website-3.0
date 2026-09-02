@@ -9,5 +9,10 @@ if (!container) throw new Error('Root element #root not found')
 createRoot(container).render(
   <StrictMode>
     <HomePage />
+    {/*
+      Page grain sits above everything and outside the page, so every page picks
+      it up without remembering to add it. See `.page-grain` in globals.css.
+    */}
+    <div aria-hidden className="page-grain" />
   </StrictMode>,
 )

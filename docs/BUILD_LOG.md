@@ -924,3 +924,74 @@ end    TR(4,14,25) dark      BL(250,178,129) warm
 Trade-off worth noting: rebuilding the gradient string each frame repaints,
 where a transform would not. Acceptable for a single 800ms one-shot, and there
 is no way to rotate a gradient's direction on the compositor.
+
+
+---
+
+## Update — 2026-09-02: motion feel, page grain, and eight fixes
+
+### The third intro image had painted corners, not transparent ones
+
+Its dark wedges were opaque `#040E19` baked into the asset: the node render
+composited the page background into the corners left over by the card's 2.66deg
+rotation. `download_assets` at scale 3 has the same problem — the export is
+flattened, not transparent.
+
+Fixed by masking the asset to the card's actual quadrilateral: a 400x480 rect
+rotated 2.66deg inside the 422x498 box, computed rather than colour-keyed, since
+the photograph contains plenty of pixels as dark as the background.
+
+### The intro-to-highlight boundary snaps now
+
+`scroll-snap-type: y proximity` on the root with `snap-start` on the highlight
+scene. `proximity`, not `mandatory` — the pinned scenes are several viewports
+long and have to be scrollable through, so only elements that opt in should pull.
+
+This is the third attempt at this boundary and the first that uses the browser's
+own snapping. The JS hand-off tried twice before animated `scrollY` against
+trackpad momentum and oscillated; native snapping cooperates with momentum by
+design. Measured: rest positions 2650 -> **3028** (the scene top) -> 3178, so it
+lands on the boundary once and then scrolls on without interfering.
+
+### Scroll motion is slower, lagged, and feathered
+
+- `duration.reveal` 1.2s on a symmetric ease, up from 0.6s on ease-out.
+- `reveal.lag` 0.12s — a flat delay so a reveal is not welded to the scroll
+  position that triggered it.
+- `reveal.feather` 10px — reveals resolve from a blur, so they arrive
+  soft-edged and sharpen instead of only changing opacity.
+- `reveal.stagger` 0.08 -> 0.14.
+- **`useLaggedProgress`**, applied to every scroll-linked scene (introduction,
+  highlight, offerings, the shared ground, the card track). Raw scroll progress
+  is a step function that jumps by whatever the wheel reported; running it
+  through a spring first is what makes a scene trail the scroll and settle
+  rather than track it rigidly. Constants live in `motion.scrollLag`.
+
+### Page grain — and why it is not at the specified 24%
+
+Spec: X 0.5 / Y 0.5, 80% density, `#040E19` at 24%. Implemented as a baked 256px
+tile (`feTurbulence` at this frequency is expensive to rasterise over a full page
+and must be redone on resize; a tile costs one decode).
+
+**The literal 24% does not work, and the reason is arithmetic.** The grain is a
+single dark colour, so composited normally its opacity is a flat tint as much as
+a texture: 0.8 density x 0.24 opacity = 0.19, and white measured 255 -> **207**.
+Every light section turned grey.
+
+`mix-blend-mode: soft-light` preserves the tone but then the grain is invisible
+on white — measured zero variance. So blending is not the escape either. With a
+dark grain, keeping white white means carrying less of it.
+
+Shipped at **0.08**: tone shift 16/255 with grain variance 19, so it reads as
+texture and the light sections still read as light. `grain.specifiedOpacity`
+keeps 0.24 on record and the token comment explains the trade; it is one value
+to change back.
+
+### Also
+
+- Hero sweep 0.8s -> **2.4s** (3x), measured at 2402ms.
+- Amber glow behind the "Built for all stages" cards (Figma node 3601:536),
+  from gradients rather than the exported SVG — same clipping reason as the
+  footer and BBB glows.
+- Values marquee: 24px between words and divider dots, 16px below. Verified
+  `padding-left 24px / column-gap 24px / padding-bottom 16px`.

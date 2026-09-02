@@ -5,9 +5,16 @@ import { motion as motionTokens } from '@/tokens'
 /**
  * Reveal — fade and rise on first scroll into view.
  *
- * ⚠ Like ParallaxSection, the timings here are authored rather than extracted:
- * Figma documents no motion tokens. Values live in `tokens.motion` so a single
- * edit re-times the whole site once design signs off.
+ * ⚠ Timings are authored; Figma documents no motion tokens.
+ *
+ * Three things make this read as easing rather than popping:
+ *
+ * - a long duration (`duration.reveal`) on a symmetric ease, so it accelerates
+ *   and settles rather than snapping to a stop;
+ * - `reveal.lag`, a flat delay before anything moves, which stops the animation
+ *   feeling welded to the scroll position that triggered it;
+ * - `reveal.feather`, a blur it resolves from, so the element arrives
+ *   soft-edged and sharpens instead of just changing opacity.
  *
  * `index` staggers siblings without a parent orchestrator, which keeps each
  * item's trigger tied to its own position rather than the group's.
@@ -24,16 +31,22 @@ export function Reveal({ children, index = 0, className }: RevealProps) {
 
   if (prefersReduced) return <div className={className}>{children}</div>
 
+  const { reveal, duration, easing, viewport } = motionTokens
+
   return (
     <fm.div
       className={className}
-      initial={{ opacity: 0, y: motionTokens.reveal.distance }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={motionTokens.viewport}
+      initial={{
+        opacity: 0,
+        y: reveal.distance,
+        filter: `blur(${reveal.feather}px)`,
+      }}
+      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      viewport={viewport}
       transition={{
-        duration: motionTokens.duration.base,
-        ease: motionTokens.easing.out,
-        delay: index * motionTokens.reveal.stagger,
+        duration: duration.reveal,
+        ease: [...easing.inOut],
+        delay: reveal.lag + index * reveal.stagger,
       }}
     >
       {children}
