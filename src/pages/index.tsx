@@ -1202,7 +1202,7 @@ function Partner() {
   // Reduced motion: no pin, the accent ground applied directly.
   if (prefersReduced) {
     return (
-      <Section tone="accent" spacing="none" bare className="pb-4xl pt-5xl">
+      <Section tone="accent" spacing="none" bare className="pb-4xl pt-4xl">
         <div className="flex flex-col gap-4xl">
           {header}
           {row}
@@ -1220,10 +1220,18 @@ function Partner() {
     >
       {/* No ground here either — WorkToOfferings paints it. */}
       <div className="sticky top-0 h-screen w-full overflow-hidden text-on-dark-muted">
-        <fm.div className="flex size-full flex-col justify-between pt-5xl" style={{ opacity: contentOpacity }}>
-          {header}
-          <div className="flex flex-1 items-center py-4xl">{row}</div>
-          {values}
+        {/*
+          Header and marquee are pinned to the panel's edges and the row is
+          centred on the panel itself, rather than all three sharing a
+          `justify-between` column. In that column the row centres in whatever
+          space is LEFT OVER between header and marquee — and since the header
+          is taller than the marquee, that midpoint sits below the section's own
+          middle, which read as the row hanging low.
+        */}
+        <fm.div className="relative size-full" style={{ opacity: contentOpacity }}>
+          <div className="absolute inset-x-0 top-0 pt-4xl">{header}</div>
+          <div className="flex size-full items-center">{row}</div>
+          <div className="absolute inset-x-0 bottom-0">{values}</div>
         </fm.div>
       </div>
     </div>

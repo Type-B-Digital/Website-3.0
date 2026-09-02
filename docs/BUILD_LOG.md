@@ -1045,3 +1045,21 @@ track moves the row and the reveal moves the item.
 Both were `spacing="loose"`, which stacks 160 + 160 = 320. Trimmed to 80 each,
 verified `pb 80 + pt 80 = 160px`. The artboard has the cards ending at y=3416
 and the next frame starting at y=3569.
+
+
+---
+
+## Update — 2026-09-02 (third pass): "How we partner" vertical rhythm
+
+- Eyebrow inset 120px -> **80px** (verified computed at 80).
+- The row (copy, offerings, image) is now centred on the panel rather than on
+  the space between the header and the marquee.
+
+The second one is worth recording. All three blocks previously shared a
+`justify-between` column with the row taking `flex-1`, which centres the row in
+whatever space is **left over** between header and marquee. Because the header
+is taller than the marquee, that midpoint sits below the section's own middle —
+which is exactly the "a little low" that was reported.
+
+Header and marquee are now pinned to the panel's edges and the row centres on
+the panel itself. Verified: panel centre 379, row centre 378.
