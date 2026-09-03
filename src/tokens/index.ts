@@ -578,6 +578,35 @@ export const motion = {
    * to the trigger. `feather` is the blur it resolves from — the fade arrives
    * soft-edged and sharpens, rather than simply changing opacity.
    */
+  /**
+   * Careers — the ground crossfade from the warm half into ink, and the slide
+   * change in the hero carousel. ⚠ Authored, as everywhere in `motion`.
+   *
+   * `groundFade` is a sub-range of the boundary marker's entry progress, tuned
+   * the same way the homepage's `offeringScene.groundFade` is: late enough that
+   * the Bench copy has scrolled off before the ground starts to darken, and
+   * finished before the Open Roles heading arrives, so neither section's type
+   * is ever on the wrong ground.
+   */
+  careersGround: {
+    /**
+     * The ground itself. Late in the window on purpose: at 0.80 the Bench's
+     * closing line is just leaving the top of the screen, so its ink type is
+     * never sitting on a half-darkened ground.
+     */
+    fade: { start: 0.8, end: 0.98 },
+    /**
+     * Open Roles' content fades in *behind* the ground, not with it — the same
+     * split the homepage uses for the offerings scene.
+     *
+     * Without it the section is unreadable for a stretch of the scroll: its
+     * heading enters the bottom of the viewport around 0.36, long before the
+     * ground darkens, and cream type on a warm ground has almost no contrast.
+     * Widening the physical gap instead would need more than a viewport-height
+     * between the two sections, against 452px on the artboard.
+     */
+    contentFade: { start: 0.86, end: 1 },
+  },
   reveal: {
     distance: 32,
     stagger: 0.14,

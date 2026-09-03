@@ -1719,3 +1719,60 @@ document height        5048    5058
 - **"Open Roles" and "FAQ" are pure white** on the artboard while the body copy
   is `paper`. Built as `text-white` for the headings to match.
 - FAQ answers are placeholder copy — the artboard carries none.
+
+### Careers revisions (Sep 3, 2026)
+
+Three corrections after review.
+
+**The ground change was a band, not a crossfade.** The first build put the
+warm-to-ink transition in the page's own vertical gradient, which is the one
+thing a gradient cannot express: however tightly eased, it holds the warm
+colour at the top of the screen and the ink at the bottom *simultaneously*, so
+it reads as a hard divider travelling down the page. Eduardo's screenshot shows
+exactly that.
+
+Rebuilt on the homepage's construction (`WorkToOfferings`): `BenchToRoles` gives
+OurBench through the marquee ONE animated `backgroundColor`, timed against a
+zero-height marker on the boundary via `useScroll({offset: ['start end',
+'start start']})` and smoothed through `useLaggedProgress`. The whole viewport
+is one colour at any moment. Verified by sampling the computed ground while
+scrolling: a single value per frame, `#F6EADC` → `rgb(173,164,155)` →
+`#040E19`.
+
+The warm half keeps a gradient (amber.100 → `BENCH_GROUND`) because *there* the
+two ends are within a few percent of each other, so it reads as one ground
+rather than as two colours on screen.
+
+**That change forced a second one.** Ground and content cannot cross on the
+same schedule: Open Roles' heading enters the viewport around progress 0.36,
+long before the ink arrives, and its cream type on a warm ground has almost no
+contrast. The homepage has the same problem and solves it by fading the
+incoming content in *behind* the ground (`offeringScene.contentFade`), so
+`careersGround` now carries both `fade` (0.80 → 0.98) and `contentFade`
+(0.86 → 1). Widening the physical gap instead would need more than a
+viewport-height between the sections, against 452px on the artboard.
+
+Measured through the boundary — no frame where type sits on the wrong ground:
+
+```
+scrollY   ground              Open Roles opacity   bench line y
+1780      #F6EADC             0.00                 -1   (just left the top)
+1850      rgb(230,219,206)    0.00                 -71
+1900      rgb(173,164,155)    0.22                 -121
+2000      #040E19             0.92                 -221
+2150      #040E19             1.00                 -371
+```
+
+`BENCH_GROUND` is now derived rather than pasted: framer cannot interpolate a
+`color-mix()`, so a small `mix()` helper computes the same 62% point between
+amber.100 and neutral.50 in JS, keeping both ends as tokens.
+
+**The carousel starts at 01**, not the 02 the artboard happens to draw.
+
+**Each slide feathers in** with the page's own three properties — opacity, a
+32px rise, and a blur resolving to zero — rather than swapping instantly.
+`mode="wait"` sequences out-then-in, because crossfading two outlined numerals
+on top of each other turns the outline to mush. The exit runs at
+`duration.fast` against the entry's `duration.base`: symmetric 600ms halves
+would spend 1.2s of a 3s dwell in motion. Measured 0 → 0.9s, leaving the slide
+settled for the remainder.

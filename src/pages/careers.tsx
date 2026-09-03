@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
+  AnimatePresence,
   animate,
   motion as fm,
   useMotionValue,
   useReducedMotion,
+  useScroll,
   useTransform,
   type AnimationPlaybackControls,
 } from 'framer-motion'
@@ -17,44 +19,48 @@ import {
   Typography,
 } from '@/components'
 import { PageShell } from '@/components/layout'
-import { palette } from '@/tokens'
+import { colors as colorTokens, motion as motionTokens, palette } from '@/tokens'
 import { asset } from '@/lib/asset'
 import { cn } from '@/lib/cn'
+import { useLaggedProgress } from '@/lib/useLaggedProgress'
 
 /**
  * Careers — Figma node 2767:1908 ("7. Careers")
  * https://www.figma.com/design/LASrWn0jXyj5nBaphi2jgI/TypeB-Creative-Exploration?node-id=2767-1908
  *
  * The page that changes ground mid-scroll: warm at the top, ink from Open Roles
- * down. See `PAGE_GRADIENT`.
+ * down. See `WARM_GRADIENT` and `BenchToRoles`.
  */
 
 /**
- * The body ground, top to bottom. Sampled down the left gutter of the artboard
- * as on the other pages, at 15px intervals across the transition:
- *
- *   0%      amber.100                     #F7DDC1  (artboard y=0)
- *   51.1%   62% of the way to neutral.50  #F6EADC  (artboard y=1935)
- *   55.4%   neutral.900                   #040E19  (artboard y=2100)
- *   100%    neutral.900
- *
- * Two things worth keeping:
- *
- * The warm ramp does **not** reach neutral.50 before the ground turns — it gets
- * 62% of the way there and the fall to ink starts. Snapping that stop to
- * neutral.50 would lighten the whole Bench section by ~5%, so the midpoint is
- * expressed as an exact `color-mix` of the two ramp ends rather than as a
- * literal: `color-mix(in srgb, neutral.50 62%, amber.100)` computes to
- * `#F6EADC`, which is the sampled value to the byte.
- *
- * The fall itself is only 165px of a 3788px body — 4.3% — which is why it reads
- * as a fade while scrolling but as a distinct band on a full-page render. The
- * artboard draws it as a separate 160px rectangle (node 3638:9307).
+ * Exact sRGB mix, so a value read off the artboard can stay derived from the
+ * two ramp ends it sits between rather than being pasted in as a literal.
  */
-const PAGE_GRADIENT =
-  `linear-gradient(180deg, ${palette.amber[100]} 0%, ` +
-  `color-mix(in srgb, ${palette.neutral[50]} 62%, ${palette.amber[100]}) 51.1%, ` +
-  `${palette.neutral[900]} 55.4%, ${palette.neutral[900]} 100%)`
+function mix(from: string, to: string, t: number) {
+  const ch = (hex: string, i: number) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16)
+  const v = (i: number) => Math.round(ch(from, i) + (ch(to, i) - ch(from, i)) * t)
+  return `#${[0, 1, 2].map((i) => v(i).toString(16).padStart(2, '0')).join('')}`
+}
+
+/**
+ * Where the warm half of the page ends up. Sampled off the artboard at
+ * `#F6EADC` — which is 62% of the way from amber.100 to neutral.50, not
+ * neutral.50 itself. Snapping it to the ramp end would lighten the whole Bench
+ * section by about 5%.
+ */
+const BENCH_GROUND = mix(palette.amber[100], palette.neutral[50], 0.62)
+
+/**
+ * The warm half only: hero and carousel, amber.100 easing up to BENCH_GROUND.
+ *
+ * A vertical gradient is right *here* — the two ends are within a few percent
+ * of each other, so it reads as one warm ground rather than as two colours on
+ * screen at once.
+ *
+ * It is emphatically wrong for the change into ink, which is why that half is
+ * not in this gradient. See `BenchToRoles`.
+ */
+const WARM_GRADIENT = `linear-gradient(180deg, ${palette.amber[100]} 0%, ${BENCH_GROUND} 100%)`
 
 /**
  * The hero carousel. Copy is Eduardo's; the artboard draws only slide 02
@@ -193,8 +199,9 @@ function Hero() {
  */
 function HeroCarousel() {
   const prefersReduced = useReducedMotion()
-  const [index, setIndex] = useState(1) // the artboard shows slide 02
+  const [index, setIndex] = useState(0) // starts at 01
   const [paused, setPaused] = useState(false)
+  const { reveal, duration, easing } = motionTokens
 
   const advance = useCallback(() => setIndex((i) => (i + 1) % SLIDES.length), [])
 
@@ -242,6 +249,19 @@ function HeroCarousel() {
             */}
             <div aria-live="polite" aria-atomic="true" className="flex flex-col items-start">
               {/*
+                Each slide arrives with the page's own feather — opacity, a
+                short rise, and a blur resolving to zero — rather than swapping
+                instantly. Same three properties `Reveal` uses, at
+                `duration.base` rather than `duration.reveal`: a 1.2s entrance
+                inside a 3s dwell would still be arriving when the slide is
+                already half over.
+
+                `mode="wait"` so the outgoing slide is gone before the next
+                begins; crossfading two numerals on top of each other turns the
+                outline into mush.
+              */}
+              <AnimatePresence mode="wait" initial={false}>
+              {/*
                 Outlined, not filled: the artboard sets a transparent fill
                 (node 3638:9412) and the outline comes from a 1px ink stroke
                 that the Figma export drops. `-webkit-text-stroke` is the only
@@ -251,18 +271,45 @@ function HeroCarousel() {
                 The negative bottom margin is what makes the subheader overlap
                 the digits — 64px of it, straight off the artboard.
               */}
-              <Typography
-                variant="numeral"
-                aria-hidden="true"
-                className="-mb-[64px] select-none text-transparent"
-                style={{ WebkitTextStroke: `1px ${palette.neutral[900]}` }}
-              >
-                {String(index + 1).padStart(2, '0')}
-              </Typography>
+                <fm.div
+                  key={index}
+                  className="flex flex-col items-start"
+                  initial={
+                    prefersReduced
+                      ? undefined
+                      : { opacity: 0, y: reveal.distance, filter: `blur(${reveal.feather}px)` }
+                  }
+                  animate={
+                    prefersReduced ? undefined : { opacity: 1, y: 0, filter: 'blur(0px)' }
+                  }
+                  exit={
+                    prefersReduced
+                      ? undefined
+                      : {
+                          opacity: 0,
+                          filter: `blur(${reveal.feather}px)`,
+                          // Leaves faster than it arrives. With `mode="wait"`
+                          // the two run back to back, and a symmetric 600ms
+                          // each would spend 1.2s of a 3s dwell in motion.
+                          transition: { duration: duration.fast, ease: [...easing.inOut] },
+                        }
+                  }
+                  transition={{ duration: duration.base, ease: [...easing.inOut] }}
+                >
+                  <Typography
+                    variant="numeral"
+                    aria-hidden="true"
+                    className="-mb-[64px] select-none text-transparent"
+                    style={{ WebkitTextStroke: `1px ${palette.neutral[900]}` }}
+                  >
+                    {String(index + 1).padStart(2, '0')}
+                  </Typography>
 
-              <Typography variant="h2" as="p" className="max-w-[519px] text-h3 md:text-h2">
-                {SLIDES[index]}
-              </Typography>
+                  <Typography variant="h2" as="p" className="max-w-[519px] text-h3 md:text-h2">
+                    {SLIDES[index]}
+                  </Typography>
+                </fm.div>
+              </AnimatePresence>
             </div>
 
             {/* Progress bars, 48x4 on a 56px pitch (node 3638:9435). */}
@@ -322,7 +369,7 @@ function OurBench() {
     <Section
       tone="none"
       spacing="none"
-      className="pb-5xl pt-4xl text-on-light"
+      className="pb-[calc(theme(spacing.4xl)*2)] pt-4xl text-on-light"
     >
       <div className="flex flex-col gap-2xl">
         <Reveal>
@@ -494,26 +541,96 @@ function ValuesMarquee() {
   )
 }
 
+/**
+ * OurBench through the marquee share ONE animated ground, so the change from
+ * warm to ink happens as a single crossfade across the whole viewport.
+ *
+ * This is the same construction the homepage uses for white -> turquoise
+ * (`WorkToOfferings`), and for the same reason. A vertical gradient cannot do
+ * it: however well eased, it puts the warm colour at the top of the screen and
+ * the ink at the bottom *simultaneously*, which reads as a hard band travelling
+ * down the page — a divider — rather than as the page changing colour. That is
+ * exactly what the first version of this page did.
+ *
+ * The marker is a zero-height element on the boundary. Tracking it from
+ * 'start end' to 'start start' gives progress across one viewport-height of
+ * scroll before it reaches the top, which is the window the crossfade has to
+ * finish in; `motion.careersGround.fade` places the change inside that window
+ * so the Bench copy is gone before the ground darkens and the ink has arrived
+ * before the Open Roles heading does.
+ */
+function BenchToRoles() {
+  const markerRef = useRef<HTMLDivElement>(null)
+  const prefersReduced = useReducedMotion()
+  const { scrollYProgress: raw } = useScroll({
+    target: markerRef,
+    offset: ['start end', 'start start'],
+  })
+  const progress = useLaggedProgress(raw)
+
+  const { fade, contentFade } = motionTokens.careersGround
+
+  const background = useTransform(
+    progress,
+    [fade.start, fade.end],
+    [BENCH_GROUND, colorTokens.background.canvas],
+  )
+  /*
+    Open Roles is cream type. It enters the viewport well before the ground
+    darkens, so it is held at zero until the ink has largely arrived — exactly
+    the split the homepage's offerings scene uses. Everything below it (FAQ,
+    marquee) is far enough down that this has reached 1 long before it matters.
+  */
+  const contentOpacity = useTransform(
+    progress,
+    [contentFade.start, contentFade.end],
+    [0, 1],
+  )
+
+  const tail = (
+    <>
+      <Faq />
+      <ValuesMarquee />
+    </>
+  )
+
+  // No scroll-linked colour under reduced motion: each half just paints its own.
+  if (prefersReduced) {
+    return (
+      <>
+        <div style={{ backgroundColor: BENCH_GROUND }}>
+          <OurBench />
+        </div>
+        <div className="bg-canvas">
+          <OpenRoles />
+          {tail}
+        </div>
+      </>
+    )
+  }
+
+  return (
+    <fm.div style={{ backgroundColor: background }}>
+      <OurBench />
+      {/* Zero-height boundary the crossfade is timed against. */}
+      <div ref={markerRef} aria-hidden className="h-0" />
+      <fm.div style={{ opacity: contentOpacity }}>
+        <OpenRoles />
+      </fm.div>
+      {tail}
+    </fm.div>
+  )
+}
+
 export function CareersPage() {
   return (
     <PageShell headerTone="onLight">
-      <div style={{ backgroundImage: PAGE_GRADIENT }}>
+      {/* Warm half: its own gentle gradient, both ends nearly the same colour. */}
+      <div style={{ backgroundImage: WARM_GRADIENT }}>
         <Hero />
         <HeroCarousel />
-        <OurBench />
-        {/*
-          The ground crosses from warm to ink here. The artboard draws it as a
-          standalone 160px band (node 3638:9307) between the two sections, and
-          reserving the same space is what keeps PAGE_GRADIENT's stops on the
-          artboard's proportions — the gradient is a percentage of this
-          wrapper, so shortening the page pulls the fade up into the Bench
-          cards.
-        */}
-        <div aria-hidden className="h-[160px]" />
-        <OpenRoles />
-        <Faq />
-        <ValuesMarquee />
       </div>
+      <BenchToRoles />
     </PageShell>
   )
 }
