@@ -1304,3 +1304,24 @@ there and the whole mechanism has to stay a no-op: both routes, 0 broken.
 Source: GitHub Actions). The repo is private, and Pages on a private repo needs
 a paid plan — on a free account the repo would have to be public first, which
 exposes the full history and is Eduardo's call, not something to do implicitly.
+
+### Status: local only
+
+Pages is set up but not switched on. `configure-pages` fails with
+`Resource not accessible by integration` — the workflow's built-in `GITHUB_TOKEN`
+can deploy to an existing Pages site but cannot create one, which needs repo
+admin. So the workflow is `workflow_dispatch` only; the `push` trigger is
+commented inline for whenever Pages is enabled.
+
+Two things to know before picking that up again:
+
+- The repo is private, and Pages on a private repo needs a paid plan. Enabling
+  it in Settings is what reveals which plan applies — worth reading the message
+  there rather than assuming.
+- A Pages site published from a private repo is **publicly reachable**; there is
+  no password on it. Access control for Pages is Enterprise-only. So it is an
+  unlisted public page, not a private one. Netlify and Cloudflare Pages can
+  password-protect a preview while keeping the repo private, if that matters.
+
+The `asset()` / `basename` / `404.html` work is worth keeping regardless: it is
+a correctness fix for any non-root deploy, and a verified no-op at `/`.
