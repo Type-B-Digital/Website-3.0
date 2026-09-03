@@ -1776,3 +1776,55 @@ on top of each other turns the outline to mush. The exit runs at
 `duration.fast` against the entry's `duration.base`: symmetric 600ms halves
 would spend 1.2s of a 3s dwell in motion. Measured 0 → 0.9s, leaving the slide
 settled for the remainder.
+
+### Careers carousel, second revision (Sep 3, 2026)
+
+**The numerals are components, not type.** Figma nodes 3672:9527 / 9531 / 9532 /
+9533 (`number-01`..`number-04`) are drawn outlines — hollow letterforms filled
+at ink 40%, with a "1" carrying a flag Reddit Sans does not produce. The first
+build faked them as 240px text with `-webkit-text-stroke`, which gets the wrong
+glyphs entirely.
+
+The exports need cleaning: each carries a `#090909` backing rect and a white
+1440x10570 rect (the whole tokens board) around the two glyph paths. Extracted
+to `public/vectors/careers/number-0N.svg` at their natural 179px height —
+219 / 269 / 269 / 281 wide.
+
+The overlap needed recomputing. The artboard's text boxes overlap by 64px, but
+its *glyphs* overlap by 34px: the 240px type sat in a 220px line box with ~21px
+of descender space under the digits, and these vectors are tightly bounded.
+Measured off the artboard's own pixels — numeral glyph bottom 758, subheader
+glyph top 724 — so the margin is `-34px`, not `-64px`.
+
+**Reduced motion was stopping the carousel entirely.** Eduardo reported it stuck
+on 01 until a progress bar was clicked; reproduced exactly by emulating
+`prefers-reduced-motion: reduce`, which he has on at the OS level. The first
+build treated the setting as "do not rotate", which is the stricter reading.
+
+Changed to suppress the *transition* rather than the rotation: slides still
+advance on their own, but swap instantly instead of blurring and rising, and
+the numeral and image cut rather than crossfade. The rotation is the page's
+content, the hover/focus pause (WCAG 2.2.2) is still there, and a filling 4px
+bar is not the vestibular motion the setting exists to suppress. Verified: 0 →
+1 → 2 unattended with the setting on.
+
+**The image now changes with the copy**, crossfading in place — stacked
+absolutely inside the square rather than `mode="wait"`, which would blank the
+panel between slides. The numeral keeps `mode="wait"`, since two outlined
+numerals overlapping turn to mush.
+
+⚠ **Three of the four images are stand-ins.** The artboard shows one photograph
+across all four slides, so the slides point at the four distinct assets already
+in the project to make the mechanism visible. Each is a one-line swap once real
+photography exists.
+
+**Open Roles sits 240px lower.** It was reaching the middle of the screen just
+*before* the ground finished going ink, and more so on a tall window — measured
+content centre 2389 against a viewport centre of 2381 at 813px tall, and ~27px
+earlier at 882px, which is what Eduardo's screenshot caught. Verified after the
+change at two heights:
+
+```
+viewport 813   fade completes 2000   centres 2062   (+62px)
+viewport 900   fade completes 1975   centres 2019   (+44px)
+```

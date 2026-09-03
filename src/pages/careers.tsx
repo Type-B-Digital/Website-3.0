@@ -63,16 +63,41 @@ const BENCH_GROUND = mix(palette.amber[100], palette.neutral[50], 0.62)
 const WARM_GRADIENT = `linear-gradient(180deg, ${palette.amber[100]} 0%, ${BENCH_GROUND} 100%)`
 
 /**
- * The hero carousel. Copy is Eduardo's; the artboard draws only slide 02
- * (node 3638:9411), and every slide shares the one photograph — the same
- * 628px image the Contact page uses for "We're Hiring" (verified identical,
- * pixel-for-pixel, between the two artboards).
+ * The hero carousel. Copy is Eduardo's.
+ *
+ * The numerals are the artboard's own `number-01`..`number-04` components
+ * (Figma nodes 3672:9527 / 9531 / 9532 / 9533), not type. They are drawn
+ * outlines — hollow letterforms filled at ink 40%, with a "1" whose flag Reddit
+ * Sans does not produce — so setting them as text with a stroke, as the first
+ * build did, gets the wrong glyphs. The exports carry two rects of scaffolding
+ * (a #090909 backing and the entire 1440x10570 tokens board); only the two
+ * glyph paths from each are kept.
+ *
+ * ⚠ The images are stand-ins. The artboard shows one photograph across all four
+ * slides, so these are the four distinct assets already in the project, wired
+ * up so the mechanism is visible and real photography is a one-line swap each.
  */
 const SLIDES = [
-  'Competitive compensation in USD.',
-  'Flexible, remote-first work culture.',
-  'Global clients and cross-cultural teams.',
-  'Support for ongoing learning & growth.',
+  {
+    copy: 'Competitive compensation in USD.',
+    numeral: '/vectors/careers/number-01.svg',
+    image: '/images/hiring.jpg',
+  },
+  {
+    copy: 'Flexible, remote-first work culture.',
+    numeral: '/vectors/careers/number-02.svg',
+    image: '/images/careers/roles.jpg',
+  },
+  {
+    copy: 'Global clients and cross-cultural teams.',
+    numeral: '/vectors/careers/number-03.svg',
+    image: '/images/careers/bench-2.jpg',
+  },
+  {
+    copy: 'Support for ongoing learning & growth.',
+    numeral: '/vectors/careers/number-04.svg',
+    image: '/images/careers/bench-1.jpg',
+  },
 ] as const
 
 /** Seconds each slide holds before advancing. Eduardo's spec. */
@@ -193,9 +218,15 @@ function Hero() {
  * Paused on hover and on focus-within. Auto-advancing content needs a way to
  * stop (WCAG 2.2.2), and reading a slide should not be a race.
  *
- * Under `prefers-reduced-motion` it does not advance at all: the bars become
- * plain controls and the reader drives. Auto-rotating carousels are exactly
- * the motion that setting exists to suppress.
+ * `prefers-reduced-motion` suppresses the *transition*, not the rotation: the
+ * slide still advances on its own, but swaps instantly rather than blurring and
+ * rising, and the numeral and image cut rather than crossfade.
+ *
+ * The first build stopped the rotation entirely under that setting, which is
+ * the stricter reading — and it is how Eduardo found the carousel frozen on 01
+ * with macOS "Reduce motion" on. Rotation is the page's content, the pause
+ * affordance is still there, and a filling 4px bar is not the vestibular motion
+ * the setting exists to suppress.
  */
 function HeroCarousel() {
   const prefersReduced = useReducedMotion()
@@ -214,14 +245,13 @@ function HeroCarousel() {
   useEffect(() => {
     controls.current?.stop()
     progress.set(0)
-    if (prefersReduced) return
     controls.current = animate(progress, 1, {
       duration: SLIDE_SECONDS,
       ease: 'linear',
       onComplete: advance,
     })
     return () => controls.current?.stop()
-  }, [index, prefersReduced, progress, advance])
+  }, [index, progress, advance])
 
   // Hold the clock rather than the appearance, so resuming picks up the
   // remaining time instead of restarting the slide.
@@ -296,17 +326,22 @@ function HeroCarousel() {
                   }
                   transition={{ duration: duration.base, ease: [...easing.inOut] }}
                 >
-                  <Typography
-                    variant="numeral"
+                  {/*
+                    The artboard's own outline numeral, at its natural 179px.
+                    -34px is the *glyph* overlap measured on the artboard, not
+                    the 64px gap between its text boxes: the old 240px type sat
+                    in a 220px line box with ~21px of descender space below the
+                    digits, and these vectors are tightly bounded.
+                  */}
+                  <img
+                    src={asset(SLIDES[index].numeral)}
+                    alt=""
                     aria-hidden="true"
-                    className="-mb-[64px] select-none text-transparent"
-                    style={{ WebkitTextStroke: `1px ${palette.neutral[900]}` }}
-                  >
-                    {String(index + 1).padStart(2, '0')}
-                  </Typography>
+                    className="-mb-[34px] h-[179px] w-auto select-none"
+                  />
 
                   <Typography variant="h2" as="p" className="max-w-[519px] text-h3 md:text-h2">
-                    {SLIDES[index]}
+                    {SLIDES[index].copy}
                   </Typography>
                 </fm.div>
               </AnimatePresence>
@@ -319,10 +354,10 @@ function HeroCarousel() {
                 const isPast = i < index
                 return (
                   <button
-                    key={slide}
+                    key={slide.copy}
                     type="button"
                     onClick={() => setIndex(i)}
-                    aria-label={`Show slide ${i + 1}: ${slide}`}
+                    aria-label={`Show slide ${i + 1}: ${slide.copy}`}
                     aria-current={isActive || undefined}
                     className={cn(
                       'h-[4px] w-3xl overflow-hidden rounded-pill bg-tag-bg',
@@ -352,11 +387,26 @@ function HeroCarousel() {
 
         {/* 628px square, starting at column 8 of 12 (artboard x=732). */}
         <Reveal index={1} className="lg:col-span-6 lg:col-start-7">
-          <img
-            src={asset('/images/hiring.jpg')}
-            alt="A Type B engineer working from a plant-filled studio"
-            className="aspect-square w-full rounded-md object-cover"
-          />
+          {/*
+            Stacked absolutely inside a square box so the images crossfade in
+            place. `mode="wait"` would blank the panel between slides here —
+            unlike the numeral, two photographs can safely overlap.
+          */}
+          <div className="relative aspect-square w-full overflow-hidden rounded-md">
+            <AnimatePresence initial={false}>
+              <fm.img
+                key={index}
+                src={asset(SLIDES[index].image)}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 size-full object-cover"
+                initial={prefersReduced ? undefined : { opacity: 0 }}
+                animate={prefersReduced ? undefined : { opacity: 1 }}
+                exit={prefersReduced ? undefined : { opacity: 0 }}
+                transition={{ duration: duration.base, ease: [...easing.inOut] }}
+              />
+            </AnimatePresence>
+          </div>
         </Reveal>
       </div>
     </Section>
@@ -428,7 +478,14 @@ function OpenRoles() {
     <Section
       tone="none"
       spacing="none"
-      className="pb-5xl pt-[calc(theme(spacing.4xl)*2)] text-on-dark"
+      /*
+        Open Roles reaches the middle of the screen slightly *before* the ground
+        finishes going ink, and more so on a tall window — measured: content
+        centre 2389 against a viewport centre of 2381 at 813px tall, and ~27px
+        earlier at 882px. Dropping it 240px lands the centring just after the
+        crossfade completes at every height rather than racing it.
+      */
+      className="pb-5xl pt-[calc(theme(spacing.5xl)*2)] text-on-dark"
     >
       <div className="grid items-start gap-lg lg:grid-cols-12">
         <Reveal className="lg:col-span-5 lg:col-start-1">
