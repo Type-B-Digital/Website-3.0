@@ -22,7 +22,12 @@ export type ButtonTone = 'onDark' | 'onLight'
 
 const base =
   'inline-flex h-2xl shrink-0 items-center justify-center gap-sm rounded-pill text-button ' +
-  'transition-colors duration-fast ease-out'
+  'transition-colors duration-fast ease-out ' +
+  // Submit buttons go disabled while a form is in flight. Keep the label
+  // readable rather than fading it out of contrast, and show the cursor.
+  'disabled:cursor-not-allowed disabled:opacity-subtle ' +
+  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ' +
+  'focus-visible:outline-accent-500'
 
 const variantClasses: Record<ButtonVariant, Record<ButtonTone, string>> = {
   // Solid. Figma: 3369:24489 (on light) / 3390:26629 (on dark)

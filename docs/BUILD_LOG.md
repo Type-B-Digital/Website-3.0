@@ -1469,3 +1469,140 @@ still opens and renders under `prefers-reduced-motion: reduce`.
 `ChevronDown` is a new icon, not a reuse of `CaretDown`: the FAQ marker is a
 full-width chevron (`M19 9L12 16L5 9`), the nav caret a 6x3 tick
 (`M15 11L12 14L9 11`).
+
+## Contact page (Sep 2, 2026)
+
+Figma node 2894:10698. Fourth page. Validation, error states, captcha and toast
+are all authored — the artboard draws one resting state and no feedback of any
+kind.
+
+### The nav layer name lies again
+
+The nav layer is called **navigation-main**, but it renders the ink-on-light
+variant: its CTA pill samples `#151E28` under the grain, i.e. ink. Same trap as
+the layer literally named "bg-white" that turned out to be brand cream, so the
+tone came from the pixels — `headerTone="onLight"`. Third page in a row where
+the layer name is not evidence.
+
+### Page ground
+
+Sampled down the left gutter as on Industries, landing on three exact ramp
+values again:
+
+```
+0%     neutral.50      #F6F2EC
+47%    turquoise.100   #C9D5D3   (artboard y=1080)
+100%   amber.100       #F7DDC1
+```
+
+Worst deviation from a three-stop linear fit: 7.7/255. It is the Industries
+gradient reversed — cool through the middle here, warm there.
+
+### Testimonial glow
+
+Figma has a 1248px blob behind the quote (node 3617:9101). Isolated by
+subtracting the fitted page gradient from the artboard's pixels: the warmth
+peaks on the page centre at the testimonial's own centre, and is gone ~300px
+below it. Built as `.testimonial-glow` in the same family as `.stages-glow`,
+wider and flatter and at 0.42 opacity because body copy sits on it.
+
+### Form
+
+Field order, sizes and required-ness are the artboard's: email, company, name,
+then a message labelled "(Optional)" (node 3617:9166) — so message is the one
+field that does not block submission. Fields are `paper` on a `neutral.200`
+border, 48px tall, 4px radius, 14px placeholder at 80%; the textarea is 128px.
+All existing tokens.
+
+**Labels.** The artboard puts each field name *inside* the box and shows no
+label above it. Rendering that as a bare placeholder would leave every input
+nameless for assistive tech and lose the name the moment someone types, so the
+visible design is unchanged and each field carries an `sr-only` `<label>`
+alongside the placeholder.
+
+**Error colour, chosen by measurement.** The palette has no red. Rather than
+invent one, `colors.feedback.danger` is `orange.700`, picked on contrast
+against the field fill (#F5F6F6):
+
+| candidate | ratio | |
+|---|---|---|
+| orange.500 `#FF5315` | 2.98:1 | the obvious "error red" — would have shipped unreadable |
+| orange.600 `#CD4516` | 4.35:1 | first choice; fails AA |
+| **orange.700 `#9B3717`** | **6.57:1** | used |
+
+Colour is never the only signal: each error renders an icon and text, the
+control gets `aria-invalid`, and `aria-describedby` points at the message so it
+is announced on focus rather than merely visible. The form is `noValidate` so
+the browser's own bubbles do not pre-empt these. On submit, focus moves to the
+first field in error.
+
+Errors appear on blur, not on keystroke, and clear as soon as the field is
+corrected — showing "required" while someone is still typing reads as the form
+not noticing. The email pattern is deliberately permissive (`x@y.z`); tighter
+regexes reject valid addresses and only sending proves an address works.
+
+### Bot protection — read this before relying on it
+
+Three layers, all client-side: an arithmetic challenge (`Captcha`), a honeypot
+field, and a minimum time-to-submit of 2.5s (`useBotGuard`). Verified: filling
+the honeypot and submitting instantly are both rejected, silently and without
+saying which check caught it.
+
+**This is a deterrent, not a security control.** Everything runs in the browser,
+where a script can skip it and POST to the endpoint directly. It stops the
+drive-by form spam that floods an inbox; it will not stop anyone targeting this
+form. Real protection needs a token the *server* validates — when the form gets
+a backend, swap `Captcha` for Cloudflare Turnstile and verify server-side. Its
+props (`onVerify`, `error`) are already the shape those widgets expose, so the
+change is local to that one file.
+
+Arithmetic rather than distorted text on purpose: distorted text is now harder
+for humans than for machine vision, and is hostile to screen-reader and
+low-vision users.
+
+**There is no endpoint.** The submit is a simulated 900ms round-trip. Replace it
+with the real POST when one exists.
+
+### Two bugs worth recording
+
+**The toast pinned to the middle of the form.** It is `position: fixed`, which
+resolves against the nearest ancestor carrying a transform — and it was mounted
+inside a `Reveal`, which leaves a framer-motion transform on its wrapper even at
+rest. Now portalled to `document.body`. Measured: 24px from the bottom-right.
+
+**The captcha kept its answer after a successful send.** Resetting the form's
+own state left `Captcha`'s internal `entry` untouched, so the box showed a
+correct-looking answer while the form considered it unsolved — a second message
+failed validation against a field that looked filled. Fixed by keying the
+component on a send counter so it remounts with a fresh question.
+
+### Verified
+
+```
+                   artboard   built
+eyebrow top             232     232
+h2 top                  273     273
+form x / width      841/410 841/410
+email top / height    232/48  232/48
+message top/height   424/128 424/128
+submit width            168     167
+quote width             800     800
+photo x/size         80/628  80/628
+section gaps    240/240/170  240/240/160
+```
+
+Empty submit flags email, company, name and captcha, moves focus to email, and
+sends nothing. A bad email shows its message with the border at
+`rgb(155,55,23)`; correcting it clears both. Toast announces `polite`,
+auto-dismisses at 6s, and dismisses manually.
+
+### Deviations
+
+- **Hero heading is 48px (h2), artboard says 56px.** 56 is off the type scale
+  entirely — it runs 48, 64, 72. h2 keeps the artboard's two-line wrap at 519px;
+  `display` would push it to three. Same call as the FAQ's off-scale 15px.
+- **The submit button sits ~66px lower than the artboard**, because the captcha
+  is between it and the message field and the artboard has no captcha. Section
+  gaps below are correct relative to each other.
+- **Message is optional**, per its artboard label. Say the word and it becomes
+  required with the others.

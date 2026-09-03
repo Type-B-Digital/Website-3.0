@@ -300,3 +300,38 @@ full-width chevron, the nav caret is a small tick. Inherits `currentColor`.
 The wordmark, drawn with `fill="currentColor"` so one component serves both nav
 tones and the footer. Needs `fillRule="evenodd"` — the mark is a single
 boolean-operation path whose counters are subpaths.
+
+## Field
+
+One text input or textarea in the contact form. Figma: nodes 3617:9159 / 9161 /
+9163 / 9165.
+
+| prop | type | notes |
+|---|---|---|
+| `label` | `string` | accessible name **and** the placeholder drawn in the box |
+| `name` `value` `onChange` `onBlur` | | controlled |
+| `error` | `string` | when set, renders the error state |
+| `type` | `'text' \| 'email'` | |
+| `multiline` | `boolean` | textarea, 128px |
+| `required` | `boolean` | |
+
+The artboard shows no visible label, so the field name is the `placeholder` and
+a matching `sr-only` `<label>` supplies the accessible name — a placeholder
+alone leaves the input nameless and vanishes on input. Errors set
+`aria-invalid`, wire `aria-describedby` to the message, and pair the colour with
+an icon.
+
+## Captcha
+
+⚠ A client-side deterrent, **not** a security control. See the file header and
+BUILD_LOG. Swap for Cloudflare Turnstile once there is a server to verify the
+token; `onVerify` / `error` already match that shape.
+
+## Toast
+
+Transient confirmation. `role="status"` + `aria-live="polite"`, auto-dismiss
+after `duration` (default 6s) plus a manual close.
+
+Portals to `document.body` — it is `position: fixed`, and any transformed
+ancestor (a `Reveal` at rest counts) would otherwise become its containing
+block.

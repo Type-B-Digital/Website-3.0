@@ -262,3 +262,16 @@ turquoise.100, where an ink rule reads as a foreign colour. Class:
 The Industries body does not use `surface`; it carries a continuous gradient
 (`neutral.50 → amber.100 → turquoise.100`) declared on the page. See
 `PAGE_GRADIENT` in `src/pages/industries.tsx`.
+
+## `colors.feedback`
+
+⚠ NOT IN FIGMA — no artboard documents an error, warning or success state.
+Authored, awaiting sign-off. Both values are existing ramp ends, so form
+feedback still reads as this brand rather than as generic validation UI.
+
+| token | value | why |
+|---|---|---|
+| `danger` | `orange.700` `#9B3717` | 6.57:1 on the field fill; `orange.600` fails AA at 4.35:1 and `orange.500` is 2.98:1 |
+| `success` | `neutral.900` | the toast is a dark pill — the palette has no green, and adding one for one component puts a hue on the page that exists nowhere else |
+
+Also `colors.border.danger` (same value) as `border-danger`.

@@ -284,6 +284,11 @@ export const colors = {
     /** Divider between case-study rows. Figma: "Line 89" — node 3390:26458 */
     divider: 'rgba(4, 14, 25, 0.12)',
     /**
+     * Field border in its error state. Figma documents no error state anywhere,
+     * so this is authored — see `colors.feedback`.
+     */
+    danger: palette.orange[700],
+    /**
      * Rule between FAQ questions — the accent at 40%, NOT `divider`.
      *
      * Figma exports "Line 88" (node 2894:14480) as `stroke="#17616E"`,
@@ -292,6 +297,29 @@ export const colors = {
      * there. Resolved per mood, so it tracks whichever ramp is active.
      */
     accentSoft: 'var(--color-border-accent-soft)',
+  },
+  /**
+   * ⚠ NOT IN FIGMA. The artboards document no error, warning or success state
+   * on any page, so this whole group is authored and awaiting design sign-off.
+   *
+   * Both values are existing ramp ends rather than new hues, so the form still
+   * reads as this brand rather than as a generic validation UI:
+   *
+   * - `danger` is `orange.700`, chosen by contrast rather than by eye. On the
+   *   field fill (`paper`, #F5F6F6) it measures **6.57:1**, clearing WCAG AA
+   *   for body text. `orange.600` was the first choice and fails at 4.35:1;
+   *   `orange.500`, the obvious "error red", is 2.98:1 and would have shipped
+   *   unreadable error text.
+   * - `success` is the ink canvas, because the confirmation toast is a dark
+   *   pill in this palette — introducing a green for one component would put a
+   *   hue on the page that appears nowhere in the design system.
+   *
+   * Colour is never the only signal: each error renders an icon and text, and
+   * the toast carries a label.
+   */
+  feedback: {
+    danger: palette.orange[700],
+    success: palette.neutral[900],
   },
 } as const
 

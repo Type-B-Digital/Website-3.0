@@ -1,4 +1,4 @@
-import type { ElementType, ReactNode } from 'react'
+import type { ComponentPropsWithoutRef, ElementType, ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 import type { TypographyToken } from '@/tokens'
 
@@ -55,6 +55,13 @@ const defaultElement: Record<TypographyVariant, ElementType> = {
   navLink: 'span',
 }
 
+/**
+ * Remaining props pass through to the rendered element. Needed for the
+ * attributes that make a form usable: an error message has to carry the `id`
+ * that its input's `aria-describedby` points at, and a form-level failure has
+ * to carry `role="alert"`. Without pass-through those have to be hand-rolled
+ * with literal type classes, which is how off-scale sizes creep in.
+ */
 export type TypographyProps = {
   variant: TypographyVariant
   children: ReactNode
@@ -63,7 +70,7 @@ export type TypographyProps = {
   /** Apply the design's 80% body-copy alpha. Figma uses this on nearly all prose. */
   muted?: boolean
   className?: string
-}
+} & Omit<ComponentPropsWithoutRef<'p'>, 'children' | 'className'>
 
 export function Typography({
   variant,
@@ -71,11 +78,13 @@ export function Typography({
   as,
   muted = false,
   className,
+  ...rest
 }: TypographyProps) {
   const Component = as ?? defaultElement[variant]
   return (
     <Component
       className={cn(variantClass[variant], muted && 'opacity-muted', 'text-balance', className)}
+      {...rest}
     >
       {children}
     </Component>

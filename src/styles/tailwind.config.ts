@@ -99,6 +99,8 @@ export default {
         'scrim-strong': colors.background.scrimStrong,
         'tag-bg': colors.background.tag,
         'chip-light': colors.background.chipLight,
+        white: unmapped.white,
+        danger: colors.feedback.danger,
       },
       textColor: {
         'on-dark': colors.text.onDark,
@@ -111,6 +113,7 @@ export default {
         'on-light': colors.border.onLight,
         divider: colors.border.divider,
         'accent-soft': colors.border.accentSoft,
+        danger: colors.border.danger,
       },
       fontFamily: {
         sans: fontFamily.sans.split(', '),

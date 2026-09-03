@@ -353,6 +353,24 @@
  * Gradients rather than the exported SVG, for the same reason as the footer
  * glow: the export's falloff clips when scaled into a different aspect.
  */
+/*
+ * Warm blob behind the Contact testimonial. Figma: node 3617:9101, a 1248px
+ * group whose contribution was isolated by subtracting the fitted page
+ * gradient from the artboard's own pixels — the warmth peaks on the page
+ * centre at the testimonial's centre and is gone ~300px below it.
+ *
+ * Same construction as .stages-glow, but wider and flatter, and at a lower
+ * opacity: it sits behind body copy here rather than behind cards, and the
+ * quote has to stay readable across it.
+ */
+.testimonial-glow {
+  background:
+    radial-gradient(42% 58% at 50% 46%, var(--color-glow-warm) 0%, transparent 70%),
+    radial-gradient(30% 44% at 58% 52%, var(--color-glow-amber) 0%, transparent 72%);
+  filter: blur(var(--bbb-blur));
+  opacity: 0.42;
+}
+
 .stages-glow {
   background:
     radial-gradient(46% 52% at 46% 50%, var(--color-glow-amber) 0%, transparent 70%),
