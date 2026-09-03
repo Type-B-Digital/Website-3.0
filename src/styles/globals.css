@@ -152,6 +152,8 @@
   --color-accent-800: #0c2f3b;
   --color-accent-900: #081f2a;
   --color-tag-bg: rgba(198, 196, 194, 0.4);
+  /* Accent at 40% — the FAQ rule. See colors.border.accentSoft. */
+  --color-border-accent-soft: rgba(23, 97, 110, 0.4);
 }
 
 :root[data-mood='ember'] {
@@ -165,6 +167,8 @@
   --color-accent-800: #682a17;
   --color-accent-900: #361c18;
   --color-tag-bg: rgba(198, 196, 194, 0.4);
+  /* Accent at 40% — the FAQ rule. See colors.border.accentSoft. */
+  --color-border-accent-soft: rgba(255, 83, 21, 0.4);
 }
 
 :root[data-mood='solar'] {
@@ -178,6 +182,8 @@
   --color-accent-800: #683f18;
   --color-accent-900: #362618;
   --color-tag-bg: rgba(198, 196, 194, 0.4);
+  /* Accent at 40% — the FAQ rule. See colors.border.accentSoft. */
+  --color-border-accent-soft: rgba(253, 136, 22, 0.4);
 }
 
 /* --- semantic aliases --------------------------------------------- */

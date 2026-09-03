@@ -266,3 +266,37 @@ round-capped stroke are preserved exactly.
 | `Typography.tsx` | ~100 | 3366:23051 |
 | `icons/ArrowRight.tsx` | ~40 | 3369:24491 |
 | `icons/CaretDown.tsx` | ~35 | 3390:26616 |
+
+## Accordion
+
+A disclosure list. Figma: the Industries FAQ, node 2894:14479.
+
+```tsx
+<Accordion items={[{ question: '…', answer: '…' }]} />
+```
+
+| prop | type | default | notes |
+|---|---|---|---|
+| `items` | `readonly AccordionItem[]` | — | `{ question, answer }` |
+| `defaultOpen` | `number \| null` | `null` | index open on mount; the artboard shows all collapsed |
+| `single` | `boolean` | `true` | one row open at a time |
+| `className` | `string` | — | |
+
+Each row is a `<button>` carrying `aria-expanded` / `aria-controls`, with the
+panel as an `aria-labelledby` region, so the list is keyboard- and
+screen-reader-navigable. The panel animates `height: auto`; under
+`prefers-reduced-motion` it appears without animating.
+
+Rules between rows use `border-accent-soft` (the active ramp at 40%), which is
+what the Industries artboard specifies — not `border-divider`.
+
+## icons/ChevronDown
+
+The FAQ disclosure marker, node 2894:14484. Distinct from `CaretDown`: this is a
+full-width chevron, the nav caret is a small tick. Inherits `currentColor`.
+
+## icons/TypeBLogo
+
+The wordmark, drawn with `fill="currentColor"` so one component serves both nav
+tones and the footer. Needs `fillRule="evenodd"` — the mark is a single
+boolean-operation path whose counters are subpaths.

@@ -154,6 +154,58 @@ export const gradients = {
   b8:
     `linear-gradient(230.53deg, ${palette.neutral[50]} 0%, ${palette.amber[200]} 30.73%, ` +
     `${palette.neutral[200]} 63.94%, ${palette.turquoise[300]} 100%)`,
+  /* ------------------------------------------------------------------ *
+   * Industry row fills — Figma nodes 3276:21593 / 21597 / 21601 / 21605
+   * / 21609 on the Industries page.
+   *
+   * Every stop is an exact palette value, so these are composed rather than
+   * shipped as images: `download_assets` returns no `rawImages` for them, only
+   * an SVG whose `<linearGradient>` carries the stops.
+   *
+   * Three of the five are the b3-b6 ramps re-fitted to this 411x320 box, which
+   * is why their stop offsets differ from the token board's (b3 runs to
+   * 127.63% there because that gradient overruns its own frame).
+   *
+   * ⚠ Two things the SVG export gets wrong, both verified against the
+   * artboard's own pixels rather than trusted:
+   *
+   * 1. It is MIRRORED horizontally. The export puts cream at the top-right of
+   *    the healthcare fill; the artboard renders it at the top-left. Negating
+   *    the export's dx and taking `atan2(dx, dy)` in Figma's y-down space
+   *    yields the two angles below, which fit the artboard to a mean colour
+   *    delta of 21/441 across a 16-point grid on all five rows. (Same class of
+   *    defect as the bbb-stroke SVG that exported rotated 90 degrees.)
+   * 2. The first `<stop>` carries no `offset` attribute, defaulting to 0. Read
+   *    with a regex that requires one, the darkest stop silently vanishes and
+   *    the fill reads as a mid-tone wash.
+   *
+   * The export also bakes an feTurbulence grain into each fill. Left out: the
+   * page already carries `.page-grain` above everything, so baking it in again
+   * would double it.
+   */
+  industry: {
+    /** Cream -> amber -> orange -> deep turquoise. Node 3276:21593. */
+    healthcare:
+      `linear-gradient(122.8deg, ${palette.neutral[50]} 15%, ${palette.amber[500]} 50%, ` +
+      `${palette.orange[500]} 75%, ${palette.turquoise[500]} 100%)`,
+    /** Ink -> turquoise -> cream. The b3 ramp refitted. Node 3276:21597. */
+    financial:
+      `linear-gradient(302.8deg, ${palette.neutral[900]} 0%, ${palette.turquoise[500]} 50%, ` +
+      `${palette.neutral[50]} 100%)`,
+    /** Ink -> coral -> amber. The b4 ramp refitted. Node 3276:21601. */
+    realEstate:
+      `linear-gradient(122.8deg, ${palette.neutral[900]} 0%, ${palette.orange[400]} 65.38%, ` +
+      `${palette.amber[300]} 100%)`,
+    /** Deep turquoise -> pale turquoise -> cream. The b5 ramp. Node 3276:21605. */
+    manufacturing:
+      `linear-gradient(302.8deg, ${palette.turquoise[500]} 0%, ${palette.turquoise[100]} 50%, ` +
+      `${palette.neutral[50]} 100%)`,
+    /** Cream -> coral -> amber. The b6 ramp, same offsets. Node 3276:21609. */
+    legal:
+      `linear-gradient(122.8deg, ${palette.neutral[50]} 0%, ${palette.orange[300]} 53.37%, ` +
+      `${palette.amber[400]} 100%)`,
+  },
+
 } as const
 
 export type GradientToken = keyof typeof gradients
@@ -231,6 +283,15 @@ export const colors = {
     onLight: 'rgba(7, 27, 39, 0.24)',
     /** Divider between case-study rows. Figma: "Line 89" — node 3390:26458 */
     divider: 'rgba(4, 14, 25, 0.12)',
+    /**
+     * Rule between FAQ questions — the accent at 40%, NOT `divider`.
+     *
+     * Figma exports "Line 88" (node 2894:14480) as `stroke="#17616E"`,
+     * turquoise.500, at 40% opacity. The Industries page ground fades into
+     * turquoise.100 by the FAQ, so an ink rule would read as a foreign colour
+     * there. Resolved per mood, so it tracks whichever ramp is active.
+     */
+    accentSoft: 'var(--color-border-accent-soft)',
   },
 } as const
 

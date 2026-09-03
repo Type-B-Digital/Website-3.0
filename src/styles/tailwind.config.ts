@@ -110,6 +110,7 @@ export default {
         'on-dark-subtle': colors.border.onDarkSubtle,
         'on-light': colors.border.onLight,
         divider: colors.border.divider,
+        'accent-soft': colors.border.accentSoft,
       },
       fontFamily: {
         sans: fontFamily.sans.split(', '),
@@ -127,10 +128,22 @@ export default {
         content: layout.maxWidth,
         frame: layout.frameWidth,
       },
-      // `bg-gradient-b1` … `bg-gradient-b8`. Distinct from Tailwind's built-in
-      // `bg-gradient-to-*` direction utilities, which stay available.
+      // `bg-gradient-b1` … `bg-gradient-b8`, plus `bg-gradient-industry-*`.
+      // Distinct from Tailwind's built-in `bg-gradient-to-*` direction
+      // utilities, which stay available.
+      //
+      // `gradients` is one level deep in places (`gradients.industry`), so the
+      // nested group is flattened rather than passed through — a nested object
+      // reaching Tailwind as a value is not a type error at the call site, only
+      // where the theme is consumed.
       backgroundImage: Object.fromEntries(
-        Object.entries(gradients).map(([name, value]) => [`gradient-${name}`, value]),
+        Object.entries(gradients).flatMap(([name, value]) =>
+          typeof value === 'string'
+            ? [[`gradient-${name}`, value] as const]
+            : Object.entries(value).map(
+                ([sub, v]) => [`gradient-${name}-${kebab(sub)}`, v] as const,
+              ),
+        ),
       ),
       transitionDuration,
       transitionTimingFunction,

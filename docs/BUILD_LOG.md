@@ -1325,3 +1325,147 @@ Two things to know before picking that up again:
 
 The `asset()` / `basename` / `404.html` work is worth keeping regardless: it is
 a correctness fix for any non-root deploy, and a verified no-op at `/`.
+
+## Industries page (Sep 2, 2026)
+
+Figma node 2894:13976. Third page. Header runs navigation-dark; closing CTA and
+footer come from PageShell as before.
+
+### The page ground
+
+Figma paints the gradient on the page frame itself, so there is no node to read.
+Sampled down the artboard's left gutter at 20px intervals instead, which landed
+on three exact ramp values — no new colours:
+
+```
+0%    neutral.50      #F6F2EC
+44%   amber.100       #F7DDC1   (artboard y=1700)
+96%   turquoise.100   #C9D5D3   (artboard y=3700)
+```
+
+A three-stop linear fit reproduces the sampled column to a worst deviation of
+7/255, inside the grain's own variance — so it is a plain linear gradient, not
+a mesh. It ends at 96% because the artboard reaches turquoise.100 at y=3700 and
+holds it flat into the CTA at 3847. The hero, rows and FAQ are all
+`tone="none"` so nothing paints over it.
+
+### The 12-column stagger
+
+The point of the section, and the thing most likely to be "tidied" away later.
+Fill left edges measured off the artboard's pixels:
+
+| row | left | column |
+|---|---|---|
+| Healthcare & Life Sciences | 732 | 7 |
+| Financial Services & Insurance | 949 | 9 |
+| Real Estate & PropTech | 840 | 8 |
+| Manufacturing, Trade & Logistics | 732 | 7 |
+| Legal Professional Services | 949 | 9 |
+
+On the 1280px content width, 12 columns with a 24px gutter give an 84.67px
+column; 4 columns plus 3 gutters is 410.67px, i.e. the 411px fill. Every
+measured edge lands on a column boundary within a pixel. Built rendered edges:
+732 / 949 / 841 / 732 / 949.
+
+Pixel measurement was necessary because **the exported frame geometry reports
+each fill one full width to the right of where it renders** — the metadata puts
+the rect at `x = frameWidth`, just outside its own frame. The reliable rule is
+`image right edge = 80 + frameWidth`.
+
+`COL_START` holds the column as literal class strings. A computed
+`lg:col-start-${n}` is never emitted by Tailwind, and the failure mode is
+silent: every fill collapses to column 1 and the stagger — the whole reason the
+section exists — quietly disappears.
+
+### Row fills are composed, not shipped
+
+`download_assets` returns no `rawImages` for these, only an SVG whose
+`<linearGradient>` carries the stops. Every stop is an exact palette value, so
+they live in `gradients.industry`. Three of the five are the b3–b6 ramps
+re-fitted to this 411x320 box, which is why the offsets differ from the token
+board's (b3 runs to 127.63% there because that gradient overruns its frame).
+
+Two export defects, both caught by checking against the artboard rather than
+trusting the file:
+
+1. **The SVG is mirrored horizontally.** It puts cream at the top-right of the
+   healthcare fill; the artboard renders it top-left. Negating the export's dx
+   and taking `atan2(dx, dy)` in y-down space gives two angles, 122.8deg and
+   302.8deg, which fit all five rows to a mean colour delta of 21/441 over a
+   16-point grid. A free per-row angle fit landed within a few degrees of
+   those, and the two 302.8deg rows share identical SVG coordinates, so they
+   must share an angle. Same class of defect as the bbb-stroke SVG that
+   exported rotated 90 degrees.
+2. **The first `<stop>` carries no `offset` attribute** (it defaults to 0). Read
+   with a regex requiring one, the darkest stop vanishes silently and the fill
+   reads as a mid-tone wash — which is what made the first four angle fits look
+   like failures.
+
+The export also bakes an `feTurbulence` grain into each fill. Left out: the page
+already carries `.page-grain` above everything, so baking it in would double it.
+
+### Two new colour facts
+
+The hero eyebrow is **solid ink with near-white text** (node 2894:14356), not
+the amber chip used on the other pages — hence `Eyebrow tone="ink"`. That tone
+names the chip rather than its ground, because it is a second variant sitting on
+the same light ground.
+
+The FAQ rules are **not** `border-divider`. Figma exports them as
+`stroke="#17616E"` (turquoise.500) at 40% — the page has faded to turquoise.100
+by then, so an ink rule would read as a foreign colour. Added as
+`colors.border.accentSoft`, resolved per mood so it tracks the active ramp.
+Verified computed: `rgba(23, 97, 110, 0.4)`.
+
+Also worth noting: this page's eyebrow is SemiBold, **agreeing** with
+`typography.eyebrow`. The homepage artboard's Regular weight was the outlier, so
+the token stands.
+
+### Verified geometry
+
+Every hero and row value matches the artboard exactly:
+
+```
+                artboard   built
+eyebrow top          232     232
+h1 top/bottom   273/359 273/359
+hero copy width      800     800
+hero CTA bottom      537     537
+fill tops       697/1177/1657/2137/2617  ->  697/1177/1657/2136/2616
+row pitch            480     480
+row title bottom     843     843
+row copy top/bot 859/907 859/907
+row button top       947     947
+FAQ heading top     3177    3176
+FAQ chevron right   1336    1336
+marquee top         3737    3733
+```
+
+### Deviations
+
+- **FAQ question rows are 73px tall, not 79.** The artboard sets the question
+  text at **15px** in a **31px** box. 15px is off the type scale entirely
+  (12/14/16/20/…), and 31px is not a line-height any weight of Reddit Sans
+  produces at that size — it reads as slack in a fixed-height Figma text frame.
+  Built as `copyMedium` (16px) with 24px padding, giving 73. Say the word and I
+  will force 15px/31px, but I would not introduce an off-scale size silently.
+- **FAQ-to-marquee gap is 240, not the artboard's 225.** 240 keeps the page on
+  the 80px rhythm it otherwise follows exactly (160 between rows, 240 before the
+  FAQ); the 225 follows from the same FAQ frame slack above.
+- **FAQ answers are placeholder copy.** The artboard draws every row collapsed
+  and carries no answer text.
+
+### Accordion
+
+New shared component. Each row is a real `<button>` with `aria-expanded` and
+`aria-controls`, and the panel is a labelled region — a div with a click handler
+would look identical and be unreachable by keyboard. Framer animates
+`height: auto` by measuring the target box, so the panel opens to its content
+height with no magic number; padding sits on an inner box because padding on the
+animated box would jump at height 0. One row open at a time by default.
+Verified: three buttons, collapsed on load, clicking Q2 opens only Q2, and it
+still opens and renders under `prefers-reduced-motion: reduce`.
+
+`ChevronDown` is a new icon, not a reuse of `CaretDown`: the FAQ marker is a
+full-width chevron (`M19 9L12 16L5 9`), the nav caret a 6x3 tick
+(`M15 11L12 14L9 11`).

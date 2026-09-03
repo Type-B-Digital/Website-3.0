@@ -33,7 +33,7 @@ import TypeBLogo from '@/components/icons/TypeBLogo'
  */
 const NAV_LINKS: { label: string; to?: string }[] = [
   { label: 'What we do', to: '/what-we-do' },
-  { label: 'Industries' },
+  { label: 'Industries', to: '/industries' },
   { label: 'Case studies' },
   { label: 'Who we are' },
   { label: 'Publications' },

@@ -227,3 +227,38 @@ The homepage brief calls for parallax and smooth scroll, so this scale is
 The board defines no shadows and the homepage uses none — depth comes from color
 and scrims. Declared as `{ none }` rather than invented, so a future shadow
 scale has an obvious home.
+
+## `gradients.industry`
+
+Five row fills from the Industries page (nodes 3276:21593 / 21597 / 21601 /
+21605 / 21609), composed from palette values rather than shipped as images —
+`download_assets` returns no raw image for them, only an SVG carrying the stops.
+
+| key | ramp | angle |
+|---|---|---|
+| `healthcare` | cream → amber.500 → orange.500 → turquoise.500 | 122.8deg |
+| `financial` | ink → turquoise.500 → cream | 302.8deg |
+| `realEstate` | ink → orange.400 → amber.300 | 122.8deg |
+| `manufacturing` | turquoise.500 → turquoise.100 → cream | 302.8deg |
+| `legal` | cream → orange.300 → amber.400 | 122.8deg |
+
+The two angles are mirror-corrected: the SVG export is flipped horizontally, so
+its own coordinates give the wrong direction. See BUILD_LOG for the fit.
+
+Exposed to Tailwind as `bg-gradient-industry-healthcare` and so on; the theme
+mapping flattens this nested group.
+
+## `colors.border.accentSoft`
+
+The rule between FAQ questions — the active accent at 40%, via
+`--color-border-accent-soft`, defined per mood alongside the accent ramp. Figma
+exports it as `stroke="#17616E"` at 40% opacity (node 2894:14480). Distinct from
+`divider`, which is ink at 12%: by the FAQ the Industries ground has faded to
+turquoise.100, where an ink rule reads as a foreign colour. Class:
+`border-accent-soft`.
+
+## `colors.background.surface` note
+
+The Industries body does not use `surface`; it carries a continuous gradient
+(`neutral.50 → amber.100 → turquoise.100`) declared on the page. See
+`PAGE_GRADIENT` in `src/pages/industries.tsx`.

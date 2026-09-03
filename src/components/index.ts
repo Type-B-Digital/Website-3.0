@@ -1,3 +1,4 @@
+export { default as Accordion } from './Accordion'
 export { default as Button } from './Button'
 export { default as Card } from './Card'
 export { default as Container } from './Container'
@@ -15,7 +16,10 @@ export { default as Typography } from './Typography'
 
 export { default as ArrowRight } from './icons/ArrowRight'
 export { default as CaretDown } from './icons/CaretDown'
+export { default as ChevronDown } from './icons/ChevronDown'
+export { default as TypeBLogo } from './icons/TypeBLogo'
 
+export type { AccordionItem, AccordionProps } from './Accordion'
 export type { ButtonProps, ButtonTone, ButtonVariant } from './Button'
 export type { CardAspect, CardCrop, CardProps } from './Card'
 export type { ContainerProps } from './Container'
