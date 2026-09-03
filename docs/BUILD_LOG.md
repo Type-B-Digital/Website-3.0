@@ -1254,3 +1254,53 @@ Verified computed styles on both routes:
 /what-we-do  logo #040E19  links #040E19 @ .8  CTA #040E19 on #F6F2EC
 /            logo #F6F2EC  links #F6F2EC @ .8  CTA #F6F2EC on #040E19
 ```
+
+## GitHub Pages staging deploy (Sep 2, 2026)
+
+A shareable staging link, served from the repo by GitHub Actions rather than by
+committing `dist/`, so the link always reflects `main` and the repo stays
+source-only.
+
+Pages serves a project site from `/<repo>/`, not the domain root, which breaks
+three separate things. Each needed its own fix:
+
+**Asset URLs.** `vite.config.ts` now takes `base` from `BASE_PATH`, set in CI
+from `actions/configure-pages` rather than hardcoded, so a repo rename or a
+custom domain does not silently break every URL. Local dev leaves it unset.
+
+**Routes.** `main.tsx` hands `import.meta.env.BASE_URL` to the router as
+`basename`, so route declarations and every `<Link>` stay written against the
+site root. A hard refresh on a deep link still hits Pages' static file lookup,
+which has no rewrite rule, so `postbuild` copies `index.html` to `404.html` —
+Pages serves that for unknown paths and the SPA boots and reads the real URL.
+`public/.nojekyll` stops Jekyll from stripping anything.
+
+**Literal `public/` paths — the one that actually bit.** Vite rewrites asset
+URLs it *processes*: imports, and `url()` inside CSS (verified: the grain tile
+came out as `/type-b-digital/images/noise.png` on its own). A bare string
+literal like `/images/logos/logo-1.png` is emitted exactly as written and
+resolves against the domain root. The first Pages-shaped build had correct
+routing, correct fonts, and **all 37 images broken** — and it looked fine in
+every root-path check, because at `/` the bug is invisible.
+
+`src/lib/asset.ts` resolves those against `BASE_URL`; 24 call sites across four
+files now go through it. `tokens/index.ts` keeps its bare `grain.tile` on
+purpose: it is a documentation pointer, and the live reference is the CSS
+`url()` Vite already handles.
+
+Verified against a local server that mimics Pages — subpath, plus 404.html
+fallback for unknown paths — by direct navigation rather than client-side
+routing, which is what a shared link actually does:
+
+```
+/type-b-digital/              h1 "Most partners do one slice."  37 imgs  0 broken  font ok
+/type-b-digital/what-we-do    h1 "What We Do"                    9 imgs  0 broken  font ok
+```
+
+and the root-path dev server re-checked afterwards, since `BASE_URL` is `/`
+there and the whole mechanism has to stay a no-op: both routes, 0 broken.
+
+**Not yet done:** Pages has to be enabled once on the repo (Settings → Pages →
+Source: GitHub Actions). The repo is private, and Pages on a private repo needs
+a paid plan — on a free account the repo would have to be public first, which
+exposes the full history and is Eduardo's call, not something to do implicitly.

@@ -51,6 +51,7 @@ import { PageShell } from '@/components/layout'
 import { cn } from '@/lib/cn'
 import useLaggedProgress from '@/lib/useLaggedProgress'
 import { colors as colorTokens, gradients as gradientTokens, motion as motionTokens } from '@/tokens'
+import { asset } from '@/lib/asset'
 
 /* ================================================================== *
  * CONTENT
@@ -121,7 +122,7 @@ const CLIENT_LOGOS = [
     crop: null,
     blend: '',
   },
-].map((logo, i) => ({ ...logo, src: `/images/logos/logo-${i + 1}.png` }))
+].map((logo, i) => ({ ...logo, src: asset(`/images/logos/logo-${i + 1}.png`) }))
 
 /**
  * "Bold. Brilliant. Beautiful." artwork geometry, as fractions of the panel.
@@ -174,9 +175,9 @@ const PILLARS: { title: string; crop: CardCrop }[] = [
 
 /** Figma: nodes 3390:26543 / 26544 / 26545 */
 const STAGES = [
-  { title: 'Founders & Startups', src: '/images/stage-founders.png' },
-  { title: 'Scaleups', src: '/images/stage-scaleups.png' },
-  { title: 'Enterprise & Mid Market', src: '/images/stage-enterprise.png' },
+  { title: 'Founders & Startups', src: asset('/images/stage-founders.png') },
+  { title: 'Scaleups', src: asset('/images/stage-scaleups.png') },
+  { title: 'Enterprise & Mid Market', src: asset('/images/stage-enterprise.png') },
 ]
 
 /**
@@ -199,7 +200,7 @@ const CASE_STUDIES = [
 ].map((c, i) => ({
   ...c,
   tags: ['Tag 1', 'Tag 2', 'Tag 3'],
-  thumb: `/images/work/case-${i + 1}.png`,
+  thumb: asset(`/images/work/case-${i + 1}.png`),
 }))
 
 /**
@@ -215,9 +216,9 @@ const OFFERING_PLACEHOLDER_COPY =
   'praesentium voluptatum deleniti.'
 
 const OFFERINGS = [
-  { label: 'Advisory', copy: OFFERING_PLACEHOLDER_COPY, image: '/images/partner/offering-1.png' },
-  { label: 'Product', copy: OFFERING_PLACEHOLDER_COPY, image: '/images/partner/offering-1.png' },
-  { label: 'Teams', copy: OFFERING_PLACEHOLDER_COPY, image: '/images/partner/offering-1.png' },
+  { label: 'Advisory', copy: OFFERING_PLACEHOLDER_COPY, image: asset('/images/partner/offering-1.png') },
+  { label: 'Product', copy: OFFERING_PLACEHOLDER_COPY, image: asset('/images/partner/offering-1.png') },
+  { label: 'Teams', copy: OFFERING_PLACEHOLDER_COPY, image: asset('/images/partner/offering-1.png') },
 ]
 
 /** Figma: node 3390:26760 */
@@ -419,9 +420,9 @@ const MANIFESTO_TEXT =
  * rotation already baked in — so no CSS rotation is applied here.
  */
 const MANIFESTO_STACK = [
-  { src: '/images/stack/stack-1.png', left: 3.13, top: 1.92, width: 417.209, height: 494.243 },
-  { src: '/images/stack/stack-2.png', left: 11.74, top: 9.05, width: 400, height: 480 },
-  { src: '/images/stack/stack-3.png', left: 0, top: 0, width: 421.806, height: 498.014 },
+  { src: asset('/images/stack/stack-1.png'), left: 3.13, top: 1.92, width: 417.209, height: 494.243 },
+  { src: asset('/images/stack/stack-2.png'), left: 11.74, top: 9.05, width: 400, height: 480 },
+  { src: asset('/images/stack/stack-3.png'), left: 0, top: 0, width: 421.806, height: 498.014 },
 ]
 
 const STACK_BOX = { width: 421.806, height: 498.014 }
@@ -695,8 +696,8 @@ function BoldBrilliantBeautiful() {
 
   const words = (
     <GlowText
-      solidSrc="/vectors/bbb-solid.svg"
-      strokeSrc="/vectors/bbb-stroke.svg"
+      solidSrc={asset('/vectors/bbb-solid.svg')}
+      strokeSrc={asset('/vectors/bbb-stroke.svg')}
       label="Bold. Brilliant. Beautiful."
       aspect={BBB_ARTWORK.aspect}
       widthRatio={BBB_ARTWORK.widthRatio}
@@ -789,7 +790,7 @@ function Pillars() {
             <li key={pillar.title} className="w-[410px] shrink-0">
               <Reveal index={i}>
                 <Card
-                  src="/images/scene.png"
+                  src={asset('/images/scene.png')}
                   alt=""
                   crop={pillar.crop}
                   aspect="horizontalSmall"
@@ -1123,7 +1124,7 @@ function Partner() {
   const values = (
     <div className="relative">
       <img
-        src="/vectors/values-arc.svg"
+        src={asset('/vectors/values-arc.svg')}
         alt=""
         aria-hidden="true"
         className="pointer-events-none absolute bottom-0 left-1/2 w-[70%] -translate-x-1/2"

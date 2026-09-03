@@ -8,9 +8,18 @@ import '@/styles/globals.css'
 const container = document.getElementById('root')
 if (!container) throw new Error('Root element #root not found')
 
+/**
+ * Routes are declared at the site root (`/what-we-do`), but a deploy may serve
+ * the site from a subpath — GitHub Pages uses `/<repo>/`. Vite exposes that as
+ * `BASE_URL`; handing it to the router as `basename` keeps every route and
+ * `<Link>` correct without any path literal changing. Trailing slash trimmed,
+ * since the router wants `/type-b-digital`, not `/type-b-digital/`.
+ */
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '')
+
 createRoot(container).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/what-we-do" element={<WhatWeDoPage />} />

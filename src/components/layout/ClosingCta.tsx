@@ -1,4 +1,5 @@
 import { Button, Container, ParallaxSection, Reveal, Section, Typography } from '@/components'
+import { asset } from '@/lib/asset'
 
 /**
  * Closing call to action — shared by every page. Figma nodes 3390:26561 /
@@ -25,7 +26,7 @@ export function ClosingCta() {
               lets the section's dark ground show as a band along one edge.
             */}
             <img
-              src="/images/cta-band.png"
+              src={asset('/images/cta-band.png')}
               alt=""
               aria-hidden="true"
               className="size-full scale-125 object-cover"

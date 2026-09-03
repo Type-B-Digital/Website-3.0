@@ -26,6 +26,7 @@ import {
 import { PageShell } from '@/components/layout'
 import { gradients } from '@/tokens'
 import { cn } from '@/lib/cn'
+import { asset } from '@/lib/asset'
 
 /* ================================================================== *
  * CONTENT — copy verbatim from the artboard
@@ -40,7 +41,7 @@ const SERVICES = [
       'strategy and roadmaps, technology due diligence for M&A and investment, and the ' +
       'change management that makes a transformation stick. Everything we recommend is ' +
       'something our own delivery teams could build, which keeps the advice honest.',
-    image: '/images/services/advisory.png',
+    image: asset('/images/services/advisory.png'),
     offerings: [
       { name: 'Architecture Audit & Roadmap', audience: 'Software rebuild & scale' },
       { name: 'Diligence & 90-Day Roadmap', audience: 'PE, VC & M&A deal teams' },
@@ -49,7 +50,7 @@ const SERVICES = [
     study: {
       name: 'Mave AI',
       result: '~45% faster delivery, QA coverage from 20% to 80%.',
-      thumb: '/images/work/case-1.png',
+      thumb: asset('/images/work/case-1.png'),
     },
   },
   {
@@ -61,7 +62,7 @@ const SERVICES = [
       'Type B builds AI solutions of every kind, from agents and RAG to workflow ' +
       'automation and analytics. Sovereign AI is our specialty: the version we build when ' +
       'your data cannot leave your boundary.',
-    image: '/images/services/product.png',
+    image: asset('/images/services/product.png'),
     offerings: [
       { name: 'AI Assessment or Discovery', audience: 'Mid-market & funded startups' },
       { name: 'Product Build or AI Safety Net', audience: 'Funded scale-ups' },
@@ -70,7 +71,7 @@ const SERVICES = [
     study: {
       name: 'Class.fi',
       result: '70% lower compliance cost, seconds to classify, not hours.',
-      thumb: '/images/work/case-4.png',
+      thumb: asset('/images/work/case-4.png'),
     },
   },
   {
@@ -81,7 +82,7 @@ const SERVICES = [
       'success, as industry experts, not just recruiters. A North America-based delivery ' +
       'lead owns the outcome, and build-operate-transfer is there for when you want the ' +
       'team in-house.',
-    image: '/images/services/teams.png',
+    image: asset('/images/services/teams.png'),
     offerings: [
       { name: 'Pod Starter', audience: 'Funded scale-ups' },
       { name: 'Delivery Pod', audience: 'Scale-ups' },
@@ -90,7 +91,7 @@ const SERVICES = [
     study: {
       name: 'Case Study',
       result: 'Case study long title can fit here in two lines',
-      thumb: '/images/work/case-6.png',
+      thumb: asset('/images/work/case-6.png'),
     },
   },
 ]
@@ -188,7 +189,7 @@ function Hero() {
       style={{ backgroundImage: `linear-gradient(116.67deg, ${gradients.b2Stops})` }}
     >
       <img
-        src="/vectors/hero-circles.svg"
+        src={asset('/vectors/hero-circles.svg')}
         alt=""
         aria-hidden="true"
         className="pointer-events-none absolute left-1/2 top-1/2 h-[640px] w-[1440px] max-w-none -translate-x-1/2 -translate-y-1/2"

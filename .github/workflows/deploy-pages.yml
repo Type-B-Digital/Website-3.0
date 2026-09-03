@@ -1,0 +1,62 @@
+# Build the site and publish it to GitHub Pages.
+#
+# Deploys from the built output rather than committing `dist/`, so the repo
+# stays source-only and the staging link always reflects `main`.
+#
+# Requires Pages to be enabled once with "GitHub Actions" as the source:
+# Settings -> Pages -> Build and deployment -> Source: GitHub Actions.
+name: Deploy staging site
+
+on:
+  push:
+    branches: [main]
+  # So a staging link can be refreshed without a code change.
+  workflow_dispatch:
+
+# Let a newer push supersede an in-flight deploy, but never cancel a deploy
+# half-done — Pages would be left serving a partial upload.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # `base` must match the path Pages serves from, which for a project site
+      # is /<repo>/. Taken from the Pages config rather than hardcoded so a
+      # rename or a custom domain does not silently break every asset URL.
+      - id: pages
+        uses: actions/configure-pages@v5
+
+      - run: npm run build
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

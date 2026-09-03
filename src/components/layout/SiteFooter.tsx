@@ -1,5 +1,6 @@
 import { Container, ParallaxSection, Typography } from '@/components'
 import TypeBLogo from '@/components/icons/TypeBLogo'
+import { asset } from '@/lib/asset'
 
 /**
  * Site footer — shared by every page. Figma node 3390:26636 on the homepage and
@@ -87,7 +88,7 @@ export function SiteFooter() {
       {/* Oversized wordmark bleeding off both edges. Figma: node 3390:26763 */}
       <ParallaxSection speed="subtle" className="relative mt-4xl">
         <img
-          src="/icons/wordmark.svg"
+          src={asset('/icons/wordmark.svg')}
           alt=""
           aria-hidden="true"
           className="w-full min-w-frame px-md"
