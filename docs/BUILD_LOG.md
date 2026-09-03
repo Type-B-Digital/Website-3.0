@@ -1606,3 +1606,116 @@ auto-dismisses at 6s, and dismisses manually.
   gaps below are correct relative to each other.
 - **Message is optional**, per its artboard label. Say the word and it becomes
   required with the others.
+
+## Careers page (Sep 3, 2026)
+
+Figma node 2767:1908. Fifth page, and the first whose ground changes mid-scroll.
+
+### The ground
+
+Sampled down the artboard's left gutter at 15px intervals across the
+transition:
+
+```
+0%      amber.100                      #F7DDC1   (artboard y=0)
+51.1%   62% of the way to neutral.50   #F6EADC   (artboard y=1935)
+55.4%   neutral.900                    #040E19   (artboard y=2100)
+100%    neutral.900
+```
+
+The warm ramp **does not reach neutral.50** before the ground turns — it gets
+62% of the way and the fall to ink begins. Snapping that stop to neutral.50
+would lighten the whole Bench section by ~5%, so the midpoint is an exact
+`color-mix(in srgb, neutral.50 62%, amber.100)`, which computes to `#F6EADC` —
+the sampled value to the byte, with both ends still tokens.
+
+The fall is 165px of a 3788px body, 4.3%, which is why it reads as a fade while
+scrolling but as a band on a full-page render. The artboard draws it as its own
+160px rectangle (node 3638:9307), and **that space has to be reserved in the
+markup**: the gradient's stops are percentages of the wrapper, so a shorter
+page pulls the fade up into the Bench cards. A `h-[160px]` spacer sits between
+the two sections for exactly that reason.
+
+Verified in the browser: wrapper 3807px (artboard 3788), fade running
+1945 → 2109, Bench content ending at 1929 and the Open Roles heading at 2249 —
+so the transition happens entirely in the gap between the two sections, and the
+heading's cream type never sits on a light ground.
+
+### The carousel
+
+Four slides, 3s each, per Eduardo's spec. Copy is his; the artboard draws only
+slide 02 (node 3638:9411) and every slide shares one photograph — the same
+628px image the Contact page uses for "We're Hiring", verified identical
+pixel-for-pixel between the two artboards, so it is one asset.
+
+**The numeral is outlined, not filled.** The artboard sets a transparent fill
+and the outline comes from a 1px ink stroke the Figma export silently drops —
+read the export literally and the digits vanish. `-webkit-text-stroke` is the
+only way to stroke text in CSS. `typography.numeral` holds the 240px/220px
+pair; it is far off the reading scale because it is a graphic, and the tight
+line height is what puts the digits where the subheader's `-64px` margin can
+overlap them.
+
+**The progress bar is the timer.** One motion value runs 0 → 1 over the dwell,
+the active bar's width reads off it, and its `onComplete` advances the slide.
+A `setInterval` plus a separate width animation would be two clocks that drift,
+and drift further when a backgrounded tab throttles rAF.
+
+It is driven imperatively via `animate()` and its playback controls, and the
+first attempt — declarative, with the pause expressed in the `transition` prop
+— was wrong in a way worth recording: **changing a transition mid-flight does
+not stop a running animation.** Hovering let the fill run to 100%, suppressed
+the advance at completion, and left the carousel permanently stuck with nothing
+to restart it. `controls.pause()` / `.play()` hold the actual clock, so leaving
+resumes the remaining time instead of restarting the slide.
+
+Paused on hover and focus-within (WCAG 2.2.2), and under
+`prefers-reduced-motion` it does not rotate at all — the bars become manual
+controls. Verified: holds for 5s under reduced motion, advances 1 → 2 → 0 with
+the pointer outside, freezes mid-fill on hover and resumes from that position.
+
+### Open Roles
+
+Four tabs on the ink half. Built as a proper ARIA tablist: `aria-selected`,
+`aria-controls` to the panel, only the selected tab in the tab order, and
+Left/Right/Home/End moving between them with focus following. Leaving all four
+focusable would make a keyboard user tab through every one to reach the
+content.
+
+"View All" is the artboard's odd one out — drawn with no pill at all (node
+3638:9427) because it is the absence of a filter, not another category. Hence
+`variant: 'plain'` on the item, plus an underline for its selected state, or it
+would give no feedback when active. Design and Sales openings are placeholders;
+the artboard lists only the Engineering set.
+
+The FAQ rule needed a second token. `accentSoft` (accent.500 at 40%) is nearly
+invisible over ink, and the artboard's rule there measures `#1D3A45` —
+accent.400 at 40% over neutral.900 to within a pixel value. Added as
+`colors.border.accentSoftOnDark` and reached through a new `tone` prop on
+`Accordion`.
+
+### Verified geometry
+
+```
+                   artboard   built
+h1 top                  273     273
+carousel photo     439 / 628  439 / 628 (x=732)
+progress bars         48 x 4    48 x 4  (56px pitch)
+Our Bench top          1227    1227
+bench card         411 x 280  411 x 280
+Open Roles heading     2257    2249
+document height        5048    5058
+```
+
+### Deviations
+
+- **Progress bars sit at x=80, the content margin; the artboard has them at
+  x=97.** That 17px inset aligns with nothing else on the page — not the
+  numeral, not the subheader, both of which start at 80 — so it reads as
+  incidental rather than intentional.
+- **Open Roles copy and the role names are DM Sans on the artboard** (nodes
+  3638:9418, 9431), not Reddit Sans. Same font leak already logged for the
+  homepage stat; built in the project face.
+- **"Open Roles" and "FAQ" are pure white** on the artboard while the body copy
+  is `paper`. Built as `text-white` for the headings to match.
+- FAQ answers are placeholder copy — the artboard carries none.

@@ -28,6 +28,12 @@ export type AccordionItem = {
 export type AccordionProps = {
   items: readonly AccordionItem[]
   /**
+   * Which ground the list sits on. Only the rule colour changes: accent.500 at
+   * 40% reads on cream but is nearly invisible over ink, so the dark variant
+   * steps one lighter on the ramp. Measured from the Careers artboard.
+   */
+  tone?: 'onLight' | 'onDark'
+  /**
    * Index open on mount, or `null` for all closed. The artboard shows every
    * row collapsed, so that is the default.
    */
@@ -44,10 +50,12 @@ function AccordionRow({
   item,
   isOpen,
   onToggle,
+  tone,
 }: {
   item: AccordionItem
   isOpen: boolean
   onToggle: () => void
+  tone: 'onLight' | 'onDark'
 }) {
   const prefersReduced = useReducedMotion()
   const id = useId()
@@ -56,7 +64,12 @@ function AccordionRow({
   const { duration, easing } = motionTokens
 
   return (
-    <div className="border-t border-accent-soft last:border-b">
+    <div
+      className={cn(
+        'border-t last:border-b',
+        tone === 'onDark' ? 'border-accent-soft-dark' : 'border-accent-soft',
+      )}
+    >
       <h3>
         <button
           type="button"
@@ -73,7 +86,7 @@ function AccordionRow({
             'flex w-full items-center justify-between gap-xl py-lg pr-lg text-left',
             'transition-opacity duration-fast ease-out hover:opacity-subtle',
             'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4',
-            'focus-visible:outline-accent-500',
+            tone === 'onDark' ? 'focus-visible:outline-on-dark' : 'focus-visible:outline-accent-500',
           )}
         >
           <Typography variant="copyMedium" as="span">
@@ -123,6 +136,7 @@ function AccordionRow({
 
 export function Accordion({
   items,
+  tone = 'onLight',
   defaultOpen = null,
   single = true,
   className,
@@ -143,6 +157,7 @@ export function Accordion({
           item={item}
           isOpen={open.includes(i)}
           onToggle={() => toggle(i)}
+          tone={tone}
         />
       ))}
     </div>

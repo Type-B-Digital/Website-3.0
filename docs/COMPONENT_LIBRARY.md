@@ -335,3 +335,24 @@ after `duration` (default 6s) plus a manual close.
 Portals to `document.body` — it is `position: fixed`, and any transformed
 ancestor (a `Reveal` at rest counts) would otherwise become its containing
 block.
+
+## Tabs
+
+A filter row. Figma: the Careers "Open Roles" tabs, node 3638:9419.
+
+| prop | type | notes |
+|---|---|---|
+| `items` | `readonly TabItem[]` | `{ id, label, variant? }` |
+| `active` `onChange` | | controlled |
+| `tone` | `'onDark' \| 'onLight'` | |
+| `panelId` | `string` | the element `aria-controls` points at |
+
+A real ARIA tablist: one tab stop for the row, arrow keys moving within it with
+focus following, and `aria-selected` / `aria-controls` wired to the panel.
+`variant: 'plain'` drops the pill for a "no filter" item like "View All", which
+then shows its selected state as an underline.
+
+## Accordion — `tone`
+
+`tone="onDark"` switches the rule to `border-accent-soft-dark`. The light
+value (accent.500 at 40%) is nearly invisible over ink.

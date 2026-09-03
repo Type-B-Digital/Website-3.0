@@ -297,6 +297,15 @@ export const colors = {
      * there. Resolved per mood, so it tracks whichever ramp is active.
      */
     accentSoft: 'var(--color-border-accent-soft)',
+    /**
+     * The same rule where the ground is ink — the Careers FAQ.
+     *
+     * A step lighter on the ramp than `accentSoft`, because accent.500 at 40%
+     * over ink is nearly invisible. Measured off the artboard: the rule there
+     * is `#1D3A45`, which is accent.400 at 40% over neutral.900 to within a
+     * pixel value. Figma node 3638:9372.
+     */
+    accentSoftOnDark: 'var(--color-border-accent-soft-dark)',
   },
   /**
    * ⚠ NOT IN FIGMA. The artboards document no error, warning or success state
@@ -400,6 +409,21 @@ export const typography = {
     fontSize: '16px',
     lineHeight: 1.2,
     fontWeight: fontWeight.regular,
+    letterSpacing: '-0.01em',
+  },
+  /**
+   * The Careers hero carousel's index numeral — Figma node 3638:9412.
+   *
+   * Far off the reading scale (which tops out at 72) because it is not read as
+   * text: it is a graphic, drawn as an outline with a transparent fill, that
+   * the slide's subheader deliberately overlaps. Line height is the artboard's
+   * 220px on 240px, which is what pulls the digits tight enough for the
+   * overlap to sit where it does.
+   */
+  numeral: {
+    fontSize: '240px',
+    lineHeight: 220 / 240,
+    fontWeight: fontWeight.bold,
     letterSpacing: '-0.01em',
   },
 } as const satisfies Record<string, TypeStyle>

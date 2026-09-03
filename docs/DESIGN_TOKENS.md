@@ -275,3 +275,17 @@ feedback still reads as this brand rather than as generic validation UI.
 | `success` | `neutral.900` | the toast is a dark pill — the palette has no green, and adding one for one component puts a hue on the page that exists nowhere else |
 
 Also `colors.border.danger` (same value) as `border-danger`.
+
+## `typography.numeral`
+
+240px / 220px line height, bold — the Careers carousel index (node 3638:9412).
+Far off the reading scale because it is a graphic, not text: drawn with a
+transparent fill and a 1px stroke, and deliberately overlapped by the slide's
+subheader. The tight line height is what makes that overlap land.
+
+## `colors.border.accentSoftOnDark`
+
+The FAQ rule where the ground is ink — accent.**400** at 40%, one step lighter
+than `accentSoft`, because accent.500 at 40% over neutral.900 is nearly
+invisible. Measured `#1D3A45` on the Careers artboard (node 3638:9372). Class:
+`border-accent-soft-dark`; reached via `<Accordion tone="onDark">`.

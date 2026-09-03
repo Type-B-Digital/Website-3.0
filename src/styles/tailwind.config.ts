@@ -113,6 +113,7 @@ export default {
         'on-light': colors.border.onLight,
         divider: colors.border.divider,
         'accent-soft': colors.border.accentSoft,
+        'accent-soft-dark': colors.border.accentSoftOnDark,
         danger: colors.border.danger,
       },
       fontFamily: {

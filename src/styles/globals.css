@@ -154,6 +154,8 @@
   --color-tag-bg: rgba(198, 196, 194, 0.4);
   /* Accent at 40% — the FAQ rule. See colors.border.accentSoft. */
   --color-border-accent-soft: rgba(23, 97, 110, 0.4);
+  /* Accent 400 at 40% — the same rule on an ink ground. */
+  --color-border-accent-soft-dark: rgba(68, 126, 135, 0.4);
 }
 
 :root[data-mood='ember'] {
@@ -169,6 +171,8 @@
   --color-tag-bg: rgba(198, 196, 194, 0.4);
   /* Accent at 40% — the FAQ rule. See colors.border.accentSoft. */
   --color-border-accent-soft: rgba(255, 83, 21, 0.4);
+  /* Accent 400 at 40% — the same rule on an ink ground. */
+  --color-border-accent-soft-dark: rgba(253, 115, 64, 0.4);
 }
 
 :root[data-mood='solar'] {
@@ -184,6 +188,8 @@
   --color-tag-bg: rgba(198, 196, 194, 0.4);
   /* Accent at 40% — the FAQ rule. See colors.border.accentSoft. */
   --color-border-accent-soft: rgba(253, 136, 22, 0.4);
+  /* Accent 400 at 40% — the same rule on an ink ground. */
+  --color-border-accent-soft-dark: rgba(252, 157, 65, 0.4);
 }
 
 /* --- semantic aliases --------------------------------------------- */
