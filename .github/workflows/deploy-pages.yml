@@ -3,8 +3,8 @@
 # Deploys from the built output rather than committing `dist/`, so the repo
 # stays source-only and the staging link always reflects `main`.
 #
-# Requires Pages to be enabled once with "GitHub Actions" as the source:
-# Settings -> Pages -> Build and deployment -> Source: GitHub Actions.
+# `configure-pages` enables Pages on first run (`enablement: true`), so no
+# manual visit to Settings -> Pages is needed.
 name: Deploy staging site
 
 on:
@@ -32,7 +32,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - run: npm ci
@@ -42,6 +42,10 @@ jobs:
       # rename or a custom domain does not silently break every asset URL.
       - id: pages
         uses: actions/configure-pages@v5
+        with:
+          # Turn Pages on for the repo on first run, with GitHub Actions as the
+          # source, instead of requiring a manual visit to Settings -> Pages.
+          enablement: true
 
       - run: npm run build
         env:
