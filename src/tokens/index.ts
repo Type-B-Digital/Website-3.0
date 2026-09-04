@@ -594,6 +594,30 @@ export const motion = {
    * finished before the Open Roles heading arrives, so neither section's type
    * is ever on the wrong ground.
    */
+  /**
+   * Culture — the Talent scene pins so the globe settles into a full-height
+   * view and holds while the reader explores the cities, then releases.
+   *
+   * Two viewport heights: one screen of hold, one of release. The offerings
+   * scene needs 2.5 because it steps through four offerings on scroll; nothing
+   * here is scroll-driven, so the hold only has to register as a hold.
+   */
+  talentScene: {
+    pinLength: 2,
+    /**
+     * Cream -> turquoise across the viewport-height of scroll before the panel
+     * locks. Finishes just *before* the lock rather than during it: the marker
+     * reaches the viewport top exactly as the panel starts sticking, so a fade
+     * ending at 0.98 spends its last stretch inside the hold, which reads as
+     * the colour still settling after the page has stopped.
+     */
+    fade: { start: 0.7, end: 0.94 },
+    /**
+     * Talent's copy is cream and enters the viewport well before the turquoise
+     * does, so it fades in behind the ground rather than with it.
+     */
+    contentFade: { start: 0.8, end: 0.98 },
+  },
   careersGround: {
     /**
      * The ground itself. Late in the window on purpose: at 0.80 the Bench's

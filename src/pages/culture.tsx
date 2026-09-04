@@ -393,24 +393,28 @@ function DesignThinking() {
 }
 
 /**
- * Figma: nodes 3672:9716 / 9752 / 9750.
+ * Figma: nodes 3679:10374 / 10413 / 10408.
  *
- * The globe answers the chips: hovering or focusing a city rotates it into the
- * visible cap and pins it. Each chip is a real `<button>` so this works from
- * the keyboard, and `active` is held here rather than inside `Globe` so the
- * chip and the pin can never disagree about which city is current.
+ * A pinned scene, like the homepage's offerings panel: a wrapper
+ * `talentScene.pinLength` viewport heights tall with a `sticky top-0 h-screen`
+ * panel inside it. The ground crossfade above finishes exactly as the panel
+ * locks — the marker it is timed against sits on this wrapper's top edge, so
+ * progress reaches 1 at the moment the panel starts sticking — and the globe
+ * then holds at full height while the reader works through the cities before
+ * the scroll releases to the next section.
+ *
+ * Hovering or focusing a city rotates it into the visible cap and pins it.
+ * Each chip is a real `<button>` so this works from the keyboard, and `active`
+ * lives here rather than inside `Globe` so the chip and the pin can never
+ * disagree about which city is current.
  */
 function Talent() {
   const [active, setActive] = useState(0)
+  const prefersReduced = useReducedMotion()
 
-  return (
-    <Section
-      tone="none"
-      spacing="none"
-      bare
-      className="relative overflow-hidden bg-accent-500 pt-5xl text-on-dark"
-    >
-      <Container className="flex flex-col gap-4xl">
+  const panel = (
+    <>
+      <Container className="flex flex-col gap-4xl pt-4xl">
         <Reveal>
           <div className="mx-auto flex max-w-[800px] flex-col items-center gap-md text-center">
             <Eyebrow tone="white">Talent</Eyebrow>
@@ -467,8 +471,37 @@ function Talent() {
         is wrapped: the artboard's globe spans the page, not the content
         column, and only its top cap shows.
       */}
-      <div className="pointer-events-none relative mt-4xl w-full">
+      <div className="pointer-events-none relative w-full">
         <Globe locations={LOCATIONS} active={active} className="aspect-[1440/327]" />
+      </div>
+    </>
+  )
+
+  // No pin under reduced motion — a section that holds the page while the
+  // scroll runs on is exactly the effect that setting asks to suppress.
+  if (prefersReduced) {
+    return (
+      <Section
+        tone="none"
+        spacing="none"
+        bare
+        className="relative flex min-h-screen flex-col justify-between overflow-hidden text-on-dark"
+      >
+        {panel}
+      </Section>
+    )
+  }
+
+  return (
+    <Section
+      tone="none"
+      spacing="none"
+      bare
+      className="relative text-on-dark"
+      style={{ height: `${motionTokens.talentScene.pinLength * 100}vh` }}
+    >
+      <div className="sticky top-0 flex h-screen flex-col justify-between overflow-hidden">
+        {panel}
       </div>
     </Section>
   )
@@ -583,7 +616,7 @@ function DesignToTalent() {
     offset: ['start end', 'start start'],
   })
   const progress = useLaggedProgress(raw)
-  const { fade, contentFade } = motionTokens.careersGround
+  const { fade, contentFade } = motionTokens.talentScene
 
   const background = useTransform(
     progress,

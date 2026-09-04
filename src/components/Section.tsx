@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 import Container from './Container'
 
@@ -23,6 +23,8 @@ export type SectionProps = {
   bare?: boolean
   className?: string
   id?: string
+  /** For values Tailwind cannot express, such as a pinned scene's height. */
+  style?: CSSProperties
 }
 
 const toneClasses: Record<SectionTone, string> = {
@@ -54,11 +56,13 @@ export function Section({
   bare = false,
   className,
   id,
+  style,
 }: SectionProps) {
   return (
     <section
       id={id}
       className={cn('relative w-full', toneClasses[tone], spacingClasses[spacing], className)}
+      style={style}
     >
       {bare ? children : <Container>{children}</Container>}
     </section>

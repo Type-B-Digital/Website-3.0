@@ -2003,3 +2003,48 @@ with the globe pinned to the bottom, so the scroll settles on a full-height
 view of the planet (858px against an 813px viewport).
 
 **The globe pin is twice the size** — 28px with a 36px pulse ring.
+
+### Culture: Talent pins (Sep 3, 2026)
+
+The crossfade landed but the section did not hold — it scrolled straight past.
+Rebuilt as a pinned scene on the same construction as the homepage's offerings
+panel: a wrapper `talentScene.pinLength` viewport heights tall with a
+`sticky top-0 h-screen` panel inside it.
+
+Two viewport heights, not the offerings scene's 2.5: that scene steps through
+four offerings on scroll and needs the length, whereas nothing here is
+scroll-driven and the hold only has to register as a hold. One screen of lock,
+one of release.
+
+The crossfade needed no re-timing, only its own token. The marker it runs
+against sits on this wrapper's top edge, so progress reaches 1 exactly as the
+panel starts sticking — the fade and the lock are the same moment by
+construction. It had been borrowing `careersGround`, which is a different
+page's schedule; `talentScene` now carries its own `fade` and `contentFade`,
+pulled slightly earlier (0.70–0.94) so the colour arrives with the lock rather
+than after it.
+
+Measured through the scene — `panelTop` at 0 is locked:
+
+```
+scrollY   panelTop   ground
+   3455       +500   #F6F2EC
+   3755       +200   #F6F2EC
+   3955          0   rgb(90,125,133)   lock engages, fade settling
+   4155          0   #17616E
+   4455          0   #17616E
+   4755          0   #17616E           still locked
+   4855        -87   #17616E           releases
+```
+
+The lock runs 3955 → 4768, exactly one viewport height. The colour finishes a
+fraction into the hold rather than precisely at it, because `useLaggedProgress`
+springs the scroll and trails it by design — the same trailing every scene on
+the site has.
+
+No pin under reduced motion: a section that holds the page while the scroll
+runs on is exactly the effect that setting asks to suppress, so that path keeps
+the plain `min-h-screen` section.
+
+`Section` gained a `style` prop for this — the scene height is a token
+multiplied into `vh`, which Tailwind cannot express.
