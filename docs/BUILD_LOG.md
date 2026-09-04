@@ -1828,3 +1828,113 @@ change at two heights:
 viewport 813   fade completes 2000   centres 2062   (+62px)
 viewport 900   fade completes 1975   centres 2019   (+44px)
 ```
+
+## Culture page (Sep 3, 2026)
+
+Figma node 2448:3065. Sixth page, and the one carrying two pieces Eduardo
+called out as brand-critical.
+
+### The design-thinking figure — `DivergeConverge`
+
+The graphic is one shape seen through five windows, so the parts have to agree
+exactly.
+
+**The silhouette is the headline, drawn.** Five blocks 236.8px wide on a 260.8px
+pitch, heights 80 / 160 / 240 / 160 / 80, each centred in a 240px row: the top
+edges step down and the bottom edges step up, so the outline of the row is
+itself a diamond. Built: 237px wide, heights 80/160/240/160/80.
+
+**The diamonds are continuous across the row, not per-block decoration.** Two
+489.413px squares rotated -45 degrees — 1px white border at 32%, 8px radius —
+centred at 346.07px and 933.93px of the 1280px row.
+
+The clipping was worth checking rather than assuming: a column sampled in the
+gap between two blocks on the artboard is flat cream with exactly one distinct
+colour, so the figure exists *only* where a block reveals it. That rules out
+the obvious implementation — one layer behind the row — because the blocks are
+opaque gradients and would hide it completely. Instead every block owns a copy
+of the layer, shifted by its own left edge, so the diagonals line up across the
+gaps as one motif passing behind.
+
+**The gradients are the brand ramps walking out and back**, every stop an exact
+palette value sampled off the artboard:
+
+| stage | from | to |
+|---|---|---|
+| Empathize | neutral.900 | turquoise.600 |
+| Define | turquoise.500 | orange.600 |
+| Ideate | orange.500 | amber.500 |
+| Prototype | amber.400 | neutral.800 |
+| Test | neutral.600 | neutral.200 |
+
+**Ideate glows.** Measured on the artboard as warmth (R-B) above the block edge,
+then tuned until the built falloff matched:
+
+```
+distance   artboard   built
+   5px        +48       +48
+  15px        +37       +38
+  25px        +28       +29
+  40px        +17       +17
+  60px         +5        +8
+  80px         +1        +2      mean absolute error 0.9
+```
+
+### The globe — `Globe`
+
+The artboard draws a wireframe with invented coastlines. This is Natural Earth's
+110m land outline under a real orthographic projection, so the continents are
+where they are and a city rotates to where it is. Verified: hovering Colombo
+puts the pin on Sri Lanka, with India, the Arabian peninsula, Indonesia and the
+Philippines all correctly placed.
+
+`scripts/build-land.mjs` converts the source TopoJSON once into
+`src/data/land-110m.json` — 75KB, 5,123 points, coordinates rounded to two
+decimals (~1km, far finer than a 1440px globe can draw). Only `d3-geo` ships;
+`world-atlas` and `topojson-client` are devDependencies.
+
+**The geometry is not a normal globe.** The sphere is as wide as the container
+with its centre a full radius below the top edge, so only the cap shows — the
+artboard's 1440x327 band is the top 327px of a 1440px sphere. A city rotated to
+the projection centre would therefore land a radius *below* the visible strip.
+Each city is instead rotated `TILT` (46 degrees) north of centre, which lifts it
+to `R - R*sin(TILT)`. Verified: the pin lands at (720, 202) for every city,
+which is exactly what 46 degrees predicts on a 720px radius.
+
+Canvas rather than SVG — 5,000 re-projected points per frame is one path on a
+canvas and 5,000 DOM nodes in SVG. Redraws coalesce into a single rAF and only
+run while something moves.
+
+**A bug worth recording.** The redraw scheduler no-ops while its rAF handle is
+non-null, and the effect cleanup cancelled the pending frame without clearing
+the handle. The only frame that ever ran was the one queued at size 0, so every
+redraw after the ResizeObserver reported real dimensions was silently dropped:
+the canvas kept its default 300x150 backing store and painted nothing. Symptom
+was an empty globe with no error anywhere.
+
+### Elsewhere on the page
+
+Stats are laid out on a grid rather than inheriting the artboard's three
+scattered groups, whose positions only hold at 1440. The Approach cards keep
+the artboard's 243px stagger on the even columns, and the closing line clears
+it. The globe is full-bleed, so its section is `bare` and only the copy above it
+is wrapped in a `Container`.
+
+## Footer and route wiring (Sep 3, 2026)
+
+The footer links were all `href="#"`. They now carry routes where a page exists
+— Industries, What We Do (which covers Advisory, Product and Teams), Careers via
+"We're Hiring!", Contact, and Culture via "About Us" — and render as `<span>`
+where one does not, which is honest rather than a link that 404s.
+
+## Careers carousel: pause scope (Sep 3, 2026)
+
+Eduardo reported the carousel still locking on slide 01. It could not be
+reproduced headlessly — it auto-advances from a cold load, with the pointer
+parked over the carousel, and under reduced motion.
+
+The one thing that can freeze it is the hover pause, and it was scoped to the
+entire carousel, which fills most of the hero. A pointer resting anywhere over
+the photograph held the rotation before it ever began. Pausing is now scoped to
+the progress bars and to focus-within: hovering the controls is an intent to
+interact, hovering the picture is not. WCAG 2.2.2 still has its mechanism.

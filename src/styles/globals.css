@@ -377,6 +377,55 @@
   opacity: 0.42;
 }
 
+/*
+ * Warm bloom behind the Ideate block in the design-thinking figure.
+ * Measured on the artboard (Figma node 3672:9727): symmetric on all four
+ * sides, peaking right at the block edge and gone by about 110px, so the
+ * element is inset -90px and the blur carries the last of the falloff.
+ */
+.diverge-glow {
+  background:
+    radial-gradient(52% 52% at 50% 50%, var(--color-glow-warm) 0%, transparent 76%),
+    radial-gradient(40% 44% at 52% 48%, var(--color-glow-amber) 0%, transparent 78%);
+  filter: blur(40px);
+  opacity: 0.7;
+}
+
+/*
+ * Pulsing marker for the active city on the globe. Positioned by the
+ * projection, so it is centred on its own coordinates.
+ */
+.globe-pin {
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  margin-top: -7px;
+  border-radius: 9999px;
+  background: var(--color-neutral-50);
+  box-shadow: 0 0 0 0 rgba(246, 242, 236, 0.55);
+  animation: globe-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes globe-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(246, 242, 236, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 18px rgba(246, 242, 236, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(246, 242, 236, 0);
+  }
+}
+
+/* The pin still marks the place; it just stops throbbing. */
+@media (prefers-reduced-motion: reduce) {
+  .globe-pin {
+    animation: none;
+    box-shadow: 0 0 0 6px rgba(246, 242, 236, 0.22);
+  }
+}
+
 .stages-glow {
   background:
     radial-gradient(46% 52% at 46% 50%, var(--color-glow-amber) 0%, transparent 70%),

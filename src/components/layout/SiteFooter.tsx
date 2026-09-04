@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Container, ParallaxSection, Typography } from '@/components'
 import TypeBLogo from '@/components/icons/TypeBLogo'
 import { asset } from '@/lib/asset'
@@ -6,19 +7,50 @@ import { asset } from '@/lib/asset'
  * Site footer — shared by every page. Figma node 3390:26636 on the homepage and
  * node 3604:1309 on What We Do, identical.
  */
-const FOOTER_COLUMNS = [
+/**
+ * `to` is the route where one exists; the rest stay inert until their page is
+ * built — an honest dead link beats one that 404s. Advisory, Product and Teams
+ * all point at What We Do, which is the page that covers all three.
+ */
+type FooterLink = { label: string; to?: string }
+
+const FOOTER_COLUMNS: { heading: string; links: FooterLink[] }[] = [
   {
     heading: 'What We Do',
-    links: ['Advisory', 'Product & AI Development', 'Teams', 'Industries'],
+    links: [
+      { label: 'Advisory', to: '/what-we-do' },
+      { label: 'Product & AI Development', to: '/what-we-do' },
+      { label: 'Teams', to: '/what-we-do' },
+      { label: 'Industries', to: '/industries' },
+    ],
   },
   {
     heading: 'Case Studies',
-    links: ['Ferry Pay', 'Class-fi', 'MatchDay Health', 'Mave AI', 'View All'],
+    links: [
+      { label: 'Ferry Pay' },
+      { label: 'Class-fi' },
+      { label: 'MatchDay Health' },
+      { label: 'Mave AI' },
+      { label: 'View All' },
+    ],
   },
-  { heading: 'Who We Are', links: ['About Us', 'We’re Hiring!', 'Contact'] },
+  {
+    heading: 'Who We Are',
+    links: [
+      { label: 'About Us', to: '/culture' },
+      { label: 'We’re Hiring!', to: '/careers' },
+      { label: 'Contact', to: '/contact' },
+    ],
+  },
   {
     heading: 'Publications',
-    links: ['News', 'Substack', 'Linkedin', 'Clutch (4.9)', 'Privacy Policy'],
+    links: [
+      { label: 'News' },
+      { label: 'Substack' },
+      { label: 'Linkedin' },
+      { label: 'Clutch (4.9)' },
+      { label: 'Privacy Policy' },
+    ],
   },
 ]
 
@@ -68,16 +100,21 @@ export function SiteFooter() {
                   {column.heading}
                 </Typography>
                 <ul className="flex flex-col gap-md">
-                  {column.links.map((link) => (
-                    <li key={link}>
-                      <a
-                        href="#"
-                        className="text-copy-medium text-paper transition-opacity duration-fast ease-out hover:opacity-muted"
-                      >
-                        {link}
-                      </a>
-                    </li>
-                  ))}
+                  {column.links.map((link) => {
+                    const classes =
+                      'text-copy-medium text-paper transition-opacity duration-fast ease-out hover:opacity-muted'
+                    return (
+                      <li key={link.label}>
+                        {link.to ? (
+                          <Link to={link.to} className={classes}>
+                            {link.label}
+                          </Link>
+                        ) : (
+                          <span className={classes}>{link.label}</span>
+                        )}
+                      </li>
+                    )
+                  })}
                 </ul>
               </div>
             ))}

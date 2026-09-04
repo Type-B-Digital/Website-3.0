@@ -215,8 +215,12 @@ function Hero() {
  * stuck with nothing to restart it. `controls.pause()` / `.play()` actually
  * hold the clock where it is.
  *
- * Paused on hover and on focus-within. Auto-advancing content needs a way to
- * stop (WCAG 2.2.2), and reading a slide should not be a race.
+ * Pausing is scoped to the progress bars and to focus-within — deliberately
+ * NOT to the whole carousel. Auto-advancing content needs a way to stop (WCAG
+ * 2.2.2), but the carousel fills most of the hero, so pausing on hover anywhere
+ * inside it meant a pointer merely resting over the photograph froze the
+ * rotation before it ever began. Hovering the controls is an intent to
+ * interact; hovering the picture is not.
  *
  * `prefers-reduced-motion` suppresses the *transition*, not the rotation: the
  * slide still advances on its own, but swaps instantly rather than blurring and
@@ -263,13 +267,7 @@ function HeroCarousel() {
 
   return (
     <Section tone="none" spacing="none" className="pb-4xl pt-4xl text-on-light">
-      <div
-        className="grid items-center gap-lg lg:grid-cols-12"
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
-        onFocus={() => setPaused(true)}
-        onBlur={() => setPaused(false)}
-      >
+      <div className="grid items-center gap-lg lg:grid-cols-12">
         <Reveal className="lg:col-span-5 lg:col-start-1">
           <div className="flex flex-col items-start">
             {/*
@@ -348,7 +346,13 @@ function HeroCarousel() {
             </div>
 
             {/* Progress bars, 48x4 on a 56px pitch (node 3638:9435). */}
-            <div className="mt-5xl flex items-center gap-sm">
+            <div
+              className="mt-5xl flex items-center gap-sm"
+              onMouseEnter={() => setPaused(true)}
+              onMouseLeave={() => setPaused(false)}
+              onFocus={() => setPaused(true)}
+              onBlur={() => setPaused(false)}
+            >
               {SLIDES.map((slide, i) => {
                 const isActive = i === index
                 const isPast = i < index

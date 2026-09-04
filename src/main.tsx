@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import HomePage from '@/pages/index'
 import CareersPage from '@/pages/careers'
 import ContactPage from '@/pages/contact'
+import CulturePage from '@/pages/culture'
 import IndustriesPage from '@/pages/industries'
 import WhatWeDoPage from '@/pages/what-we-do'
 import '@/styles/globals.css'
@@ -29,6 +30,7 @@ createRoot(container).render(
         <Route path="/industries" element={<IndustriesPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/careers" element={<CareersPage />} />
+        <Route path="/culture" element={<CulturePage />} />
       </Routes>
     </BrowserRouter>
     {/*

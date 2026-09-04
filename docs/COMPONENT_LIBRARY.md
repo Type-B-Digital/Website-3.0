@@ -356,3 +356,32 @@ then shows its selected state as an underline.
 
 `tone="onDark"` switches the rule to `border-accent-soft-dark`. The light
 value (accent.500 at 40%) is nearly invisible over ink.
+
+## DivergeConverge
+
+The five-stage design-thinking figure. Figma: nodes 3672:9733 / 9734.
+
+```tsx
+<DivergeConverge stages={[{ label, description, height, from, to, glow? }]} />
+```
+
+`height` is the block's height in the 240px row and is what draws the
+diverge/converge silhouette. `from`/`to` are palette values for a left-to-right
+fill. `glow` adds the measured bloom.
+
+Each block clips its own copy of the two-diamond layer, offset by its left
+edge, so the motif is continuous across the row. A single layer behind the row
+would be invisible — the blocks are opaque.
+
+## Globe
+
+The top cap of a rotating Earth, on real coordinates. Figma: node 3672:9750.
+
+```tsx
+<Globe locations={[{ name, lat, lon }]} active={index} />
+```
+
+Orthographic projection of Natural Earth 110m land, drawn to canvas. Cities are
+rotated `TILT` degrees north of the projection centre so they land inside the
+visible cap rather than a radius below it. The caller owns `active`, so the
+chip and the pin cannot disagree.
