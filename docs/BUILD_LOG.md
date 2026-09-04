@@ -1938,3 +1938,68 @@ entire carousel, which fills most of the hero. A pointer resting anywhere over
 the photograph held the rotation before it ever began. Pausing is now scoped to
 the progress bars and to focus-within: hovering the controls is an intent to
 interact, hovering the picture is not. WCAG 2.2.2 still has its mechanism.
+
+### Culture revisions (Sep 3, 2026)
+
+The artboard was updated between builds — the hero gained a background frame and
+Our Approach gained its copy line — so several node ids moved.
+
+**Hero ground, built from the definition rather than the export.** Figma offers
+this as an 8.4MB PNG; the frame is really a linear gradient plus one
+8%-opacity path, which is a few lines of CSS and a 2.7KB SVG.
+
+Neither the angle nor the offsets are the ones Figma states:
+
+- *Angle.* The gradient runs (0, 880) to (1649, -473) — 50.63 degrees — but the
+  rect carries `matrix(-1 0 0 1 1440 0)`, a horizontal mirror, so the built
+  angle is the reflection, 309.36.
+- *Offsets.* Figma's axis is 2133px; the CSS gradient line for that angle in a
+  1440x880 box is 1671px, and CSS normalises stops to its own line. Copying
+  0/50/100 across put the cream end *inside* the box and washed the left half
+  out — measured #DFDEDA at the top-left against the artboard's #7C989A.
+  Rescaled by 2133/1671 the stops are 0 / 63.8 / 127.6, the last running past
+  100% exactly as `gradients.b3` does. Corners then agree within 3–8%, the
+  residual being the artboard's baked grain.
+
+The hero is dark, so the copy is `text-on-dark` and the header switched to
+`onDark` — it had been ink on ink.
+
+**Stats now sit on the grid.** Their right edges on the artboard are 708, 1034
+and 1360: the ends of columns 6, 9 and 12. The first attempt landed on
+720/1040/1360 because the grid had no column gap, making columns 106.67px
+instead of 84.67 — the 12-column system is only itself with its 24px gutter.
+With `gap-x-lg` the built edges are 708 / 1034 / 1360 exactly.
+
+**Our Approach** reads eyebrow, headline, copy, then cards, matching the
+updated artboard where the copy sits inside the header frame rather than
+trailing the cards. Card drop shadows removed — the artboard has none, and the
+shadow was reading as a lift the design does not have.
+
+Four rings and a warm bloom sit behind. The bloom is a broad plateau rather
+than a point source: the artboard holds near-full warmth out to about ±330px of
+centre before falling away, so the warm stop is carried to 30% before the ramp
+begins. Tuned in two passes (too narrow, then 1.22x too strong) to:
+
+```
+   x     artboard  built
+   50        +7      -1
+  394      +115    +112
+  720      +137    +135
+ 1046       +99     +96
+ 1400        +0      -1     mean absolute error 3.4
+```
+
+**A z-index trap, twice.** Both background layers were on negative z and
+invisible. A negative-z child paints *behind its own stacking context's
+background* — and `Section tone="light"` paints `bg-surface` over it. Both are
+now `z-0` with the content on `z-10`.
+
+**Design thinking now crossfades into Talent**, on the same shared-ground
+construction as the homepage and Careers: one animated `backgroundColor` across
+both sections, timed against a zero-height marker, with Talent's cream copy
+fading in behind the turquoise rather than with it. Verified one colour per
+frame: `#F6F2EC` -> `rgb(142,159,162)` -> `#17616E`. Talent is `min-h-screen`
+with the globe pinned to the bottom, so the scroll settles on a full-height
+view of the planet (858px against an 813px viewport).
+
+**The globe pin is twice the size** — 28px with a 36px pulse ring.

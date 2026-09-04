@@ -244,6 +244,12 @@ export const colors = {
     surface: palette.neutral[50],
     /** Accent band — "How we partner". Figma: "bg-turquoise" — node 3390:26776 */
     accent: palette.turquoise[600],
+    /**
+     * The deeper accent band — Culture's Talent section, where the globe sits.
+     * Sampled at exactly `#17616E` (turquoise.500), a step lighter than
+     * `accent`. Figma: node 3679:10315.
+     */
+    accentDeep: palette.turquoise[500],
     /** Eyebrow chip on accent grounds — #13505D. Figma: 3390:26567 */
     chipAccent: palette.turquoise[600],
     /**

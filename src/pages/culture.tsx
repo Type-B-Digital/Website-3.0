@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { motion as fm, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import {
   Button,
   Container,
@@ -13,9 +14,10 @@ import {
   type GlobeLocation,
 } from '@/components'
 import { PageShell } from '@/components/layout'
-import { palette } from '@/tokens'
+import { colors as colorTokens, motion as motionTokens, palette } from '@/tokens'
 import { asset } from '@/lib/asset'
 import { cn } from '@/lib/cn'
+import { useLaggedProgress } from '@/lib/useLaggedProgress'
 
 /**
  * Culture — Figma node 2448:3065 ("5. Culture")
@@ -156,15 +158,61 @@ const HIRING_TRAITS = [
   'Relentless in your pursuit of excellence.',
 ]
 
+/** Literal classes — Tailwind never emits a computed `lg:col-start-N`. */
+const STAT_COLUMN = ['lg:col-start-4', 'lg:col-start-7', 'lg:col-start-10']
+
 /* ================================================================== *
  * SECTIONS
  * ================================================================== */
 
-/** Figma: nodes 3672:9643 and the three stat groups. */
+/**
+ * The hero ground. Figma: `culture-hero-background`, node 3678:10012.
+ *
+ * Built from the artboard's own definition rather than its 8MB export: the
+ * frame is a linear gradient plus a single 8%-opacity path, both of which are
+ * a few lines of CSS and a 2.7KB SVG.
+ *
+ * The stops are exact ramp values — neutral.900, turquoise.500, neutral.50 —
+ * but neither the angle nor the offsets are the ones Figma states.
+ *
+ * **Angle.** Figma runs the gradient from (0, 880) to (1649, -473), which is
+ * 50.63 degrees, but the rect carries `matrix(-1 0 0 1 1440 0)` — a horizontal
+ * mirror — so the built angle is the reflection, 309.36.
+ *
+ * **Offsets.** Figma's axis is 2133px long; the CSS gradient line for that
+ * angle in a 1440x880 box is only 1671px, and CSS normalises its stops to that
+ * line. Copying 0/50/100 across therefore lands the cream end *inside* the box
+ * and washes the left half out — measured #DFDEDA at the top-left against the
+ * artboard's #7C989A. Rescaled by 2133/1671, the stops are 0 / 63.8 / 127.6,
+ * which is why the last one runs past 100% exactly as `gradients.b3` does.
+ */
+const HERO_GRADIENT =
+  `linear-gradient(309.36deg, ${palette.neutral[900]} 0%, ${palette.turquoise[500]} 63.8%, ` +
+  `${palette.neutral[50]} 127.6%)`
+
+/**
+ * Figma: node 3679:10553 and the three stat groups (3679:10558 / 10565 /
+ * 10572).
+ *
+ * The stats are right-aligned to the 12-column grid, which is the thing that
+ * was wrong before. Their right edges on the artboard are 708, 1034 and 1360 —
+ * the ends of columns 6, 9 and 12 — so each pair occupies three columns of the
+ * right nine, and the numbers line up as a column of right edges rather than
+ * floating.
+ */
 function Hero() {
   return (
-    <Section tone="light" spacing="none" className="pb-5xl pt-[232px]">
-      <div className="flex flex-col gap-5xl">
+    <Section tone="none" spacing="none" bare className="relative overflow-hidden text-on-dark">
+      <div aria-hidden className="absolute inset-0 z-0" style={{ backgroundImage: HERO_GRADIENT }} />
+      {/* Circles and rules at 8% — one path, straight off the artboard. */}
+      <img
+        src={asset('/vectors/culture/hero-grid.svg')}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 z-0 size-full object-cover"
+      />
+
+      <Container className="relative z-10 flex flex-col gap-5xl pb-5xl pt-[232px]">
         <Reveal>
           <div className="flex max-w-[834px] flex-col items-start gap-md">
             <Eyebrow tone="ink">Why We Exist</Eyebrow>
@@ -180,15 +228,18 @@ function Hero() {
           </div>
         </Reveal>
 
-        {/*
-          The artboard scatters these across three loose groups; the grid keeps
-          the same two-row reading order without inheriting positions that only
-          hold at 1440.
-        */}
-        <div className="grid gap-x-4xl gap-y-2xl sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-x-lg gap-y-2xl sm:grid-cols-2 lg:grid-cols-12">
           {STATS.map((stat, i) => (
-            <Reveal key={stat.label} index={i}>
-              <div className="flex flex-col gap-sm">
+            <Reveal
+              key={stat.label}
+              index={i}
+              /*
+                Columns 4-6, 7-9, 10-12 on both rows, so the three right edges
+                land on 708 / 1034 / 1360 exactly as the artboard has them.
+              */
+              className={cn('lg:col-span-3', STAT_COLUMN[i % 3])}
+            >
+              <div className="flex flex-col gap-sm text-right">
                 <Typography variant="h2" as="p">
                   {stat.value}
                 </Typography>
@@ -199,7 +250,7 @@ function Hero() {
             </Reveal>
           ))}
         </div>
-      </div>
+      </Container>
     </Section>
   )
 }
@@ -241,36 +292,60 @@ function HowWeShowUp() {
   )
 }
 
-/** Figma: nodes 3672:9687 onward. */
+/**
+ * Figma: nodes 3679:10345 (header block) and 3679:10350 onward (the cards).
+ *
+ * The artboard reads eyebrow, headline, copy, then cards — the copy sits at
+ * y=131 inside the header frame, above the cards, not trailing them.
+ *
+ * Behind it: four large rings and one warm bloom. Sampled from the artboard,
+ * the bloom peaks on the section's centre line (+137 warmth at x=720) and
+ * falls to nothing by x=50 and x=1400, so it is a wide, shallow ellipse rather
+ * than a circle. The rings are ink at 8%, the same weight as the hero grid.
+ *
+ * The cards are flat. The artboard has no shadow on them, and the drop shadow
+ * the first build added was reading as a lift the design does not have.
+ */
 function OurApproach() {
   return (
     <Section tone="light" spacing="none" className="relative overflow-hidden py-5xl">
-      {/* Warm bloom and the two faint rings the artboard sets behind the cards. */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <span className="stages-glow absolute left-1/2 top-1/2 size-[820px] -translate-x-1/2 -translate-y-1/2" />
-        <span className="absolute left-1/2 top-1/2 size-[900px] -translate-x-[85%] -translate-y-1/2 rounded-full border border-on-light/[0.08]" />
-        <span className="absolute left-1/2 top-1/2 size-[900px] -translate-x-[15%] -translate-y-1/2 rounded-full border border-on-light/[0.08]" />
+      {/*
+        z-0, not a negative index: the section paints `bg-surface`, and a
+        negative-z child sits *behind* its own section's background, which is
+        why the rings and bloom were invisible. The content takes z-10 instead.
+      */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 z-0">
+        {/* Four rings, evenly spaced about the centre and overlapping. */}
+        {[-1.5, -0.5, 0.5, 1.5].map((n) => (
+          <span
+            key={n}
+            className="absolute top-1/2 size-[860px] -translate-y-1/2 rounded-full border border-on-light/[0.08]"
+            style={{ left: `calc(50% + ${n * 460}px)`, marginLeft: -430 }}
+          />
+        ))}
+        <span className="approach-glow absolute left-1/2 top-1/2 h-[500px] w-[1240px] -translate-x-1/2 -translate-y-1/2" />
       </div>
 
-      <div className="flex flex-col gap-4xl">
+      <div className="relative z-10 flex flex-col gap-4xl">
         <Reveal>
-          <div className="flex flex-col items-center gap-md text-center">
+          <div className="mx-auto flex max-w-[800px] flex-col items-center gap-md text-center">
             <Eyebrow tone="onAccent">Four stages</Eyebrow>
             <Typography variant="h2" className="text-h3 md:text-h2">
               Our Approach
             </Typography>
+            <Typography variant="copyLarge" muted>
+              Every week, not every milestone: daily stand-ups, weekly written status, sprint
+              demos, and open lines on phone, email, Zoom, and Slack. On-time delivery is cited in
+              six of our seven Clutch reviews.
+            </Typography>
           </div>
         </Reveal>
 
-        {/*
-          Cards 2 and 4 sit a row lower on the artboard (y=2132 against 1889),
-          which is what keeps the row from reading as a plain four-up. The
-          offset only applies once they are side by side.
-        */}
+        {/* Cards 2 and 4 sit 243px lower, as on the artboard (2246 against 2003). */}
         <div className="grid gap-lg md:grid-cols-2 lg:grid-cols-4">
           {STAGES.map((stage, i) => (
             <Reveal key={stage.number} index={i} className={cn(i % 2 === 1 && 'lg:mt-[243px]')}>
-              <div className="flex aspect-square flex-col justify-between rounded-md bg-white p-lg shadow-lg">
+              <div className="flex aspect-square flex-col justify-between rounded-md bg-white p-lg">
                 <div className="flex items-baseline gap-sm">
                   <Typography variant="copyLarge" as="span" className="opacity-subtle">
                     {stage.number}
@@ -286,15 +361,8 @@ function OurApproach() {
             </Reveal>
           ))}
         </div>
-
-        {/* Clears the offset column so the closing line is not pulled up. */}
-        <Reveal index={4} className="lg:mt-[243px]">
-          <Typography variant="copyMedium" muted className="mx-auto max-w-[846px] text-center">
-            Every week, not every milestone: daily stand-ups, weekly written status, sprint demos,
-            and open lines on phone, email, Zoom, and Slack. On-time delivery is cited in six of
-            our seven Clutch reviews.
-          </Typography>
-        </Reveal>
+        {/* Clears the offset column so the section does not close too tight. */}
+        <div aria-hidden className="hidden lg:block lg:h-[243px]" />
       </div>
     </Section>
   )
@@ -399,7 +467,7 @@ function Talent() {
         is wrapped: the artboard's globe spans the page, not the content
         column, and only its top cap shows.
       */}
-      <div className="pointer-events-none relative mt-5xl w-full">
+      <div className="pointer-events-none relative mt-4xl w-full">
         <Globe locations={LOCATIONS} active={active} className="aspect-[1440/327]" />
       </div>
     </Section>
@@ -491,14 +559,71 @@ function ValuesMarquee() {
   )
 }
 
+/**
+ * Design thinking and Talent share ONE animated ground, so the change from the
+ * cream body to turquoise happens as a single crossfade across the whole
+ * viewport — the same construction the homepage uses for white to turquoise
+ * and Careers uses for warm to ink.
+ *
+ * A vertical gradient cannot do it: it would hold cream at the top of the
+ * screen and turquoise at the bottom simultaneously, which reads as a band
+ * travelling down the page.
+ *
+ * The marker is a zero-height element on the boundary; tracking it from
+ * 'start end' to 'start start' gives one viewport-height of scroll to finish
+ * in. Talent's copy is cream, so like the offerings scene it fades in *behind*
+ * the ground rather than with it — it enters the viewport well before the
+ * turquoise arrives, and cream on cream is nothing.
+ */
+function DesignToTalent() {
+  const markerRef = useRef<HTMLDivElement>(null)
+  const prefersReduced = useReducedMotion()
+  const { scrollYProgress: raw } = useScroll({
+    target: markerRef,
+    offset: ['start end', 'start start'],
+  })
+  const progress = useLaggedProgress(raw)
+  const { fade, contentFade } = motionTokens.careersGround
+
+  const background = useTransform(
+    progress,
+    [fade.start, fade.end],
+    [colorTokens.background.surface, colorTokens.background.accentDeep],
+  )
+  const contentOpacity = useTransform(progress, [contentFade.start, contentFade.end], [0, 1])
+
+  if (prefersReduced) {
+    return (
+      <>
+        <div className="bg-surface">
+          <DesignThinking />
+        </div>
+        <div className="bg-accent-500">
+          <Talent />
+        </div>
+      </>
+    )
+  }
+
+  return (
+    <fm.div style={{ backgroundColor: background }}>
+      <DesignThinking />
+      {/* Zero-height boundary the crossfade is timed against. */}
+      <div ref={markerRef} aria-hidden className="h-0" />
+      <fm.div style={{ opacity: contentOpacity }}>
+        <Talent />
+      </fm.div>
+    </fm.div>
+  )
+}
+
 export function CulturePage() {
   return (
-    <PageShell headerTone="onLight">
+    <PageShell headerTone="onDark">
       <Hero />
       <HowWeShowUp />
       <OurApproach />
-      <DesignThinking />
-      <Talent />
+      <DesignToTalent />
       <Testimonial />
       <Hiring />
       <ValuesMarquee />
