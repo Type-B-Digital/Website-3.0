@@ -54,7 +54,7 @@ const SERVICES = [
     },
   },
   {
-    title: 'Product & Development',
+    title: 'Product & AI Development',
     body:
       'Brilliant product thinking coupled with end-to-end AI systems: the data ' +
       'underneath, the guardrails around it, and the agents and products people actually ' +
@@ -248,7 +248,7 @@ function OfferingRow({ name, audience }: { name: string; audience: string }) {
 }
 
 /**
- * Service block — Advisory, Product & Development, Teams.
+ * Service block — Advisory, Product & AI Development, Teams.
  * Figma nodes 3604:1012 / 1058 / 1104: heading and body over 640, a "Learn more"
  * tertiary CTA on the right, then a 628x375 photograph beside a 519-wide column
  * of offerings and a case-study card. Closed by a full-width rule.

@@ -2048,3 +2048,93 @@ the plain `min-h-screen` section.
 
 `Section` gained a `style` prop for this — the scene height is a token
 multiplied into `vh`, which Tailwind cannot express.
+
+## Product & AI Development (Sep 3, 2026)
+
+Figma node 3141:2722 — the first of the three service pages, and the one the
+artboard draws in full. Advisory and Teams reuse it, so everything structural
+lives in `src/components/service/` and the page file is content only.
+
+Also renamed the What We Do section to "Product & AI Development".
+
+### What was built vs reused
+
+New, in `service/sections.tsx`: `ServiceHero`, `IdealCustomerProfiles`,
+`CapabilityGrid`, `EngagementSteps`, `LevelsList`, `FeaturedCase`,
+`RelatedServices`.
+
+Lifted into `service/shared.tsx` so there is one implementation rather than a
+copy per page: `Packaging` (was inline on What We Do) and `StaggeredCards` (was
+`OurApproach` on Culture). The Product page's stagger carries no numbers and no
+bloom — its ground is already warm — so both are props.
+
+`ServicePage` holds the ground, FAQ, testimonial and marquee. The ground is the
+same three-ramp construction as the other pages, sampled down the artboard's
+gutter: turquoise.100 → neutral.50 at 42.7% → amber.100 at 98.1%.
+
+### The review loop
+
+Horizontal alignment was right on the first pass — ICP blocks 572 ending at
+652, capability columns 403, the levels list and featured image both starting
+at 841 and ending at 1360. Vertical was not: the page came out 1798px too tall,
+with drift reaching +883 by the FAQ.
+
+Four things were wrong, each found by measuring section heights rather than
+looking:
+
+**The section rhythm was 240, not 160.** `py-5xl` on every section put 120 top
+and bottom between neighbours; the artboard's dominant gap is 160. `py-4xl`
+throughout. That alone took 870px out.
+
+**`EngagementSteps` never rendered its arrows.** Three steps mapped into a
+five-column grid land in columns 1, 2 and 3 — the arrow columns were simply
+never filled. Rebuilt as one flex row with the arrows as siblings.
+
+**The step row then had a double gap.** The arrow cell carries 24px of padding
+on each side, and the row also had `gap-lg`, so 96px came out of the three
+steps: 347 wide against the artboard's 378.67, and the copy wrapped to four
+lines instead of three. With the row gap removed the card is 379 and the
+paragraph is 331 wide over three lines.
+
+**`StaggeredCards` had a redundant 243px spacer.** A grid row is already as
+tall as its tallest item, so `mt-[243px]` on the even cards sizes it; the
+spacer added 243px of nothing between the cards and the footnote. (The same
+spacer is on Culture and should come out there too.)
+
+After those, every section gap is within ±65 of the artboard and most within
+±10:
+
+```
+section              artboard   built   delta
+Ideal Customer           1502    1543     +41
+How AI is                1193    1220     +27
+How does an               889     880      -9
+Levels of AI              584     649     +65
+Our specialty             640     646      +6
+Three lines              1150    1145      -5
+Related Services          698     741     +43
+Class.fi                  386     378      -8
+FAQ                       720     720      +0
+```
+
+Cumulative drift at the FAQ is 160px over 7762 — under 2%. The two +40s and the
++65 are places where the artboard's own gap is an outlier (86, 120, 157 against
+its usual 160); the built page keeps the dominant rhythm rather than
+reproducing one-offs.
+
+### `text-wrap: balance` was on every paragraph
+
+Found while chasing the step copy. `Typography` applied `text-balance` to all
+variants. Balance evens the line lengths of a short block, which is right for a
+headline and wrong for a paragraph — applied to body copy it pulls text in from
+its own measure, so a 330px column wrapped at 220 and gained a line. **This
+affected every paragraph on the site, not just this page.**
+
+Headings now balance; everything else gets `text-pretty`, which only avoids
+leaving one word on the last line.
+
+### Still placeholder
+
+FAQ answers (the artboard draws every row collapsed), the capability chips (a
+`Dummy_Square_Circle` instance on the artboard), the Packaging column icons,
+and the Related Services thumbnails, which reuse the What We Do service images.

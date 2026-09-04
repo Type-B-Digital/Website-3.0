@@ -19,7 +19,7 @@ const FOOTER_COLUMNS: { heading: string; links: FooterLink[] }[] = [
     heading: 'What We Do',
     links: [
       { label: 'Advisory', to: '/what-we-do' },
-      { label: 'Product & AI Development', to: '/what-we-do' },
+      { label: 'Product & AI Development', to: '/product-development' },
       { label: 'Teams', to: '/what-we-do' },
       { label: 'Industries', to: '/industries' },
     ],

@@ -38,6 +38,23 @@ const variantClass: Record<TypographyVariant, string> = {
   numeral: 'text-numeral',
 }
 
+/**
+ * `text-wrap: balance` evens the line lengths of a short block — right for a
+ * headline, wrong for a paragraph. Applied to body copy it pulls the text in
+ * from its own measure, so a column that should fill 330px wraps at 220 and
+ * gains a line. That was happening to every paragraph on the site.
+ *
+ * Headings balance; everything else gets `pretty`, which only avoids leaving a
+ * single word on the last line.
+ */
+const BALANCED: ReadonlySet<TypographyVariant> = new Set([
+  'h1',
+  'h2',
+  'h3',
+  'display',
+  'numeral',
+])
+
 /** Sensible default element per variant; override with `as`. */
 const defaultElement: Record<TypographyVariant, ElementType> = {
   h1: 'h1',
@@ -86,7 +103,12 @@ export function Typography({
   const Component = as ?? defaultElement[variant]
   return (
     <Component
-      className={cn(variantClass[variant], muted && 'opacity-muted', 'text-balance', className)}
+      className={cn(
+        variantClass[variant],
+        muted && 'opacity-muted',
+        BALANCED.has(variant) ? 'text-balance' : 'text-pretty',
+        className,
+      )}
       {...rest}
     >
       {children}
