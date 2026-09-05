@@ -48,6 +48,21 @@ const variantClass: Record<TypographyVariant, string> = {
  * Headings balance; everything else gets `pretty`, which only avoids leaving a
  * single word on the last line.
  */
+/**
+ * A caller's own wrapping class has to win, and without this it silently did
+ * not. `text-balance` and `text-pretty` both set `text-wrap`, which resets
+ * `text-wrap-mode`; Tailwind emits them AFTER `whitespace-nowrap`, so at equal
+ * specificity the default here overrode every caller that asked for nowrap.
+ *
+ * Five call sites were affected and none of them looked broken enough to
+ * chase: both values marquees (`variant="h1"`, so `text-balance`), two chips on
+ * What We Do, and the city chips on Culture. The marquees were wrapping mid-
+ * phrase at their own measure rather than running as one line.
+ *
+ * So: if the caller names a wrapping utility, this component does not add one.
+ */
+const WRAP_UTILITY = /(?:^|\s)(?:whitespace-\S+|text-(?:nowrap|wrap|balance|pretty))(?:\s|$)/
+
 const BALANCED: ReadonlySet<TypographyVariant> = new Set([
   'h1',
   'h2',
@@ -108,7 +123,8 @@ export function Typography({
       className={cn(
         variantClass[variant],
         muted && 'opacity-muted',
-        BALANCED.has(variant) ? 'text-balance' : 'text-pretty',
+        !WRAP_UTILITY.test(className ?? '') &&
+          (BALANCED.has(variant) ? 'text-balance' : 'text-pretty'),
         className,
       )}
       {...rest}

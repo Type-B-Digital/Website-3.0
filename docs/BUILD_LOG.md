@@ -2909,3 +2909,52 @@ Both branches kebab-case now.
 section), `typography.navPanelLink` (32px on a 42px line box — `subHeaderLarge`
 is the same size but 1.5, which would push the fourth link 24px low),
 `layout.navPanelHeight`, `motion.navPanel`.
+
+## Global by design — the city chips grew — 2026-09-05
+
+Asked for directly: 20px place copy, 80x80 circles. Both land on existing
+tokens exactly — `copyLarge` is 20px, `spacing.4xl` is 80px — so the chip is
+`size-4xl` on the ring and `variant="copyLarge"` on the label, no literals.
+
+### The chip box had to grow with them, and that surfaced a real bug
+
+At 20px the labels no longer fit the 88px column: "Hyderabad" measured 99 and
+overflowed, and "Buenos Aires" wrapped onto a second line — despite the call
+site asking for `whitespace-nowrap` since the day it was written.
+
+**`Typography` was silently discarding it.** The component always appends
+`text-balance` or `text-pretty`, both of which set `text-wrap` — which resets
+`text-wrap-mode`. Tailwind emits them after `whitespace-nowrap`:
+
+```
+.whitespace-nowrap{white-space:nowrap}   index 13821
+.text-balance{text-wrap:balance}         index 13885
+.text-pretty{text-wrap:pretty}           index 13917
+```
+
+Equal specificity, later rule wins, and `cn` is a plain join with no
+tailwind-merge to catch it. Five call sites were affected and none looked
+broken enough to chase: both values marquees (`variant="h1"`, so
+`text-balance`), the two chip rows on What We Do, and these city chips.
+
+`Typography` now skips its own wrapping class when the caller names one.
+Verified after the fix: all five render on a single line, nothing is wider than
+its parent, and the page has no horizontal overflow.
+
+### Even pitch, kept
+
+With nowrap actually working, "Buenos Aires" is 115px on one line. The column
+goes to `w-5xl` (120px) — a token, replacing the `w-[88px]` literal — which
+fits the widest label with 5px to spare and holds the circles on an even pitch.
+Seven chips at 120 with six 40px gaps is 1080 inside the 1280 content width.
+
+Content-width chips (`w-max`) were the other option and were tried; they never
+clip but the circles come out unevenly spaced, which reads as a regression
+against a row that is clearly drawn as equal chips.
+
+### Not done
+
+The component this was meant to be built from — node 3679:10413 — was never
+read: both Figma connections were down (the claude.ai server disconnected
+mid-session, the framelink one returned `403 Token expired`). Sizes here came
+from a verbal spec, so anything else that node changes is still outstanding.

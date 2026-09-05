@@ -408,7 +408,7 @@ function Talent() {
                     onClick={() => setActive(i)}
                     aria-pressed={isActive}
                     className={cn(
-                      'flex w-[88px] flex-col items-center gap-sm rounded-sm py-xs',
+                      'flex w-5xl flex-col items-center gap-sm rounded-sm py-xs',
                       'transition-opacity duration-fast ease-out',
                       'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
                       'focus-visible:outline-on-dark',
@@ -418,11 +418,11 @@ function Talent() {
                     <span
                       aria-hidden
                       className={cn(
-                        'size-2xl rounded-full border transition-colors duration-fast ease-out',
+                        'size-4xl rounded-full border transition-colors duration-fast ease-out',
                         isActive ? 'border-on-dark bg-on-dark/20' : 'border-on-dark-subtle',
                       )}
                     />
-                    <Typography variant="copySmall" as="span" className="whitespace-nowrap">
+                    <Typography variant="copyLarge" as="span" className="whitespace-nowrap">
                       {location.name}
                     </Typography>
                   </button>
