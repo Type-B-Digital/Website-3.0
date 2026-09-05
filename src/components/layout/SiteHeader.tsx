@@ -99,10 +99,16 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    // No hub page exists for this section, so its panel heading is plain text.
+    /*
+      The heading IS the culture page. "Our Culture" sat in the list under a
+      heading that went nowhere, which made the section the only one where the
+      name at the top was inert and the destination was a row beneath it. Now
+      it reads like the other four: the heading takes you to the section, and
+      the list is what else is in it.
+    */
     label: 'Who We Are',
+    to: '/culture',
     links: [
-      { label: 'Our Culture', to: '/culture' },
       { label: 'We’re Hiring!', to: '/careers' },
       { label: 'Contact', to: '/contact' },
     ],

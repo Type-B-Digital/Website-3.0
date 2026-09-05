@@ -2861,9 +2861,16 @@ on cream.
   "What We Do" / "Case Studies" / "Who We Are". Followed the majority and the
   footer, which is where both would otherwise appear on one page.
 - **A caret only where there is a page.** The artboard draws one on all five nav
-  items and all five footer headings, but Who We Are and Publications have no
-  hub page. They render as plain text rather than promising a destination —
-  the same call the footer's inert links already get.
+  items and all five footer headings, but Publications has no hub page. It
+  renders as plain text rather than promising a destination — the same call the
+  footer's inert links already get.
+- **Who We Are points at the culture page, and "Our Culture" left the list.**
+  Asked for after the first pass. It had been the one section whose heading was
+  inert while its destination sat as a row underneath; now it reads like the
+  other four — heading to the section, list for what else is in it. The footer's
+  Who We Are column still lists Our Culture and still has no caret, which is a
+  deliberate hold rather than an oversight: the change was asked for on the nav,
+  and matching the footer to it is a separate call.
 - **Panel heading is `#040E19`, not `#030B15`.** The artboard uses the footer
   ground for this one heading; snapped to neutral.900 rather than carry a
   fourth near-ink for a difference of one value per channel.
