@@ -7,16 +7,12 @@
 # manual visit to Settings -> Pages is needed.
 name: Deploy staging site
 
-# Manual only, for now. Pages is not enabled on the repo yet, so an automatic
-# run on every push would just fail at `configure-pages` and send a failure
-# notification each time. Once Pages is switched on (Settings -> Pages ->
-# Source: GitHub Actions), add back:
-#
-#   push:
-#     branches: [main]
-#
-# and the staging link will track `main` on its own.
+# Tracks `main`, plus a manual trigger for re-running a deploy without a push.
+# `configure-pages` below turns Pages on with `enablement: true`, so the first
+# run on a fresh repo sets it up rather than failing.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 # Let a newer push supersede an in-flight deploy, but never cancel a deploy
