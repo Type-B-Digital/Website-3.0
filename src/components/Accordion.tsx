@@ -89,7 +89,12 @@ function AccordionRow({
             tone === 'onDark' ? 'focus-visible:outline-on-dark' : 'focus-visible:outline-accent-500',
           )}
         >
-          <Typography variant="copyMedium" as="span">
+          {/*
+            copyLarge, not copyMedium: the artboard's question row is 31 tall
+            (the chevron is centred at y=3.5 of it), which with py-lg gives the
+            79px row pitch every FAQ on the site is drawn on.
+          */}
+          <Typography variant="copyLarge" as="span">
             {item.question}
           </Typography>
           <fm.span

@@ -1,5 +1,7 @@
 import { Fragment, type ReactNode } from 'react'
-import { Eyebrow, Reveal, Section, Tag, Typography } from '@/components'
+import { Link } from 'react-router-dom'
+import { cn } from '@/lib/cn'
+import { Eyebrow, HeroIntro, Reveal, Section, Tag, Typography } from '@/components'
 import ArrowRight from '@/components/icons/ArrowRight'
 import { asset } from '@/lib/asset'
 
@@ -45,7 +47,7 @@ export function IdealCustomerProfiles({
 }) {
   return (
     <Section tone="none" spacing="none" className="py-4xl text-on-light">
-      <div className="flex flex-col gap-2xl">
+      <div className="flex flex-col gap-3xl">
         <Reveal>
           <Typography variant="h2" className="text-h3 md:text-h2">
             {heading}
@@ -121,7 +123,7 @@ export function CapabilityGrid({
     <Section tone="none" spacing="none" className="py-4xl text-on-light">
       <div className="flex flex-col gap-4xl">
         <Reveal>
-          <div className="mx-auto flex max-w-[800px] flex-col items-center gap-md text-center">
+          <div className="mx-auto flex max-w-[800px] flex-col items-center gap-lg text-center">
             <Eyebrow tone="white">{eyebrow}</Eyebrow>
             <Typography variant="h2" className="text-h3 md:text-h2">
               {heading}
@@ -186,7 +188,7 @@ export function EngagementSteps({
     <Section tone="none" spacing="none" className="py-4xl text-on-light">
       <div className="flex flex-col gap-3xl">
         <Reveal>
-          <div className="mx-auto flex max-w-[800px] flex-col items-center gap-md text-center">
+          <div className="mx-auto flex max-w-[800px] flex-col items-center gap-lg text-center">
             <Typography variant="h2" className="text-h3 md:text-h2">
               {heading}
             </Typography>
@@ -215,7 +217,15 @@ export function EngagementSteps({
               {i > 0 && (
                 <span
                   aria-hidden
-                  className="hidden shrink-0 px-lg pt-[52px] text-on-light opacity-subtle lg:block"
+                  className={cn(
+                    'hidden shrink-0 pt-[52px] text-on-light opacity-subtle lg:block',
+                    /*
+                      The artboard gutters the arrow by 24 a side for three
+                      steps (378.67 each) and 8 for four (290 each); both come
+                      to exactly 1280, so the count picks the gutter.
+                    */
+                    steps.length > 3 ? 'px-sm' : 'px-lg',
+                  )}
                 >
                   <ArrowRight className="size-lg" />
                 </span>
@@ -266,32 +276,79 @@ export type Level = { number: string; label: string }
  * the list is `border-t` per row with a `border-b` on the last — not a divider
  * between rows, which would leave the ends open.
  */
-export function LevelsList({ heading, levels }: { heading: ReactNode; levels: readonly Level[] }) {
+export function LevelsList({
+  heading,
+  intro,
+  image,
+  levels,
+}: {
+  heading: ReactNode
+  intro?: string
+  /**
+   * A 628x375 photograph under the heading, which is what the Financial
+   * Services artboard puts there instead of an intro paragraph (node
+   * 3614:6735 — the metadata reports y=539 inside a 539-tall frame, but it
+   * renders at 163, i.e. 48 below the heading).
+   */
+  image?: string
+  levels: readonly Level[]
+}) {
   return (
     <Section tone="none" spacing="none" className="py-4xl text-on-light">
       <div className="grid items-start gap-lg lg:grid-cols-12">
-        <Reveal className="lg:col-span-4">
-          <Typography variant="h2" className="max-w-[361px] text-h3 md:text-h2">
-            {heading}
-          </Typography>
+        {/*
+          Six columns, not five: the artboard's heading frame is 628 wide
+          (3605:2765 on Teams, 3614:6733 on Financial Services), and five
+          columns is 519. The `max-w` below never bit while this was 5, so the
+          Financial Services photograph rendered 519 wide instead of 628.
+        */}
+        <Reveal className="lg:col-span-6">
+          {/*
+            16 above an intro paragraph (116 -> 132 on Teams), 48 above a
+            photograph (116 -> 163 on Financial Services). The two never
+            co-occur, so the gap follows whichever is present.
+          */}
+          <div className={cn('flex max-w-[628px] flex-col', image ? 'gap-3xl' : 'gap-md')}>
+            <Typography variant="h2" className="text-h3 md:text-h2">
+              {heading}
+            </Typography>
+            {intro && (
+              <Typography variant="copyMedium" muted>
+                {intro}
+              </Typography>
+            )}
+            {image && (
+              <img
+                src={asset(image)}
+                alt=""
+                aria-hidden="true"
+                className="aspect-[628/375] w-full rounded-md object-cover"
+              />
+            )}
+          </div>
         </Reveal>
 
         {/* The list starts at x=761 of the content column — column 8 of 12. */}
         <Reveal index={1} className="lg:col-span-5 lg:col-start-8">
           <ul className="flex flex-col">
             {levels.map((level) => (
-              <li
-                key={level.number}
-                className="flex items-center gap-lg border-t border-divider py-lg last:border-b"
-              >
-                <span className="flex size-3xl shrink-0 items-center justify-center rounded-sm bg-white">
+              <li key={level.number} className="border-t border-divider last:border-b">
+                {/*
+                  The rules span the full 519 column but the row content is 472
+                  of it (node 3614:7288), which after the 48 chip and its 24 gap
+                  leaves the label exactly 400. Without the cap two of Real
+                  Estate's labels fit on one line where the artboard wraps them.
+                */}
+                <div className="flex max-w-[472px] items-center gap-lg py-lg">
+                  <span className="flex size-3xl shrink-0 items-center justify-center rounded-sm bg-white">
+                    <Typography variant="copyLarge" as="span">
+                      {level.number}
+                    </Typography>
+                  </span>
                   <Typography variant="copyLarge" as="span">
-                    {level.number}
+                    {level.label}
                   </Typography>
-                </span>
-                <Typography variant="copyLarge" as="span">
-                  {level.label}
-                </Typography>
+                </div>
               </li>
             ))}
           </ul>
@@ -302,66 +359,149 @@ export function LevelsList({ heading, levels }: { heading: ReactNode; levels: re
 }
 
 /* ------------------------------------------------------------------ *
- * Featured case study — Figma node 3605:2181
+ * Split feature — Figma nodes 3605:2181 (Featured), 3614:6799 / 6912 / 6921
  * ------------------------------------------------------------------ */
 
-export function FeaturedCase({
-  name,
+/**
+ * A 519x560 image beside a 628 copy column, the copy vertically centred
+ * against the image.
+ *
+ * One block, four uses. On the service pages it is the Featured case study;
+ * the Financial Services artboard draws it three times — once with the image
+ * on the left ("What can AI do for a mid-market insurer?", no eyebrow and no
+ * claim), once with an eyebrow and a claim line ("Our Specialty"), and once as
+ * the same Featured case. So eyebrow, claim and side are all props, and the
+ * geometry — which is identical on all four — is not.
+ *
+ * `heading` carries `h1` when the block is a case study (the name is the
+ * headline) and `h2` when it is a section (a question or a statement); the
+ * artboard sets 86px line boxes for the first and 58px for the second.
+ */
+export function SplitFeature({
+  eyebrow,
+  heading,
+  headingLevel = 'h1',
   claim,
   body,
   image,
+  reverse = false,
 }: {
-  name: string
-  claim: string
-  body: string
+  eyebrow?: string
+  heading: string
+  headingLevel?: 'h1' | 'h2'
+  /** The bold line above the paragraph, where the artboard draws one. */
+  claim?: string
+  /**
+   * Optional: the Healthcare featured case is a claim line with no paragraph
+   * under it (node 3614:5893).
+   */
+  body?: string
   image: string
+  /** Image on the left instead of the right. */
+  reverse?: boolean
 }) {
+  const copy = (
+    <Reveal index={reverse ? 1 : 0} className={cn('lg:col-span-6', reverse && 'lg:col-start-7')}>
+      <div className="flex max-w-[628px] flex-col items-start gap-md">
+        {eyebrow && <Eyebrow tone="onAccent">{eyebrow}</Eyebrow>}
+        {headingLevel === 'h1' ? (
+          <Typography variant="h1" className="text-h2 md:text-h1">
+            {heading}
+          </Typography>
+        ) : (
+          <Typography variant="h2" className="text-h3 md:text-h2">
+            {heading}
+          </Typography>
+        )}
+        {/* 32 between the claim and the paragraph; 62-30 on the artboard. */}
+        <div className="flex flex-col gap-xl">
+          {claim && (
+            <Typography variant="copyLarge" as="p">
+              {claim}
+            </Typography>
+          )}
+          {body && (
+            <Typography variant="copyMedium" muted>
+              {body}
+            </Typography>
+          )}
+        </div>
+      </div>
+    </Reveal>
+  )
+
+  const picture = (
+    <Reveal
+      index={reverse ? 0 : 1}
+      className={cn('lg:col-span-5', reverse ? 'lg:col-start-1' : 'lg:col-start-8')}
+    >
+      <img
+        src={asset(image)}
+        alt=""
+        aria-hidden="true"
+        className="aspect-[519/560] w-full rounded-md object-cover"
+      />
+    </Reveal>
+  )
+
   return (
     <Section tone="none" spacing="none" className="py-4xl text-on-light">
       {/* Copy is centred against the 560px image, which is what the artboard's
-          141.5px offset on the text block amounts to. */}
+          117.5-154px offset on the text block amounts to. */}
       <div className="grid items-center gap-lg lg:grid-cols-12">
-        <Reveal className="lg:col-span-6">
-          <div className="flex max-w-[628px] flex-col items-start gap-md">
-            <Eyebrow tone="onAccent">Featured</Eyebrow>
-            <Typography variant="h1" className="text-h2 md:text-h1">
-              {name}
-            </Typography>
-            <div className="flex flex-col gap-xl">
-              <Typography variant="copyLarge" as="p">
-                {claim}
-              </Typography>
-              <Typography variant="copyMedium" muted>
-                {body}
-              </Typography>
-            </div>
-          </div>
-        </Reveal>
-
-        <Reveal index={1} className="lg:col-span-5 lg:col-start-8">
-          <img
-            src={asset(image)}
-            alt=""
-            aria-hidden="true"
-            className="aspect-[519/560] w-full rounded-md object-cover"
-          />
-        </Reveal>
+        {reverse ? (
+          <>
+            {picture}
+            {copy}
+          </>
+        ) : (
+          <>
+            {copy}
+            {picture}
+          </>
+        )}
       </div>
     </Section>
   )
+}
+
+/**
+ * The service pages' Featured case study, which is `SplitFeature` with the
+ * eyebrow it always carries.
+ */
+export function FeaturedCase(props: { name: string; claim: string; body?: string; image: string }) {
+  const { name, ...rest } = props
+  return <SplitFeature eyebrow="Featured" heading={name} {...rest} />
 }
 
 /* ------------------------------------------------------------------ *
  * Related services — Figma node 3605:2399
  * ------------------------------------------------------------------ */
 
-export type RelatedService = { title: string; body: string; image: string; to?: string }
+export type RelatedService = {
+  title: string
+  body: string
+  image: string
+  to?: string
+}
+
+/** A link when the card names a route we have, a plain row when it does not. */
+function RelatedShell({ to, children }: { to?: string; children: ReactNode }) {
+  const className = 'group flex items-start gap-lg'
+  return to ? (
+    <Link to={to} className={className}>
+      {children}
+    </Link>
+  ) : (
+    <div className={className}>{children}</div>
+  )
+}
 
 /** Three across: a 120px square, then a 240px copy column beside it. */
 export function RelatedServices({ services }: { services: readonly RelatedService[] }) {
   return (
     <Section tone="none" spacing="none" className="py-4xl text-on-light">
-      <div className="flex flex-col gap-2xl">
+      <div className="flex flex-col gap-3xl">
         <Reveal>
           <Typography variant="h2" className="text-h3 md:text-h2">
             Related Services
@@ -370,7 +510,12 @@ export function RelatedServices({ services }: { services: readonly RelatedServic
         <div className="grid gap-lg md:grid-cols-3">
           {services.map((service, i) => (
             <Reveal key={service.title} index={i}>
-              <div className="flex items-start gap-lg">
+              {/*
+                The artboard draws these as flat cards, but they name other
+                pages on the site, so where we have a route they navigate.
+                `group` + underline-on-hover is the only visual addition.
+              */}
+              <RelatedShell to={service.to}>
                 <img
                   src={asset(service.image)}
                   alt=""
@@ -378,14 +523,18 @@ export function RelatedServices({ services }: { services: readonly RelatedServic
                   className="size-[120px] shrink-0 rounded-md object-cover"
                 />
                 <div className="flex max-w-[240px] flex-col gap-sm">
-                  <Typography variant="copyLarge" as="h3">
+                  <Typography
+                    variant="copyLarge"
+                    as="h3"
+                    className={cn(service.to && 'group-hover:underline')}
+                  >
                     {service.title}
                   </Typography>
                   <Typography variant="copyMedium" muted>
                     {service.body}
                   </Typography>
                 </div>
-              </div>
+              </RelatedShell>
             </Reveal>
           ))}
         </div>
@@ -412,30 +561,33 @@ export function ServiceHero({
   image: string
 }) {
   return (
-    <Section tone="none" spacing="none" className="pb-5xl pt-[192px] text-on-light">
-      <div className="flex flex-col gap-5xl">
-        <Reveal>
-          <div className="flex max-w-[800px] flex-col items-start gap-md">
-            <Eyebrow tone="onAccent">{eyebrow}</Eyebrow>
-            <Typography variant="h1" className="text-h2 md:text-h1">
-              {heading}
-            </Typography>
-            <Typography variant="copyLarge" muted>
-              {body}
-            </Typography>
-            <div className="pt-lg">{cta}</div>
-          </div>
-        </Reveal>
-        <Reveal index={1}>
-          <img
-            src={asset(image)}
-            alt=""
-            aria-hidden="true"
-            className="aspect-[1280/711] w-full rounded-md object-cover"
-          />
-        </Reveal>
-      </div>
-    </Section>
+    <HeroIntro>
+      {/* Fades up on load; see HeroIntro. */}
+      <Section tone="none" spacing="none" className="pb-2xl pt-[192px] text-on-light">
+        <div className="flex flex-col gap-4xl">
+          <Reveal>
+            <div className="flex max-w-[800px] flex-col items-start gap-md">
+              <Eyebrow tone="onAccent">{eyebrow}</Eyebrow>
+              <Typography variant="h1" className="text-h2 md:text-h1">
+                {heading}
+              </Typography>
+              <Typography variant="copyLarge" muted>
+                {body}
+              </Typography>
+              <div className="pt-lg">{cta}</div>
+            </div>
+          </Reveal>
+          <Reveal index={1}>
+            <img
+              src={asset(image)}
+              alt=""
+              aria-hidden="true"
+              className="aspect-[1280/711] w-full rounded-md object-cover"
+            />
+          </Reveal>
+        </div>
+      </Section>
+    </HeroIntro>
   )
 }
 

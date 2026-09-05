@@ -38,19 +38,26 @@ import {
   CountUp,
   Eyebrow,
   GlowText,
+  GroundCrossfade,
+  HeroIntro,
   Marquee,
   Reveal,
   ScrollTrack,
   Section,
   Tag,
   Typography,
+  VALUES,
 } from '@/components'
 import type { CardCrop } from '@/components'
 import ScrollFillText from '@/components/ScrollFillText'
 import { PageShell } from '@/components/layout'
 import { cn } from '@/lib/cn'
 import useLaggedProgress from '@/lib/useLaggedProgress'
-import { colors as colorTokens, gradients as gradientTokens, motion as motionTokens } from '@/tokens'
+import {
+  colors as colorTokens,
+  gradients as gradientTokens,
+  motion as motionTokens,
+} from '@/tokens'
 import { asset } from '@/lib/asset'
 
 /* ================================================================== *
@@ -216,20 +223,21 @@ const OFFERING_PLACEHOLDER_COPY =
   'praesentium voluptatum deleniti.'
 
 const OFFERINGS = [
-  { label: 'Advisory', copy: OFFERING_PLACEHOLDER_COPY, image: asset('/images/partner/offering-1.png') },
-  { label: 'Product', copy: OFFERING_PLACEHOLDER_COPY, image: asset('/images/partner/offering-1.png') },
-  { label: 'Teams', copy: OFFERING_PLACEHOLDER_COPY, image: asset('/images/partner/offering-1.png') },
-]
-
-/** Figma: node 3390:26760 */
-const VALUES = [
-  'Wise',
-  'Curious',
-  'Reliable',
-  'Relentless',
-  'Adaptable',
-  'Optimistic',
-  'Approachable',
+  {
+    label: 'Advisory',
+    copy: OFFERING_PLACEHOLDER_COPY,
+    image: asset('/images/partner/offering-1.png'),
+  },
+  {
+    label: 'Product',
+    copy: OFFERING_PLACEHOLDER_COPY,
+    image: asset('/images/partner/offering-1.png'),
+  },
+  {
+    label: 'Teams',
+    copy: OFFERING_PLACEHOLDER_COPY,
+    image: asset('/images/partner/offering-1.png'),
+  },
 ]
 
 /* ================================================================== *
@@ -316,46 +324,49 @@ function Hero() {
   }, [prefersReduced, angle])
 
   return (
-    <Section
-      tone="dark"
-      spacing="none"
-      className="relative flex min-h-screen items-center overflow-hidden py-4xl"
-    >
-      {/*
-        The gradient layer is a sibling BEFORE the content rather than a `-z-10`
-        layer: negative z-index would put it behind the Section's own
-        `bg-canvas`, which then paints over it. As an earlier child it lands on
-        top of that background colour, which stays as the fallback.
+    <HeroIntro>
+      {/* Fades up on load; see HeroIntro. */}
+      <Section
+        tone="dark"
+        spacing="none"
+        className="relative flex min-h-screen items-center overflow-hidden py-4xl"
+      >
+        {/*
+          The gradient layer is a sibling BEFORE the content rather than a `-z-10`
+          layer: negative z-index would put it behind the Section's own
+          `bg-canvas`, which then paints over it. As an earlier child it lands on
+          top of that background colour, which stays as the fallback.
 
-        Rebuilding the gradient string each frame repaints, where a transform
-        would not — acceptable for a single 800ms one-shot, and the only way to
-        rotate a gradient's direction.
-      */}
-      <fm.div aria-hidden className="absolute inset-0" style={{ backgroundImage }} />
-      <div className="relative mx-auto flex max-w-[880px] flex-col items-center gap-3xl text-center">
-        <div className="flex flex-col items-center gap-md">
-          <Reveal>
-            <Typography variant="h1" className="text-h2 md:text-h1">
-              Most partners do one slice.
-              <br />
-              We do the whole stack.
-            </Typography>
-          </Reveal>
-          <Reveal index={1}>
-            <Typography variant="copyLarge" muted>
-              We are a senior AI and product firm for scale-ups and regulated mid-market
-              companies: advisory, product and AI development, and managed teams, from one
-              accountable partner.
-            </Typography>
+          Rebuilding the gradient string each frame repaints, where a transform
+          would not — acceptable for a single 800ms one-shot, and the only way to
+          rotate a gradient's direction.
+        */}
+        <fm.div aria-hidden className="absolute inset-0" style={{ backgroundImage }} />
+        <div className="relative mx-auto flex max-w-[880px] flex-col items-center gap-3xl text-center">
+          <div className="flex flex-col items-center gap-md">
+            <Reveal>
+              <Typography variant="h1" className="text-h2 md:text-h1">
+                Most partners do one slice.
+                <br />
+                We do the whole stack.
+              </Typography>
+            </Reveal>
+            <Reveal index={1}>
+              <Typography variant="copyLarge" muted>
+                We are a senior AI and product firm for scale-ups and regulated mid-market
+                companies: advisory, product and AI development, and managed teams, from one
+                accountable partner.
+              </Typography>
+            </Reveal>
+          </div>
+          <Reveal index={2}>
+            <Button as="a" href="#work" variant="secondary" tone="onDark">
+              See our work
+            </Button>
           </Reveal>
         </div>
-        <Reveal index={2}>
-          <Button as="a" href="#work" variant="secondary" tone="onDark">
-            See our work
-          </Button>
-        </Reveal>
-      </div>
-    </Section>
+      </Section>
+    </HeroIntro>
   )
 }
 
@@ -420,7 +431,13 @@ const MANIFESTO_TEXT =
  * rotation already baked in — so no CSS rotation is applied here.
  */
 const MANIFESTO_STACK = [
-  { src: asset('/images/stack/stack-1.png'), left: 3.13, top: 1.92, width: 417.209, height: 494.243 },
+  {
+    src: asset('/images/stack/stack-1.png'),
+    left: 3.13,
+    top: 1.92,
+    width: 417.209,
+    height: 494.243,
+  },
   { src: asset('/images/stack/stack-2.png'), left: 11.74, top: 9.05, width: 400, height: 480 },
   { src: asset('/images/stack/stack-3.png'), left: 0, top: 0, width: 421.806, height: 498.014 },
 ]
@@ -584,7 +601,6 @@ function Manifesto() {
   )
 }
 
-
 /**
  * Bold. Brilliant. Beautiful. — the page's centrepiece.
  *
@@ -710,7 +726,10 @@ function BoldBrilliantBeautiful() {
   // Reduced motion: no pin, no crossfade, blob parked at its resting spot.
   if (prefersReduced) {
     return (
-      <section id={HIGHLIGHT_ID} className="relative min-h-screen w-full overflow-hidden bg-canvas text-on-dark">
+      <section
+        id={HIGHLIGHT_ID}
+        className="relative min-h-screen w-full overflow-hidden bg-canvas text-on-dark"
+      >
         <div ref={panelRef} className="absolute inset-0">
           {words}
           {stats}
@@ -749,7 +768,6 @@ function BoldBrilliantBeautiful() {
     </div>
   )
 }
-
 
 /** Figma: "Frame 1000003355" — node 3390:26429, cards nodes 3390:26539 … 26549 */
 function Pillars() {
@@ -834,19 +852,19 @@ function Stages() {
             className="stages-glow pointer-events-none absolute inset-x-[-6%] top-[8%] h-[70%]"
           />
           <ul className="relative grid w-full gap-lg md:grid-cols-3">
-          {STAGES.map((stage, i) => (
-            <li key={stage.title}>
-              <Reveal index={i}>
-                <Card src={stage.src} alt={stage.title} aspect="verticalMedium" scrim>
-                  <div className="flex size-full items-end justify-center">
-                    <Typography variant="subHeaderSmall" as="h3" className="text-on-dark">
-                      {stage.title}
-                    </Typography>
-                  </div>
-                </Card>
-              </Reveal>
-            </li>
-          ))}
+            {STAGES.map((stage, i) => (
+              <li key={stage.title}>
+                <Reveal index={i}>
+                  <Card src={stage.src} alt={stage.title} aspect="verticalMedium" scrim>
+                    <div className="flex size-full items-end justify-center">
+                      <Typography variant="subHeaderSmall" as="h3" className="text-on-dark">
+                        {stage.title}
+                      </Typography>
+                    </div>
+                  </Card>
+                </Reveal>
+              </li>
+            ))}
           </ul>
         </div>
       </div>
@@ -929,50 +947,50 @@ function Work() {
             return (
               <li key={`${project.name}-${i}`} className="border-b border-divider">
                 <Reveal index={i}>
-                <a
-                  href="#"
-                  onMouseEnter={() => setActive(i)}
-                  onMouseLeave={() => clear(i)}
-                  onFocus={() => setActive(i)}
-                  onBlur={() => clear(i)}
-                  className="flex items-center justify-between gap-lg py-md"
-                >
-                  <div className="flex flex-col gap-lg">
-                    <div className="flex flex-col gap-sm">
-                      <Typography variant="copyLarge" as="h3">
-                        {project.name}
-                      </Typography>
-                      <Typography variant="copyMedium" muted>
-                        {project.description}
-                      </Typography>
+                  <a
+                    href="#"
+                    onMouseEnter={() => setActive(i)}
+                    onMouseLeave={() => clear(i)}
+                    onFocus={() => setActive(i)}
+                    onBlur={() => clear(i)}
+                    className="flex items-center justify-between gap-lg py-md"
+                  >
+                    <div className="flex flex-col gap-lg">
+                      <div className="flex flex-col gap-sm">
+                        <Typography variant="copyLarge" as="h3">
+                          {project.name}
+                        </Typography>
+                        <Typography variant="copyMedium" muted>
+                          {project.description}
+                        </Typography>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-sm">
+                        {project.tags.map((tag) => (
+                          <Tag key={tag}>{tag}</Tag>
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex flex-wrap items-center gap-sm">
-                      {project.tags.map((tag) => (
-                        <Tag key={tag}>{tag}</Tag>
-                      ))}
-                    </div>
-                  </div>
 
-                  <div className="relative hidden h-[120px] w-[201px] shrink-0 overflow-hidden rounded-md sm:block">
-                    <img
-                      src={project.thumb}
-                      alt=""
-                      aria-hidden="true"
-                      className="absolute inset-0 size-full object-cover"
-                    />
-                    {/* Scrim + CTA. `as="span"` because this sits inside the row link. */}
-                    <fm.div
-                      className="absolute inset-0 flex items-center justify-center bg-scrim-strong"
-                      initial={false}
-                      animate={{ opacity: isActive ? 1 : 0 }}
-                      transition={transition}
-                    >
-                      <Button as="span" variant="tertiary" tone="onDark">
-                        Learn more
-                      </Button>
-                    </fm.div>
-                  </div>
-                </a>
+                    <div className="relative hidden h-[120px] w-[201px] shrink-0 overflow-hidden rounded-md sm:block">
+                      <img
+                        src={project.thumb}
+                        alt=""
+                        aria-hidden="true"
+                        className="absolute inset-0 size-full object-cover"
+                      />
+                      {/* Scrim + CTA. `as="span"` because this sits inside the row link. */}
+                      <fm.div
+                        className="absolute inset-0 flex items-center justify-center bg-scrim-strong"
+                        initial={false}
+                        animate={{ opacity: isActive ? 1 : 0 }}
+                        transition={transition}
+                      >
+                        <Button as="span" variant="tertiary" tone="onDark">
+                          Learn more
+                        </Button>
+                      </fm.div>
+                    </div>
+                  </a>
                 </Reveal>
               </li>
             )
@@ -1130,11 +1148,7 @@ function Partner() {
         className="pointer-events-none absolute bottom-0 left-1/2 w-[70%] -translate-x-1/2"
       />
       {/* Same colour as an unselected offering, so the band reads as one family. */}
-      <Marquee
-        speed="marqueeSlow"
-        gapClassName="gap-lg"
-        className="relative pb-md text-accent-400"
-      >
+      <Marquee speed="marqueeSlow" gapClassName="gap-lg" className="relative pb-md text-accent-400">
         {VALUES.map((value) => (
           <Typography key={value} variant="h1" as="span" className="whitespace-nowrap">
             {value}
@@ -1187,59 +1201,18 @@ function Partner() {
 }
 
 /**
- * WorkToOfferings — the light band and the offerings scene share ONE animated
- * ground so the change from white to turquoise happens as a single crossfade
- * across the whole viewport.
- *
- * This mirrors how the highlight scene hands over to the light section above:
- * there, a pinned panel's own background colour animates, so the entire screen
- * changes at once and there is never a moment with both colours on it.
- *
- * A vertical gradient cannot do that. Even a well-eased one puts white at the
- * top of the screen and turquoise at the bottom simultaneously, which reads as
- * a band travelling through the page rather than as the page changing colour.
- *
- * The marker is a zero-height element at the boundary; tracking it from
- * 'start end' to 'start start' gives progress across exactly the viewport-height
- * of scroll before the offerings panel pins, which is the window the crossfade
- * has to finish in.
+ * Work -> Offerings. The ground goes cream to accent as the boundary between
+ * the two sections crosses the viewport; see `GroundCrossfade`.
  */
 function WorkToOfferings() {
-  const markerRef = useRef<HTMLDivElement>(null)
-  const prefersReduced = useReducedMotion()
-  const { scrollYProgress: rawProgress } = useScroll({
-    target: markerRef,
-    offset: ['start end', 'start start'],
-  })
-  const scrollYProgress = useLaggedProgress(rawProgress)
-
-  const background = useTransform(
-    scrollYProgress,
-    [
-      motionTokens.offeringScene.groundFade.start,
-      motionTokens.offeringScene.groundFade.end,
-    ],
-    [colorTokens.background.surface, colorTokens.background.accent],
-  )
-
-  if (prefersReduced) {
-    return (
-      <>
-        <div className="bg-surface">
-          <Work />
-        </div>
-        <Partner />
-      </>
-    )
-  }
-
   return (
-    <fm.div style={{ backgroundColor: background }}>
-      <Work />
-      {/* Zero-height boundary marker the crossfade is timed against. */}
-      <div ref={markerRef} aria-hidden className="h-0" />
-      <Partner />
-    </fm.div>
+    <GroundCrossfade
+      from={colorTokens.background.surface}
+      to={colorTokens.background.accent}
+      fade={motionTokens.offeringScene.groundFade}
+      above={<Work />}
+      below={<Partner />}
+    />
   )
 }
 

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Button, Container, ParallaxSection, Reveal, Section, Typography } from '@/components'
 import { asset } from '@/lib/asset'
 
@@ -43,7 +44,7 @@ export function ClosingCta() {
                 <br />
                 what you’re building
               </Typography>
-              <Button as="a" href="#" variant="secondary" tone="onDark">
+              <Button as={Link} to="/contact" variant="secondary" tone="onDark">
                 Let’s talk!
               </Button>
             </div>

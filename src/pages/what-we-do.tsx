@@ -16,13 +16,9 @@
  * at each use. The three service photographs ARE the real exports.
  */
 import { Fragment } from 'react'
-import {
-  Button,
-  Eyebrow,
-  Reveal,
-  Section,
-  Typography,
-} from '@/components'
+import { Link } from 'react-router-dom'
+import { Button, Eyebrow, HeroIntro, Reveal, Section, Typography } from '@/components'
+import { Packaging } from '@/components/sections'
 import { PageShell } from '@/components/layout'
 import { gradients } from '@/tokens'
 import { cn } from '@/lib/cn'
@@ -36,6 +32,7 @@ import { asset } from '@/lib/asset'
 const SERVICES = [
   {
     title: 'Advisory',
+    to: '/advisory',
     body:
       'Gives leadership teams an honest technical read and a plan they can execute: AI ' +
       'strategy and roadmaps, technology due diligence for M&A and investment, and the ' +
@@ -55,6 +52,7 @@ const SERVICES = [
   },
   {
     title: 'Product & AI Development',
+    to: '/product-development',
     body:
       'Brilliant product thinking coupled with end-to-end AI systems: the data ' +
       'underneath, the guardrails around it, and the agents and products people actually ' +
@@ -76,6 +74,7 @@ const SERVICES = [
   },
   {
     title: 'Teams',
+    to: '/teams',
     body:
       'Senior engineering, design, and data talent who ship with agents day to day, ' +
       'sourced and fully managed by us. You get our team as an added layer ensuring their ' +
@@ -122,7 +121,10 @@ const COVERAGE: Record<string, readonly string[]> = {
   'Type B Digital': MATRIX_COLUMNS,
 }
 
-/** Figma: node 3604:1261 */
+/**
+ * Figma: node 3604:1261 — identical to the service pages' table, but this page
+ * owns the copy since it is the one that introduces the three lines.
+ */
 const PACKAGES = [
   {
     title: 'Type B Digital',
@@ -184,32 +186,35 @@ const PROCESS = [
  */
 function Hero() {
   return (
-    <section
-      className="relative flex h-[720px] items-center overflow-hidden"
-      style={{ backgroundImage: `linear-gradient(116.67deg, ${gradients.b2Stops})` }}
-    >
-      <img
-        src={asset('/vectors/hero-circles.svg')}
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[640px] w-[1440px] max-w-none -translate-x-1/2 -translate-y-1/2"
-      />
-      {/* 120px inset on the artboard, wider than the 80px page margin. */}
-      <div className="relative w-full px-md md:px-xl xl:pl-[120px] xl:pr-4xl">
-        <Reveal>
-          <div className="flex max-w-[720px] flex-col gap-md text-on-light">
-            <Typography variant="h1" className="text-h2 md:text-h1">
-              What We Do
-            </Typography>
-            <Typography variant="copyLarge" muted className="tracking-[-0.01em]">
-              We work three ways: Advisory for the plan, Product &amp; AI Development for the
-              build, and Teams for senior capacity we stay accountable for. Need all three at
-              once? We run advisory, build, and a managed team as one accountable program.
-            </Typography>
-          </div>
-        </Reveal>
-      </div>
-    </section>
+    <HeroIntro>
+      {/* Fades up on load; see HeroIntro. */}
+      <section
+        className="relative flex h-[720px] items-center overflow-hidden"
+        style={{ backgroundImage: `linear-gradient(116.67deg, ${gradients.b2Stops})` }}
+      >
+        <img
+          src={asset('/vectors/hero-circles.svg')}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[640px] w-[1440px] max-w-none -translate-x-1/2 -translate-y-1/2"
+        />
+        {/* 120px inset on the artboard, wider than the 80px page margin. */}
+        <div className="relative w-full px-md md:px-xl xl:pl-[120px] xl:pr-4xl">
+          <Reveal>
+            <div className="flex max-w-[720px] flex-col gap-md text-on-light">
+              <Typography variant="h1" className="text-h2 md:text-h1">
+                What We Do
+              </Typography>
+              <Typography variant="copyLarge" muted className="tracking-[-0.01em]">
+                We work three ways: Advisory for the plan, Product &amp; AI Development for the
+                build, and Teams for senior capacity we stay accountable for. Need all three at
+                once? We run advisory, build, and a managed team as one accountable program.
+              </Typography>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+    </HeroIntro>
   )
 }
 
@@ -260,14 +265,24 @@ function ServiceBlock({ service }: { service: (typeof SERVICES)[number] }) {
         <Reveal>
           <div className="flex flex-col items-start gap-lg lg:flex-row lg:items-end lg:justify-between">
             <div className="flex max-w-[640px] flex-col gap-md">
+              {/* The heading is the section's own link, not just the CTA
+                  beside it — it is by far the larger target. */}
               <Typography variant="h2" className="text-h3 md:text-h2">
-                {service.title}
+                <Link to={service.to} className="hover:underline">
+                  {service.title}
+                </Link>
               </Typography>
               <Typography variant="copyMedium" muted>
                 {service.body}
               </Typography>
             </div>
-            <Button as="a" href="#" variant="secondary" tone="onLight" className="shrink-0">
+            <Button
+              as={Link}
+              to={service.to}
+              variant="secondary"
+              tone="onLight"
+              className="shrink-0"
+            >
               Learn more
             </Button>
           </div>
@@ -399,91 +414,12 @@ function WhyWeExist() {
             {/* Column labels sit below the grid on the artboard (node 3604:1249). */}
             <span aria-hidden />
             {MATRIX_COLUMNS.map((column) => (
-              <Typography
-                key={column}
-                variant="copyMedium"
-                as="span"
-                muted
-                className="text-center"
-              >
+              <Typography key={column} variant="copyMedium" as="span" muted className="text-center">
                 {column}
               </Typography>
             ))}
           </div>
         </Reveal>
-      </div>
-    </Section>
-  )
-}
-
-/**
- * How we package it — Figma node 3604:1255. Four columns: the first names the
- * three practices, the rest are the Entry / Core / Expanded tiers.
- *
- * The lead column is a dark card; the tiers are open with a rule above and
- * below. Notes are italic. Spacing is a three-part column — icon, then the
- * title block, then the items — with the items pushed to the bottom so all four
- * columns end on the same line whatever their copy length.
- *
- * ⚠ The artboard uses icon-set instances (Chart_Line, House_02, Heart_01,
- * Mobile_Button) that are not exported here; each column shows a placeholder mark.
- */
-function Packaging() {
-  return (
-    <Section tone="light" spacing="loose">
-      <div className="flex flex-col gap-4xl">
-        <Reveal>
-          <div className="flex max-w-[549px] flex-col items-start gap-md">
-            <Eyebrow tone="onLight">How we package it</Eyebrow>
-            <Typography variant="h2" className="text-h3 md:text-h2">
-              Three lines. Entry, Core, or Expanded.
-            </Typography>
-          </div>
-        </Reveal>
-
-        <ul className="grid items-stretch gap-lg md:grid-cols-2 xl:grid-cols-4">
-          {PACKAGES.map((pkg, i) => (
-            <li key={pkg.title}>
-              <Reveal index={i} className="h-full">
-                <div
-                  className={cn(
-                    'flex h-full flex-col justify-between gap-3xl',
-                    pkg.lead
-                      ? 'rounded-md bg-canvas p-lg text-on-dark'
-                      : 'border-y border-divider py-lg',
-                  )}
-                >
-                  <div className="flex flex-col gap-3xl">
-                    <span
-                      aria-hidden
-                      className={cn(
-                        'size-lg rounded-sm',
-                        pkg.lead ? 'bg-paper/25' : 'bg-neutral-900/15',
-                      )}
-                    />
-                    <div className="flex flex-col gap-xs">
-                      <Typography variant="copyLarge" as="h3">
-                        {pkg.title}
-                      </Typography>
-                      <Typography variant="copySmall" muted className="italic">
-                        {pkg.note}
-                      </Typography>
-                    </div>
-                  </div>
-                  <ul className="flex flex-col gap-lg">
-                    {pkg.items.map((item) => (
-                      <li key={item}>
-                        <Typography variant="copyMedium" as="span">
-                          {item}
-                        </Typography>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </Reveal>
-            </li>
-          ))}
-        </ul>
       </div>
     </Section>
   )
@@ -551,7 +487,7 @@ export function WhatWeDoPage() {
         <ServiceBlock key={service.title} service={service} />
       ))}
       <WhyWeExist />
-      <Packaging />
+      <Packaging tiers={PACKAGES} spacing="loose" />
       <ManagedEndToEnd />
     </PageShell>
   )

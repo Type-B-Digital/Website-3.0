@@ -1,4 +1,14 @@
-import { Accordion, Button, Eyebrow, Marquee, Reveal, Section, Typography } from '@/components'
+import { Link } from 'react-router-dom'
+import {
+  Button,
+  Eyebrow,
+  FaqSection,
+  HeroIntro,
+  Reveal,
+  Section,
+  Typography,
+  ValuesMarquee,
+} from '@/components'
 import { PageShell } from '@/components/layout'
 import { gradients, palette } from '@/tokens'
 import { cn } from '@/lib/cn'
@@ -74,6 +84,7 @@ const COL_START: Record<number, string> = {
 const INDUSTRIES = [
   {
     title: 'Healthcare & Life Sciences',
+    to: '/industries/healthcare',
     result: 'Three AI agents in production at MatchDay Health, & conversion rose by 20%.',
     gradient: gradients.industry.healthcare,
     column: 7,
@@ -83,15 +94,18 @@ const INDUSTRIES = [
     result: 'Ferry Pay’s app rating rose from 2.0 to 4.8 while support contacts fell to 4%.',
     gradient: gradients.industry.financial,
     column: 9,
+    to: '/industries/financial-services',
   },
   {
     title: 'Real Estate & PropTech',
+    to: '/industries/real-estate',
     result: 'Mave AI ships roughly 45% faster with QA coverage up from 20% to 80%.',
     gradient: gradients.industry.realEstate,
     column: 8,
   },
   {
     title: 'Manufacturing, Trade & Logistics',
+    to: '/industries/manufacturing',
     result:
       'Class.fi cut compliance cost 70%; UDM digitized 100% of manual workflows in eight weeks.',
     gradient: gradients.industry.manufacturing,
@@ -99,22 +113,12 @@ const INDUSTRIES = [
   },
   {
     title: 'Legal Professional Services',
+    to: '/industries/legal',
     result: 'Three AI agents in production at MatchDay Health, & conversion rose by 20%.',
     gradient: gradients.industry.legal,
     column: 9,
   },
 ] as const
-
-/** Figma: node 3390:26760, as on the homepage. */
-const VALUES = [
-  'Wise',
-  'Curious',
-  'Reliable',
-  'Relentless',
-  'Adaptable',
-  'Optimistic',
-  'Approachable',
-]
 
 /**
  * FAQ copy — Figma nodes 2894:14483 / 14488 / 14493 supply the questions; the
@@ -146,35 +150,38 @@ const FAQ = [
 /** Figma: node 2894:14354. Type only — this page has no hero artwork. */
 function Hero() {
   return (
-    <Section
-      tone="none"
-      spacing="none"
-      /* Artboard: hero block at y=232, first row at y=697 — a 160px gap
-         below the CTA. 160 is 2x the 80px band rhythm, so it is expressed
-         through the token rather than as a literal, as Section does. */
-      className="pb-[calc(theme(spacing.4xl)*2)] pt-[232px] text-on-light"
-    >
-      <Reveal>
-        {/* gap-xl between the copy block and the CTA; gap-md inside it (2894:14355). */}
-        <div className="flex max-w-[800px] flex-col items-start gap-xl">
-          <div className="flex flex-col items-start gap-md">
-            {/* Ink chip here, not the amber one used elsewhere — node 2894:14356. */}
-            <Eyebrow tone="ink">Industry leadership</Eyebrow>
-            <Typography variant="h1" className="text-h2 md:text-h1">
-              Where we go deepest
-            </Typography>
-            <Typography variant="copyLarge" muted>
-              We build AI and software for regulated and operations-heavy industries: healthcare
-              and life sciences, financial services and insurance, real estate, manufacturing and
-              trade, and legal and professional services.
-            </Typography>
+    <HeroIntro>
+      {/* Fades up on load; see HeroIntro. */}
+      <Section
+        tone="none"
+        spacing="none"
+        /* Artboard: hero block at y=232, first row at y=697 — a 160px gap
+           below the CTA. 160 is 2x the 80px band rhythm, so it is expressed
+           through the token rather than as a literal, as Section does. */
+        className="pb-[calc(theme(spacing.4xl)*2)] pt-[232px] text-on-light"
+      >
+        <Reveal>
+          {/* gap-xl between the copy block and the CTA; gap-md inside it (2894:14355). */}
+          <div className="flex max-w-[800px] flex-col items-start gap-xl">
+            <div className="flex flex-col items-start gap-md">
+              {/* Ink chip here, not the amber one used elsewhere — node 2894:14356. */}
+              <Eyebrow tone="ink">Industry leadership</Eyebrow>
+              <Typography variant="h1" className="text-h2 md:text-h1">
+                Where we go deepest
+              </Typography>
+              <Typography variant="copyLarge" muted>
+                We build AI and software for regulated and operations-heavy industries: healthcare
+                and life sciences, financial services and insurance, real estate, manufacturing and
+                trade, and legal and professional services.
+              </Typography>
+            </div>
+            <Button as={Link} to="/contact" variant="secondary" tone="onLight">
+              Book an AI assessment
+            </Button>
           </div>
-          <Button as="a" href="#contact" variant="secondary" tone="onLight">
-            Book an AI assessment
-          </Button>
-        </div>
-      </Reveal>
-    </Section>
+        </Reveal>
+      </Section>
+    </HeroIntro>
   )
 }
 
@@ -193,14 +200,17 @@ function IndustryRow({ industry }: { industry: (typeof INDUSTRIES)[number] }) {
         <Reveal className="lg:col-span-4 lg:col-start-1">
           <div className="flex flex-col items-start gap-2xl">
             <div className="flex flex-col gap-md">
+              {/* As on What We Do: the heading links, not only the CTA. */}
               <Typography variant="h2" className="text-h3 md:text-h2">
-                {industry.title}
+                <Link to={industry.to} className="hover:underline">
+                  {industry.title}
+                </Link>
               </Typography>
               <Typography variant="copyMedium" muted>
                 {industry.result}
               </Typography>
             </div>
-            <Button as="a" href="#" variant="secondary" tone="onLight">
+            <Button as={Link} to={industry.to} variant="secondary" tone="onLight">
               Learn more
             </Button>
           </div>
@@ -223,64 +233,6 @@ function IndustryRow({ industry }: { industry: (typeof INDUSTRIES)[number] }) {
   )
 }
 
-/** Figma: node 2894:14477. The one interactive element on the page. */
-function Faq() {
-  return (
-    <Section
-      tone="none"
-      spacing="none"
-      /* Artboard: last row ends at y=2937, the FAQ heading sits at 3177 —
-         a 240px gap, three times the 80px band rhythm. */
-      className="pb-4xl pt-[calc(theme(spacing.4xl)*3)] text-on-light"
-    >
-      <div className="flex flex-col gap-2xl">
-        <Reveal>
-          <Typography variant="h2" className="text-h3 md:text-h2">
-            FAQ
-          </Typography>
-        </Reveal>
-        <Reveal index={1}>
-          <Accordion items={FAQ} />
-        </Reveal>
-      </div>
-    </Section>
-  )
-}
-
-/**
- * The values marquee. Figma: node 2894:14365, sitting directly on the page
- * ground at turquoise.300 — sampled from the artboard glyphs, exactly
- * `#709BA0`.
- *
- * The homepage draws this inside the turquoise "How we partner" band with the
- * values-arc vector behind it; here the page ground has already faded to
- * turquoise.100, so the band and the arc are both absent.
- */
-function ValuesMarquee() {
-  return (
-    /*
-      240 above (the FAQ section supplies 80 of it) keeps this on the same
-      80px rhythm as the rest of the page; the artboard gap is 225, the
-      difference being slack in its own FAQ frame — see BUILD_LOG.
-
-      16 below, matching the homepage: artboard has the marquee ending at
-      3831 and the CTA band opening at 3847.
-    */
-    <div className="pb-md pt-[calc(theme(spacing.4xl)*2)]">
-      <Marquee speed="marqueeSlow" gapClassName="gap-lg" className="text-accent-300">
-        {VALUES.map((value) => (
-          <Typography key={value} variant="h1" as="span" className="whitespace-nowrap">
-            {value}
-            <span aria-hidden className="pl-lg opacity-muted">
-              ·
-            </span>
-          </Typography>
-        ))}
-      </Marquee>
-    </div>
-  )
-}
-
 export function IndustriesPage() {
   return (
     <PageShell headerTone="onLight">
@@ -298,7 +250,9 @@ export function IndustriesPage() {
             <IndustryRow key={industry.title} industry={industry} />
           ))}
         </div>
-        <Faq />
+        {/* Artboard: last row ends at y=2937, the FAQ heading sits at 3177 —
+            a 240px gap, three times the 80px band rhythm. */}
+        <FaqSection items={FAQ} className="pb-4xl pt-[calc(theme(spacing.4xl)*3)]" />
         <ValuesMarquee />
       </div>
     </PageShell>

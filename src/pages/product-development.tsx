@@ -1,6 +1,8 @@
+import { Link } from 'react-router-dom'
 import { Button } from '@/components'
 import {
   CapabilityGrid,
+  ContentPage,
   EngagementSteps,
   FeaturedCase,
   IdealCustomerProfiles,
@@ -8,16 +10,16 @@ import {
   Packaging,
   RelatedServices,
   ServiceHero,
-  ServicePage,
   StaggeredCards,
-} from '@/components/service'
+} from '@/components/sections'
+import { CAPABILITIES, TIERS, related } from './service-content'
 
 /**
  * Product & AI Development — Figma node 3141:2722
  * https://www.figma.com/design/LASrWn0jXyj5nBaphi2jgI/TypeB-Creative-Exploration?node-id=3141-2722
  *
  * The first of the three service pages, and the one the artboard draws in
- * full. Everything structural lives in `@/components/service`; this file is the
+ * full. Everything structural lives in `@/components/sections`; this file is the
  * content.
  */
 
@@ -46,7 +48,12 @@ const PROFILES = [
   },
   {
     title: 'Funded founders needing an investor-ready build',
-    points: ['Discovery & Prototype', 'MVP build', 'Brand and marketing site', 'AI features in the product'],
+    points: [
+      'Discovery & Prototype',
+      'MVP build',
+      'Brand and marketing site',
+      'AI features in the product',
+    ],
     body: 'The round closed against a roadmap and the next board meeting has a date on it. You need something real, not a deck.',
     roles: ['Non-Technical Repeat Founder', 'CEO', 'First Product Hire'],
   },
@@ -77,33 +84,6 @@ const PROFILES = [
     ],
     body: 'Paper cards, Excel, and one veteran employee as the only documentation. It works until you try to grow.',
     roles: ['CEO', 'COO', 'Board', 'Plant Ops. Manager'],
-  },
-]
-
-const CAPABILITIES = [
-  {
-    title: 'Conversational & Voice',
-    body: 'We assess where agents would carry real customer or internal conversations, and what your content and data would need to be for them to be accurate. Scored on volume, sensitivity, and containment potential.',
-  },
-  {
-    title: 'Autonomous Agents',
-    body: 'We identify the workflows where an agent should take action across your tools rather than answer questions, and where a human gate belongs. Scored on decision reversibility and audit requirements.',
-  },
-  {
-    title: 'Search & RAG',
-    body: 'We scope grounded answers over your own knowledge, leveraging repositories clean enough to ground on. The output is a scored use-case roadmap, and every later phase quotes from it.',
-  },
-  {
-    title: 'Document & Vision AI',
-    body: 'We find the document queues that consume the most hours (intake, claims, compliance research, QC) and size the extraction opportunity against error tolerance.',
-  },
-  {
-    title: 'Workflow Automation',
-    body: 'We map the multi-step processes that could run end to end and the ones that should not, with the people who own each step in the room.',
-  },
-  {
-    title: 'Analytics & Forecast',
-    body: 'We assess whether your data foundations can support predictions everyone would trust, and what has to be true first in order to achieve it.',
   },
 ]
 
@@ -152,48 +132,6 @@ const SOVEREIGN = [
   },
 ]
 
-const TIERS = [
-  {
-    title: 'Type B Digital',
-    note: 'Build the agent workflows.',
-    items: ['Advisory', 'Product & AI Development', 'Teams'],
-    lead: true,
-  },
-  {
-    title: 'Entry',
-    note: 'Find out what is true, at a fixed scope.',
-    items: ['Architecture Audit & Roadmap (2w)', 'AI Assessment or Discovery', 'Pod Starter'],
-  },
-  {
-    title: 'Core',
-    note: 'The working engagement most clients run.',
-    items: ['Diligence & 90-Day Roadmap', 'Product Build or AI Safety Net', 'Delivery Pod (4 to 6 people)'],
-  },
-  {
-    title: 'Expanded',
-    note: 'A program we own with you.',
-    items: ['Fractional Leadership', 'Sovereign AI Platform', 'Managed Delivery Squad (6+ people)'],
-  },
-]
-
-const RELATED = [
-  {
-    title: 'Product & AI Development',
-    body: 'We build the agents, products, and governance around them.',
-    image: '/images/services/product.png',
-  },
-  {
-    title: 'Teams',
-    body: 'We embed senior pods managed by us, in weeks.',
-    image: '/images/services/teams.png',
-  },
-  {
-    title: 'Financial Services & Insurance',
-    body: 'Where our diligence and governance work lands often.',
-    image: '/images/services/advisory.png',
-  },
-]
-
 /** ⚠ Answers are placeholders — the artboard draws every row collapsed. */
 const FAQ = [
   {
@@ -230,7 +168,7 @@ const FAQ = [
 
 export function ProductDevelopmentPage() {
   return (
-    <ServicePage
+    <ContentPage
       faq={FAQ}
       testimonial={{
         quote:
@@ -245,7 +183,7 @@ export function ProductDevelopmentPage() {
         body="Data-driven UX, engineering across web and mobile, and AI systems with guardrails around them. Agents draft code and test inside our SDLC; senior engineers review everything and own the architecture. You own the code, the data, and the IP."
         image="/images/services/product-hero.jpg"
         cta={
-          <Button as="a" href="/contact" variant="secondary" tone="onLight">
+          <Button as={Link} to="/contact" variant="secondary" tone="onLight">
             Start with an AI assessment or discovery
           </Button>
         }
@@ -278,7 +216,19 @@ export function ProductDevelopmentPage() {
 
       <Packaging tiers={TIERS} />
 
-      <RelatedServices services={RELATED} />
+      {/*
+        ⚠ The artboard's Related row on this page is a copy of Advisory's and
+        lists Product & AI Development — i.e. this page — as the first card.
+        Swapped for Advisory, which is what the row plainly means; the other
+        two cards and their copy are the artboard's.
+      */}
+      <RelatedServices
+        services={related(
+          ['advisory', 'Fractional leadership and the roadmap the build executes against.'],
+          ['teams', 'We embed senior pods managed by us, in weeks.'],
+          ['financial', 'Where our diligence and governance work lands often.'],
+        )}
+      />
 
       <FeaturedCase
         name="Class.fi"
@@ -286,7 +236,7 @@ export function ProductDevelopmentPage() {
         body="We delivered an audit of the existing platform, a roadmap to the desired end state, the brand, marketing site, product UX, and AI integration. The beta launched with real users signing up and giving raving feedback."
         image="/images/services/product-featured.jpg"
       />
-    </ServicePage>
+    </ContentPage>
   )
 }
 

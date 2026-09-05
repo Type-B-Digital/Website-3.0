@@ -1,12 +1,22 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { ScrollToTop } from '@/components'
 import HomePage from '@/pages/index'
+import AdvisoryPage from '@/pages/advisory'
 import CareersPage from '@/pages/careers'
 import ContactPage from '@/pages/contact'
 import CulturePage from '@/pages/culture'
+import FinancialServicesPage from '@/pages/financial-services'
+import HealthcarePage from '@/pages/healthcare'
+import LegalPage from '@/pages/legal'
+import ManufacturingPage from '@/pages/manufacturing'
+import RealEstatePage from '@/pages/real-estate'
 import ProductDevelopmentPage from '@/pages/product-development'
 import IndustriesPage from '@/pages/industries'
+import FerryPayPage from '@/pages/ferry-pay'
+import OurWorkPage from '@/pages/our-work'
+import TeamsPage from '@/pages/teams'
 import WhatWeDoPage from '@/pages/what-we-do'
 import '@/styles/globals.css'
 
@@ -25,14 +35,26 @@ const basename = import.meta.env.BASE_URL.replace(/\/$/, '')
 createRoot(container).render(
   <StrictMode>
     <BrowserRouter basename={basename}>
+      {/* A new route starts at the top; see ScrollToTop for why not on POP. */}
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/what-we-do" element={<WhatWeDoPage />} />
         <Route path="/industries" element={<IndustriesPage />} />
+        {/* The five industry sub-pages, in the order the Industries page lists them. */}
+        <Route path="/industries/healthcare" element={<HealthcarePage />} />
+        <Route path="/industries/financial-services" element={<FinancialServicesPage />} />
+        <Route path="/industries/real-estate" element={<RealEstatePage />} />
+        <Route path="/industries/manufacturing" element={<ManufacturingPage />} />
+        <Route path="/industries/legal" element={<LegalPage />} />
+        <Route path="/our-work" element={<OurWorkPage />} />
+        <Route path="/our-work/ferry-pay" element={<FerryPayPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/careers" element={<CareersPage />} />
         <Route path="/culture" element={<CulturePage />} />
+        <Route path="/advisory" element={<AdvisoryPage />} />
         <Route path="/product-development" element={<ProductDevelopmentPage />} />
+        <Route path="/teams" element={<TeamsPage />} />
       </Routes>
     </BrowserRouter>
     {/*

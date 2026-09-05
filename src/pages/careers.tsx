@@ -5,24 +5,24 @@ import {
   motion as fm,
   useMotionValue,
   useReducedMotion,
-  useScroll,
   useTransform,
   type AnimationPlaybackControls,
 } from 'framer-motion'
 import {
-  Accordion,
   Eyebrow,
-  Marquee,
+  FaqSection,
+  GroundCrossfade,
+  HeroIntro,
   Reveal,
   Section,
   Tabs,
   Typography,
+  ValuesMarquee,
 } from '@/components'
 import { PageShell } from '@/components/layout'
 import { colors as colorTokens, motion as motionTokens, palette } from '@/tokens'
 import { asset } from '@/lib/asset'
 import { cn } from '@/lib/cn'
-import { useLaggedProgress } from '@/lib/useLaggedProgress'
 
 /**
  * Careers — Figma node 2767:1908 ("7. Careers")
@@ -122,11 +122,7 @@ const ROLE_TABS = [
 ]
 
 const ROLES: Record<string, readonly string[]> = {
-  engineering: [
-    'Senior full stack developer',
-    'Senior backend developer',
-    'Senior QA engineer',
-  ],
+  engineering: ['Senior full stack developer', 'Senior backend developer', 'Senior QA engineer'],
   design: ['Senior product designer', 'Design systems lead'],
   sales: ['Enterprise account executive'],
 }
@@ -168,17 +164,6 @@ const FAQ = [
   },
 ]
 
-/** Figma: node 3638:9404. */
-const VALUES = [
-  'Wise',
-  'Curious',
-  'Reliable',
-  'Relentless',
-  'Adaptable',
-  'Optimistic',
-  'Approachable',
-]
-
 /* ================================================================== *
  * SECTIONS
  * ================================================================== */
@@ -186,16 +171,19 @@ const VALUES = [
 /** Figma: node 3638:9348 — eyebrow and headline, centred. */
 function Hero() {
   return (
-    <Section tone="none" spacing="none" className="pt-[232px] text-on-light">
-      <Reveal>
-        <div className="mx-auto flex max-w-[800px] flex-col items-center gap-md text-center">
-          <Eyebrow tone="ink">Careers</Eyebrow>
-          <Typography variant="h1" className="text-h2 md:text-h1">
-            Work with the best
-          </Typography>
-        </div>
-      </Reveal>
-    </Section>
+    <HeroIntro>
+      {/* Fades up on load; see HeroIntro. */}
+      <Section tone="none" spacing="none" className="pt-[232px] text-on-light">
+        <Reveal>
+          <div className="mx-auto flex max-w-[800px] flex-col items-center gap-md text-center">
+            <Eyebrow tone="ink">Careers</Eyebrow>
+            <Typography variant="h1" className="text-h2 md:text-h1">
+              Work with the best
+            </Typography>
+          </div>
+        </Reveal>
+      </Section>
+    </HeroIntro>
   )
 }
 
@@ -289,7 +277,7 @@ function HeroCarousel() {
                 outline into mush.
               */}
               <AnimatePresence mode="wait" initial={false}>
-              {/*
+                {/*
                 Outlined, not filled: the artboard sets a transparent fill
                 (node 3638:9412) and the outline comes from a 1px ink stroke
                 that the Figma export drops. `-webkit-text-stroke` is the only
@@ -307,9 +295,7 @@ function HeroCarousel() {
                       ? undefined
                       : { opacity: 0, y: reveal.distance, filter: `blur(${reveal.feather}px)` }
                   }
-                  animate={
-                    prefersReduced ? undefined : { opacity: 1, y: 0, filter: 'blur(0px)' }
-                  }
+                  animate={prefersReduced ? undefined : { opacity: 1, y: 0, filter: 'blur(0px)' }}
                   exit={
                     prefersReduced
                       ? undefined
@@ -562,124 +548,28 @@ function OpenRoles() {
   )
 }
 
-/** Figma: node 3638:9369. Six questions, on ink. */
-function Faq() {
-  return (
-    <Section tone="none" spacing="none" className="pb-5xl text-on-dark">
-      <div className="flex flex-col gap-2xl">
-        <Reveal>
-          <Typography variant="h2" className="text-h3 text-white md:text-h2">
-            FAQ
-          </Typography>
-        </Reveal>
-        <Reveal index={1}>
-          <Accordion items={FAQ} tone="onDark" />
-        </Reveal>
-      </div>
-    </Section>
-  )
-}
-
 /**
- * Figma: node 3638:9404. On ink here, so the accent runs dark rather than the
- * accent.300 the light pages use — measured `#19313C` on the artboard, which
- * sits between accent.800 and accent.700; accent.800 is the exact ramp value.
- */
-function ValuesMarquee() {
-  return (
-    <div className="pb-md pt-[calc(theme(spacing.4xl)*2)]">
-      <Marquee speed="marqueeSlow" gapClassName="gap-lg" className="text-accent-800">
-        {VALUES.map((value) => (
-          <Typography key={value} variant="h1" as="span" className="whitespace-nowrap">
-            {value}
-            <span aria-hidden className="pl-lg opacity-muted">
-              ·
-            </span>
-          </Typography>
-        ))}
-      </Marquee>
-    </div>
-  )
-}
-
-/**
- * OurBench through the marquee share ONE animated ground, so the change from
- * warm to ink happens as a single crossfade across the whole viewport.
- *
- * This is the same construction the homepage uses for white -> turquoise
- * (`WorkToOfferings`), and for the same reason. A vertical gradient cannot do
- * it: however well eased, it puts the warm colour at the top of the screen and
- * the ink at the bottom *simultaneously*, which reads as a hard band travelling
- * down the page — a divider — rather than as the page changing colour. That is
- * exactly what the first version of this page did.
- *
- * The marker is a zero-height element on the boundary. Tracking it from
- * 'start end' to 'start start' gives progress across one viewport-height of
- * scroll before it reaches the top, which is the window the crossfade has to
- * finish in; `motion.careersGround.fade` places the change inside that window
- * so the Bench copy is gone before the ground darkens and the ink has arrived
- * before the Open Roles heading does.
+ * Our Bench -> Open Roles. Warm ground to ink, with Open Roles held at zero
+ * opacity until the ink has largely arrived — it is cream type, and it enters
+ * the viewport well before the ground darkens. See `GroundCrossfade`.
  */
 function BenchToRoles() {
-  const markerRef = useRef<HTMLDivElement>(null)
-  const prefersReduced = useReducedMotion()
-  const { scrollYProgress: raw } = useScroll({
-    target: markerRef,
-    offset: ['start end', 'start start'],
-  })
-  const progress = useLaggedProgress(raw)
-
   const { fade, contentFade } = motionTokens.careersGround
-
-  const background = useTransform(
-    progress,
-    [fade.start, fade.end],
-    [BENCH_GROUND, colorTokens.background.canvas],
-  )
-  /*
-    Open Roles is cream type. It enters the viewport well before the ground
-    darkens, so it is held at zero until the ink has largely arrived — exactly
-    the split the homepage's offerings scene uses. Everything below it (FAQ,
-    marquee) is far enough down that this has reached 1 long before it matters.
-  */
-  const contentOpacity = useTransform(
-    progress,
-    [contentFade.start, contentFade.end],
-    [0, 1],
-  )
-
-  const tail = (
-    <>
-      <Faq />
-      <ValuesMarquee />
-    </>
-  )
-
-  // No scroll-linked colour under reduced motion: each half just paints its own.
-  if (prefersReduced) {
-    return (
-      <>
-        <div style={{ backgroundColor: BENCH_GROUND }}>
-          <OurBench />
-        </div>
-        <div className="bg-canvas">
-          <OpenRoles />
-          {tail}
-        </div>
-      </>
-    )
-  }
-
   return (
-    <fm.div style={{ backgroundColor: background }}>
-      <OurBench />
-      {/* Zero-height boundary the crossfade is timed against. */}
-      <div ref={markerRef} aria-hidden className="h-0" />
-      <fm.div style={{ opacity: contentOpacity }}>
-        <OpenRoles />
-      </fm.div>
-      {tail}
-    </fm.div>
+    <GroundCrossfade
+      from={BENCH_GROUND}
+      to={colorTokens.background.canvas}
+      fade={fade}
+      contentFade={contentFade}
+      above={<OurBench />}
+      below={<OpenRoles />}
+      tail={
+        <>
+          <FaqSection items={FAQ} tone="onDark" className="pb-5xl" />
+          <ValuesMarquee tone="soft" />
+        </>
+      }
+    />
   )
 }
 

@@ -1,23 +1,26 @@
-import { useRef, useState } from 'react'
-import { motion as fm, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { useState } from 'react'
+import { useReducedMotion } from 'framer-motion'
 import {
-  Button,
   Container,
   DivergeConverge,
   Eyebrow,
   Globe,
-  Marquee,
+  GroundCrossfade,
+  HeroIntro,
+  HeroStats,
+  Hiring,
   Reveal,
   Section,
-  Typography,
+  Testimonial,
   type DivergeStage,
   type GlobeLocation,
+  Typography,
+  ValuesMarquee,
 } from '@/components'
 import { PageShell } from '@/components/layout'
 import { colors as colorTokens, motion as motionTokens, palette } from '@/tokens'
 import { asset } from '@/lib/asset'
 import { cn } from '@/lib/cn'
-import { useLaggedProgress } from '@/lib/useLaggedProgress'
 
 /**
  * Culture — Figma node 2448:3065 ("5. Culture")
@@ -138,29 +141,7 @@ const LOCATIONS: GlobeLocation[] = [
   { name: 'Hyderabad', lat: 17.39, lon: 78.49 },
 ]
 
-const VALUES = [
-  'Wise',
-  'Curious',
-  'Reliable',
-  'Relentless',
-  'Adaptable',
-  'Optimistic',
-  'Approachable',
-]
-
-const HIRING_TRAITS = [
-  'Confident, not arrogant.',
-  'Kind and approachable.',
-  'Chill and creative.',
-  'Sharp, modern, and thoughtful.',
-  'High-caliber, but still human.',
-  'Elegant solving hard problems.',
-  'Relentless in your pursuit of excellence.',
-]
-
 /** Literal classes — Tailwind never emits a computed `lg:col-start-N`. */
-const STAT_COLUMN = ['lg:col-start-4', 'lg:col-start-7', 'lg:col-start-10']
-
 /* ================================================================== *
  * SECTIONS
  * ================================================================== */
@@ -202,56 +183,42 @@ const HERO_GRADIENT =
  */
 function Hero() {
   return (
-    <Section tone="none" spacing="none" bare className="relative overflow-hidden text-on-dark">
-      <div aria-hidden className="absolute inset-0 z-0" style={{ backgroundImage: HERO_GRADIENT }} />
-      {/* Circles and rules at 8% — one path, straight off the artboard. */}
-      <img
-        src={asset('/vectors/culture/hero-grid.svg')}
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 z-0 size-full object-cover"
-      />
+    <HeroIntro>
+      {/* Fades up on load; see HeroIntro. */}
+      <Section tone="none" spacing="none" bare className="relative overflow-hidden text-on-dark">
+        <div
+          aria-hidden
+          className="absolute inset-0 z-0"
+          style={{ backgroundImage: HERO_GRADIENT }}
+        />
+        {/* Circles and rules at 8% — one path, straight off the artboard. */}
+        <img
+          src={asset('/vectors/culture/hero-grid.svg')}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 z-0 size-full object-cover"
+        />
 
-      <Container className="relative z-10 flex flex-col gap-5xl pb-5xl pt-[232px]">
-        <Reveal>
-          <div className="flex max-w-[834px] flex-col items-start gap-md">
-            <Eyebrow tone="ink">Why We Exist</Eyebrow>
-            <Typography variant="h1" className="text-h2 md:text-h1">
-              A full-service digital firm
-            </Typography>
-            <Typography variant="copyLarge" muted>
-              We are a senior team of strategists, engineers, and designers who build
-              next-generation products with AI; delivering for firms like Deloitte, HP, and
-              Medtronic. Our people and agents are deeply embedded in how we research, design, and
-              ship, with senior level own every call.
-            </Typography>
-          </div>
-        </Reveal>
+        <Container className="relative z-10 flex flex-col gap-5xl pb-5xl pt-[232px]">
+          <Reveal>
+            <div className="flex max-w-[834px] flex-col items-start gap-md">
+              <Eyebrow tone="ink">Why We Exist</Eyebrow>
+              <Typography variant="h1" className="text-h2 md:text-h1">
+                A full-service digital firm
+              </Typography>
+              <Typography variant="copyLarge" muted>
+                We are a senior team of strategists, engineers, and designers who build
+                next-generation products with AI; delivering for firms like Deloitte, HP, and
+                Medtronic. Our people and agents are deeply embedded in how we research, design, and
+                ship, with senior level own every call.
+              </Typography>
+            </div>
+          </Reveal>
 
-        <div className="grid gap-x-lg gap-y-2xl sm:grid-cols-2 lg:grid-cols-12">
-          {STATS.map((stat, i) => (
-            <Reveal
-              key={stat.label}
-              index={i}
-              /*
-                Columns 4-6, 7-9, 10-12 on both rows, so the three right edges
-                land on 708 / 1034 / 1360 exactly as the artboard has them.
-              */
-              className={cn('lg:col-span-3', STAT_COLUMN[i % 3])}
-            >
-              <div className="flex flex-col gap-sm text-right">
-                <Typography variant="h2" as="p">
-                  {stat.value}
-                </Typography>
-                <Typography variant="copySmall" muted>
-                  {stat.label}
-                </Typography>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </Container>
-    </Section>
+          <HeroStats stats={STATS} />
+        </Container>
+      </Section>
+    </HeroIntro>
   )
 }
 
@@ -334,9 +301,9 @@ function OurApproach() {
               Our Approach
             </Typography>
             <Typography variant="copyLarge" muted>
-              Every week, not every milestone: daily stand-ups, weekly written status, sprint
-              demos, and open lines on phone, email, Zoom, and Slack. On-time delivery is cited in
-              six of our seven Clutch reviews.
+              Every week, not every milestone: daily stand-ups, weekly written status, sprint demos,
+              and open lines on phone, email, Zoom, and Slack. On-time delivery is cited in six of
+              our seven Clutch reviews.
             </Typography>
           </div>
         </Reveal>
@@ -422,8 +389,8 @@ function Talent() {
               Global by design
             </Typography>
             <Typography variant="copyLarge" muted>
-              Our delivery engine is Sri Lanka and Turkey, with reach into Buenos Aires,
-              Hyderabad, and Cairo. Teams align to North American, MENA, or European hours.
+              Our delivery engine is Sri Lanka and Turkey, with reach into Buenos Aires, Hyderabad,
+              and Cairo. Teams align to North American, MENA, or European hours.
             </Typography>
           </div>
         </Reveal>
@@ -507,148 +474,28 @@ function Talent() {
   )
 }
 
-/** Figma: node 3672:9774. */
-function Testimonial() {
-  return (
-    <Section tone="light" spacing="none" className="py-5xl">
-      <Reveal>
-        <div className="mx-auto flex max-w-[800px] flex-col items-center gap-lg text-center">
-          <Eyebrow tone="white">Testimonial</Eyebrow>
-          <div className="flex flex-col items-center gap-2xl">
-            <Typography variant="subHeaderLarge" as="p" className="font-medium">
-              “Type B offers customers a comprehensive team and exceptional value. There’s a
-              significant turnkey capability that Type B brings to engagements.”
-            </Typography>
-            <div className="text-ink-soft">
-              <Typography variant="copyMedium" as="p" className="font-semibold">
-                Fauad Sheriff
-              </Typography>
-              <Typography variant="copyMedium" as="p">
-                CEO, Class.fi
-              </Typography>
-            </div>
-          </div>
-        </div>
-      </Reveal>
-    </Section>
-  )
-}
-
-/** Figma: node 3672:9855 — the same block as the Contact page. */
-function Hiring() {
-  return (
-    <Section tone="light" spacing="none" className="py-5xl">
-      <div className="grid items-start gap-lg lg:grid-cols-12">
-        <Reveal className="lg:col-span-6">
-          <img
-            src={asset('/images/hiring.jpg')}
-            alt="A Type B engineer working from a plant-filled studio"
-            className="aspect-square w-full rounded-md object-cover"
-          />
-        </Reveal>
-        <Reveal index={1} className="lg:col-span-5 lg:col-start-8">
-          <div className="flex flex-col items-start gap-2xl">
-            <Typography variant="h2" className="text-h3 md:text-h2">
-              We’re Hiring!
-            </Typography>
-            <div className="flex flex-col gap-md">
-              <Typography variant="copyMedium" muted>
-                If you are:
-              </Typography>
-              <ul className="flex flex-col">
-                {HIRING_TRAITS.map((trait) => (
-                  <li key={trait}>
-                    <Typography variant="subHeaderSmall" as="span">
-                      {trait}
-                    </Typography>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <Button as="a" href="/careers" variant="secondary" tone="onLight">
-              Come work with us!
-            </Button>
-          </div>
-        </Reveal>
-      </div>
-    </Section>
-  )
-}
-
-function ValuesMarquee() {
-  return (
-    <div className="bg-surface pb-md pt-[calc(theme(spacing.4xl)*2)]">
-      <Marquee speed="marqueeSlow" gapClassName="gap-lg" className="text-accent-300">
-        {VALUES.map((value) => (
-          <Typography key={value} variant="h1" as="span" className="whitespace-nowrap">
-            {value}
-            <span aria-hidden className="pl-lg opacity-muted">
-              ·
-            </span>
-          </Typography>
-        ))}
-      </Marquee>
-    </div>
-  )
-}
-
 /**
- * Design thinking and Talent share ONE animated ground, so the change from the
- * cream body to turquoise happens as a single crossfade across the whole
- * viewport — the same construction the homepage uses for white to turquoise
- * and Careers uses for warm to ink.
- *
- * A vertical gradient cannot do it: it would hold cream at the top of the
- * screen and turquoise at the bottom simultaneously, which reads as a band
- * travelling down the page.
- *
- * The marker is a zero-height element on the boundary; tracking it from
- * 'start end' to 'start start' gives one viewport-height of scroll to finish
- * in. Talent's copy is cream, so like the offerings scene it fades in *behind*
- * the ground rather than with it — it enters the viewport well before the
- * turquoise arrives, and cream on cream is nothing.
+ * Design Thinking -> Talent. Cream ground to deep accent, with Talent held at
+ * zero until the ink arrives. See `GroundCrossfade`.
  */
 function DesignToTalent() {
-  const markerRef = useRef<HTMLDivElement>(null)
-  const prefersReduced = useReducedMotion()
-  const { scrollYProgress: raw } = useScroll({
-    target: markerRef,
-    offset: ['start end', 'start start'],
-  })
-  const progress = useLaggedProgress(raw)
   const { fade, contentFade } = motionTokens.talentScene
-
-  const background = useTransform(
-    progress,
-    [fade.start, fade.end],
-    [colorTokens.background.surface, colorTokens.background.accentDeep],
-  )
-  const contentOpacity = useTransform(progress, [contentFade.start, contentFade.end], [0, 1])
-
-  if (prefersReduced) {
-    return (
-      <>
-        <div className="bg-surface">
-          <DesignThinking />
-        </div>
-        <div className="bg-accent-500">
-          <Talent />
-        </div>
-      </>
-    )
-  }
-
   return (
-    <fm.div style={{ backgroundColor: background }}>
-      <DesignThinking />
-      {/* Zero-height boundary the crossfade is timed against. */}
-      <div ref={markerRef} aria-hidden className="h-0" />
-      <fm.div style={{ opacity: contentOpacity }}>
-        <Talent />
-      </fm.div>
-    </fm.div>
+    <GroundCrossfade
+      from={colorTokens.background.surface}
+      to={colorTokens.background.accentDeep}
+      fade={fade}
+      contentFade={contentFade}
+      above={<DesignThinking />}
+      below={<Talent />}
+    />
   )
 }
+
+/** Figma: node 3617:9100 / 3679:10598 — the same quote on both pages. */
+const QUOTE =
+  '“Type B offers customers a comprehensive team and exceptional value. There’s a ' +
+  'significant turnkey capability that Type B brings to engagements.”'
 
 export function CulturePage() {
   return (
@@ -657,9 +504,9 @@ export function CulturePage() {
       <HowWeShowUp />
       <OurApproach />
       <DesignToTalent />
-      <Testimonial />
+      <Testimonial quote={QUOTE} name="Fauad Sheriff" role="CEO, Class.fi" spacing="loose" />
       <Hiring />
-      <ValuesMarquee />
+      <ValuesMarquee className="bg-surface" />
     </PageShell>
   )
 }

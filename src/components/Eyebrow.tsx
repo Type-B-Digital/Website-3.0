@@ -25,12 +25,14 @@ import Typography from './Typography'
  * The Industries hero (node 2894:14357) is SemiBold, agreeing with the token,
  * so the token stays. Logged in BUILD_LOG.
  */
-export type EyebrowTone = 'onLight' | 'onAccent' | 'ink' | 'white'
+export type EyebrowTone = 'onLight' | 'onAccent' | 'ink' | 'white' | 'slate'
 
 const toneClasses: Record<EyebrowTone, string> = {
   onLight: 'bg-chip-light text-on-light',
   onAccent: 'bg-accent-600 text-on-dark-muted',
   ink: 'bg-canvas text-paper',
+  /** One ramp step up from `ink` — the case study eyebrow (node 2887:7159). */
+  slate: 'bg-neutral-800 text-paper',
   white: 'bg-white text-on-light',
 }
 

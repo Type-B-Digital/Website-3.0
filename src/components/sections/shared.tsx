@@ -26,6 +26,10 @@ export type PackageTier = {
  * Each column is icon, title block, then items, with the items pushed to the
  * bottom so all four end on the same line whatever their copy length.
  *
+ * Every gap inside a column is 24: icon to title (48 to 72 on the artboard),
+ * title block to items (59 to 83), and item to item. A 48 here made the column
+ * 347 against the artboard's 299.
+ *
  * ⚠ The artboard uses icon-set instances (Chart_Line, House_02, Heart_01,
  * Mobile_Button) that are not exported; each column shows a placeholder mark.
  */
@@ -33,13 +37,20 @@ export function Packaging({
   eyebrow = 'How we package it',
   heading = 'Three lines. Entry, Core, or Expanded.',
   tiers,
+  /** What We Do runs the doubled 160/160 rhythm; the service pages run 80/80. */
+  spacing = 'service',
 }: {
   eyebrow?: string
   heading?: ReactNode
   tiers: readonly PackageTier[]
+  spacing?: 'service' | 'loose'
 }) {
   return (
-    <Section tone="none" spacing="none" className="py-4xl text-on-light">
+    <Section
+      tone="none"
+      spacing={spacing === 'loose' ? 'loose' : 'none'}
+      className={cn('text-on-light', spacing === 'service' && 'py-4xl')}
+    >
       <div className="flex flex-col gap-4xl">
         <Reveal>
           <div className="flex max-w-[549px] flex-col items-start gap-md">
@@ -56,13 +67,13 @@ export function Packaging({
               <Reveal index={i} className="h-full">
                 <div
                   className={cn(
-                    'flex h-full flex-col justify-between gap-3xl',
+                    'flex h-full flex-col justify-between gap-lg',
                     tier.lead
                       ? 'rounded-md bg-canvas p-lg text-on-dark'
                       : 'border-y border-divider py-lg',
                   )}
                 >
-                  <div className="flex flex-col gap-3xl">
+                  <div className="flex flex-col gap-lg">
                     <span
                       aria-hidden
                       className={cn(

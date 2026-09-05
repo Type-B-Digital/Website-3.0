@@ -4,15 +4,17 @@ import {
   Captcha,
   Eyebrow,
   Field,
-  Marquee,
+  HeroIntro,
+  Hiring,
   Reveal,
   Section,
+  Testimonial,
   Toast,
   Typography,
+  ValuesMarquee,
 } from '@/components'
 import { PageShell } from '@/components/layout'
 import { palette } from '@/tokens'
-import { asset } from '@/lib/asset'
 import { useBotGuard } from '@/lib/useBotGuard'
 
 /**
@@ -44,28 +46,6 @@ import { useBotGuard } from '@/lib/useBotGuard'
 const PAGE_GRADIENT =
   `linear-gradient(180deg, ${palette.neutral[50]} 0%, ${palette.turquoise[100]} 47%, ` +
   `${palette.amber[100]} 100%)`
-
-/** Figma: node 3390:26760, as on the other pages. */
-const VALUES = [
-  'Wise',
-  'Curious',
-  'Reliable',
-  'Relentless',
-  'Adaptable',
-  'Optimistic',
-  'Approachable',
-]
-
-/** Figma: node 3617:9179. One line each, as drawn. */
-const HIRING_TRAITS = [
-  'Confident, not arrogant.',
-  'Kind and approachable.',
-  'Chill and creative.',
-  'Sharp, modern, and thoughtful.',
-  'High-caliber, but still human.',
-  'Elegant solving hard problems.',
-  'Relentless in your pursuit of excellence.',
-]
 
 /* ================================================================== *
  * FORM
@@ -298,144 +278,56 @@ function ContactForm() {
 /** Figma: node 3617:9151 — copy at 520 wide, form at 410, on a 1171 row. */
 function HeroAndForm() {
   return (
-    <Section tone="none" spacing="none" className="pb-5xl pt-[232px] text-on-light">
-      {/* gap-lg: the artboard grid is 12 columns on a 24px gutter, which is
-          what makes a 4-column block 411px and a 6-column one 628px. */}
-      <div className="grid gap-lg lg:grid-cols-12">
-        <Reveal className="lg:col-span-5">
-          <div className="flex max-w-[520px] flex-col items-start gap-md">
-            <Eyebrow tone="ink">Reach out!</Eyebrow>
-            {/*
-              ⚠ The artboard sets this at 56px (node 3617:9155), which is off
-              the type scale entirely — it runs 48 (h2), 64 (display), 72 (h1).
-              Built at h2, which keeps the artboard's two-line wrap at 519px
-              wide; display would push it to three. Logged in BUILD_LOG rather
-              than adding a one-off size.
-            */}
-            <Typography variant="h2" className="text-h3 md:text-h2">
-              We believe in what you’re building
-            </Typography>
-            <Typography variant="copyLarge" muted>
-              Give us a few details and we’ll get back to you shortly.
-            </Typography>
-          </div>
-        </Reveal>
-
-        {/* Form starts at x=761 of the 1280 content width — column 8 of 12. */}
-        <Reveal index={1} className="lg:col-span-4 lg:col-start-8">
-          <div className="max-w-[410px]">
-            <ContactForm />
-          </div>
-        </Reveal>
-      </div>
-    </Section>
-  )
-}
-
-/** Figma: node 3617:9170. Centred, over a warm glow. */
-function Testimonial() {
-  return (
-    <Section tone="none" spacing="none" className="relative py-5xl text-on-light">
-      {/*
-        The artboard has a 1248px blob behind this (node 3617:9101). Isolated by
-        subtracting the fitted page gradient from the artboard pixels: the
-        warmth peaks on the page centre at the testimonial's own centre and is
-        gone by 300px below it, which is the extent below.
-      */}
-      <div aria-hidden className="testimonial-glow pointer-events-none absolute inset-0 -z-10" />
-      <Reveal>
-        <div className="mx-auto flex max-w-[800px] flex-col items-center gap-lg text-center">
-          <Eyebrow tone="white">Testimonial</Eyebrow>
-          <div className="flex flex-col items-center gap-2xl">
-            {/* 32px Medium, not the Regular that subHeaderLarge carries. */}
-            <Typography variant="subHeaderLarge" as="p" className="font-medium">
-              “Type B offers customers a comprehensive team and exceptional value. There’s a
-              significant turnkey capability that Type B brings to engagements.”
-            </Typography>
-            <div className="text-ink-soft">
-              <Typography variant="copyMedium" as="p" className="font-semibold">
-                Fauad Sheriff
+    <HeroIntro>
+      {/* Fades up on load; see HeroIntro. */}
+      <Section tone="none" spacing="none" className="pb-5xl pt-[232px] text-on-light">
+        {/* gap-lg: the artboard grid is 12 columns on a 24px gutter, which is
+            what makes a 4-column block 411px and a 6-column one 628px. */}
+        <div className="grid gap-lg lg:grid-cols-12">
+          <Reveal className="lg:col-span-5">
+            <div className="flex max-w-[520px] flex-col items-start gap-md">
+              <Eyebrow tone="ink">Reach out!</Eyebrow>
+              {/*
+                ⚠ The artboard sets this at 56px (node 3617:9155), which is off
+                the type scale entirely — it runs 48 (h2), 64 (display), 72 (h1).
+                Built at h2, which keeps the artboard's two-line wrap at 519px
+                wide; display would push it to three. Logged in BUILD_LOG rather
+                than adding a one-off size.
+              */}
+              <Typography variant="h2" className="text-h3 md:text-h2">
+                We believe in what you’re building
               </Typography>
-              <Typography variant="copyMedium" as="p">
-                CEO, Class.fi
+              <Typography variant="copyLarge" muted>
+                Give us a few details and we’ll get back to you shortly.
               </Typography>
             </div>
-          </div>
+          </Reveal>
+
+          {/* Form starts at x=761 of the 1280 content width — column 8 of 12. */}
+          <Reveal index={1} className="lg:col-span-4 lg:col-start-8">
+            <div className="max-w-[410px]">
+              <ContactForm />
+            </div>
+          </Reveal>
         </div>
-      </Reveal>
-    </Section>
+      </Section>
+    </HeroIntro>
   )
 }
 
-/** Figma: node 3617:9176 onward — 628px square photo, copy to its right. */
-function Hiring() {
-  return (
-    <Section tone="none" spacing="none" className="pt-5xl text-on-light">
-      <div className="grid items-start gap-lg lg:grid-cols-12">
-        <Reveal className="lg:col-span-6">
-          <img
-            src={asset('/images/hiring.jpg')}
-            alt="A Type B engineer working from a plant-filled studio"
-            className="aspect-square w-full rounded-md object-cover"
-          />
-        </Reveal>
-
-        {/* Copy column starts at x=845 of the content width — column 8. */}
-        <Reveal index={1} className="lg:col-span-5 lg:col-start-8">
-          <div className="flex flex-col items-start gap-2xl">
-            <Typography variant="h2" className="text-h3 md:text-h2">
-              We’re Hiring!
-            </Typography>
-            <div className="flex flex-col gap-md">
-              <Typography variant="copyMedium" muted>
-                If you are:
-              </Typography>
-              {/* A list, because it is one — the artboard's line breaks are the items. */}
-              <ul className="flex flex-col">
-                {HIRING_TRAITS.map((trait) => (
-                  <li key={trait}>
-                    <Typography variant="subHeaderSmall" as="span">
-                      {trait}
-                    </Typography>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <Button as="a" href="#" variant="secondary" tone="onLight">
-              Come work with us!
-            </Button>
-          </div>
-        </Reveal>
-      </div>
-    </Section>
-  )
-}
-
-/** Figma: node 3617:9145, on the page ground as on Industries. */
-function ValuesMarquee() {
-  return (
-    <div className="pb-md pt-[calc(theme(spacing.4xl)*2)]">
-      <Marquee speed="marqueeSlow" gapClassName="gap-lg" className="text-accent-300">
-        {VALUES.map((value) => (
-          <Typography key={value} variant="h1" as="span" className="whitespace-nowrap">
-            {value}
-            <span aria-hidden className="pl-lg opacity-muted">
-              ·
-            </span>
-          </Typography>
-        ))}
-      </Marquee>
-    </div>
-  )
-}
+/** Figma: node 3617:9100 / 3679:10598 — the same quote on both pages. */
+const QUOTE =
+  '“Type B offers customers a comprehensive team and exceptional value. There’s a ' +
+  'significant turnkey capability that Type B brings to engagements.”'
 
 export function ContactPage() {
   return (
     <PageShell headerTone="onLight">
       <div style={{ backgroundImage: PAGE_GRADIENT }}>
         <HeroAndForm />
-        <Testimonial />
-        <Hiring />
+        <Testimonial quote={QUOTE} name="Fauad Sheriff" role="CEO, Class.fi" glow spacing="loose" />
+        {/* Only a top inset here: the marquee below supplies the rest. */}
+        <Hiring className="pt-5xl" />
         <ValuesMarquee />
       </div>
     </PageShell>
