@@ -7,12 +7,26 @@
 # manual visit to Settings -> Pages is needed.
 name: Deploy staging site
 
-# Tracks `main`, plus a manual trigger for re-running a deploy without a push.
-# `configure-pages` below turns Pages on with `enablement: true`, so the first
-# run on a fresh repo sets it up rather than failing.
+# Manual only. `configure-pages` has `enablement: true` and would normally
+# switch Pages on itself, but it cannot here: Type-B-Digital is on the free
+# plan, and GitHub Pages from a PRIVATE repository needs Pro, Team or
+# Enterprise. The API says so directly —
+#
+#   POST /repos/Type-B-Digital/Website-3.0/pages
+#   422 "Your current plan does not support GitHub Pages for this repository."
+#
+# So a push trigger only produces a red X on every commit. Three ways out, none
+# of them a code change: make the repo public, upgrade the org, or point
+# Netlify / Cloudflare Pages at it (both build from a private repo on their free
+# tier, and both can password-protect the preview).
+#
+# Once Pages is actually available, add back:
+#
+#   push:
+#     branches: [main]
+#
+# and the staging link tracks `main` on its own.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 # Let a newer push supersede an in-flight deploy, but never cancel a deploy
