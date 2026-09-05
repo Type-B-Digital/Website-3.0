@@ -132,7 +132,13 @@ export default {
         content: layout.maxWidth,
         frame: layout.frameWidth,
       },
-      // `bg-gradient-b1` … `bg-gradient-b8`, plus `bg-gradient-industry-*`.
+      // `bg-gradient-b1` … `bg-gradient-b8`, plus `bg-gradient-industry-*` and
+      // `bg-gradient-nav-panel`.
+      //
+      // Names are kebab-cased on BOTH branches. They used to be kebab-cased
+      // only on the nested one, which was invisible while every top-level
+      // gradient was named `b1`…`b8` — a camelCase token silently produced
+      // `bg-gradient-navPanel`, a class no one would think to write.
       // Distinct from Tailwind's built-in `bg-gradient-to-*` direction
       // utilities, which stay available.
       //
@@ -143,7 +149,7 @@ export default {
       backgroundImage: Object.fromEntries(
         Object.entries(gradients).flatMap(([name, value]) =>
           typeof value === 'string'
-            ? [[`gradient-${name}`, value] as const]
+            ? [[`gradient-${kebab(name)}`, value] as const]
             : Object.entries(value).map(
                 ([sub, v]) => [`gradient-${name}-${kebab(sub)}`, v] as const,
               ),

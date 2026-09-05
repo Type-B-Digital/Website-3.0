@@ -2138,3 +2138,767 @@ leaving one word on the last line.
 FAQ answers (the artboard draws every row collapsed), the capability chips (a
 `Dummy_Square_Circle` instance on the artboard), the Packaging column icons,
 and the Related Services thumbnails, which reuse the What We Do service images.
+
+---
+
+## Advisory and Teams — Figma 2910:15211 and 3149:7942
+
+Both pages are content files over the `@/components/service` shell that Product
+& AI Development established. Neither introduces a new section type:
+
+| | Advisory | Product | Teams |
+|---|---|---|---|
+| Hero | ✓ | ✓ | ✓ |
+| Ideal Customer Profiles | 6 | 6 | 4 |
+| Capability grid | ✓ | ✓ | ✓ |
+| Engagement steps | 4 | 3 | — |
+| Levels list | — | 5, no intro | 7, with intro |
+| Sovereign AI cards | — | ✓ | — |
+| Packaging / Related / Featured / FAQ | ✓ | ✓ | ✓ |
+
+### One home for the copy the three pages share
+
+`src/pages/service-content.ts` holds `CAPABILITIES` and `TIERS`, which the three
+artboards draw identically, so a page file is now only what makes it different.
+
+Related Services is *not* shared. Each artboard writes the one-line body from
+the point of view of the page it sits on — Advisory reads "Fractional leadership
+and the roadmap the pod executes against." on Teams and "…the build executes
+against." on Product — so `related()` composes title, thumbnail and route from
+one card map and takes the body per page. The cards now navigate (`RelatedShell`
+renders a `Link` where a route exists, a plain row where one does not).
+
+**⚠ Deviation.** The Product artboard's Related row is a copy of Advisory's and
+lists Product & AI Development — the page itself — as its first card. Replaced
+with Advisory, which is plainly what the row means.
+
+### Review loop: seven measured corrections
+
+Measured with a CDP harness that reports every section's top and height with the
+`Reveal` transforms forced off, diffed against the artboard frames. Deltas are
+content height (section height less its 160px of padding) against the frame.
+
+Six gaps were wrong by one step of the scale, all of them in shared sections, so
+each was wrong on all three pages at once:
+
+| Where | Was | Artboard | Evidence |
+|---|---|---|---|
+| Hero text block → image | 120 | 80 | frame ends 591, image at 671 |
+| Hero → next section | 120 + 80 | 120 | image ends 1382, ICP at 1502 |
+| ICP heading → grid | 40 | 48 | heading 58, grid at 106 |
+| Capability eyebrow → heading | 16 | 24 | eyebrow 25, heading at 49 |
+| Steps heading → intro | 16 | 24 | heading 116, intro at 140 |
+| Levels heading → intro | 24 | 16 | heading 116, intro at 132 |
+| Related heading → row | 40 | 48 | heading 58, row at 106 |
+
+The eyebrow gap is the interesting one: it is 16 on the left-aligned blocks (the
+hero, Packaging) and 24 on the centred one (the capability grid). Not a mistake
+in the file — the centred block needs the extra air.
+
+**Packaging columns were 48 too tall.** Every gap inside a column is 24 on the
+artboard — icon to title (48 → 72), title block to items (59 → 83), item to item
+— and the build had 48 on the first two. 24+24+24+30+8+21+24+120+24 = 299,
+exactly the artboard's column. This also fixed What We Do, which had its own copy
+of the section; that copy is now deleted and the page uses the shared component
+with `spacing="loose"` for its doubled 160/160 rhythm.
+
+**FAQ rows were 7px short, each.** The question was `copyMedium` (24 line-height)
+where the artboard's row is 31 tall — the chevron instance sits at y=3.5 of it,
+which is (31−24)/2. With `py-lg` that gives the 79px row pitch every FAQ on the
+site is drawn on. `copyLarge` fixes it, and the FAQ section lands at 573 against
+the artboard's 572. **This also corrected Industries and Careers.**
+
+After the pass, against the artboard frame heights:
+
+```
+section              artboard   built   delta   note
+Hero (Teams)             1423    1423      +0
+Ideal Customer            686     692      +6   tag box + rules
+Capability grid           729     728      -1
+Levels list               672     680      +8   8 hairline rules
+Packaging                 536     533      -3
+Related Services          226     226      +0
+Featured case             560     560      +0
+FAQ                       572     573      +1
+Testimonial               233     233      +0
+```
+
+Advisory is the same to within the same tolerances, except Ideal Customer
+Profiles at +33: one body paragraph ("The platform is slowing down…") sets to
+three lines at the artboard's own 572px measure where Figma's text frame is
+pinned to two. That is the copy reflowing, not a spacing error.
+
+### Routing
+
+`/advisory` and `/teams` are wired in `main.tsx`. The footer's What We Do column
+no longer points Advisory and Teams at `/what-we-do`, and each service block on
+What We Do now has a live "Learn more".
+
+### Still placeholder
+
+FAQ answers on both pages, and the hero and featured photography, which reuse
+the Product page's exports.
+
+---
+
+## Site-wide consolidation audit — 2026-09-04
+
+Run before building the first industry sub-page, because that page turned out to
+reuse nine sections and would otherwise have grown a tenth copy of several.
+
+**Five components existed as 2-6 near-identical copies, one per page.** In every
+case the copies differed only in a tone class or a section rhythm, so the
+differences became props:
+
+| Component | Copies | Lived in | Differences |
+|---|---|---|---|
+| `ValuesMarquee` | 6 | index, what-we-do, industries, contact, careers, culture + service shell | accent shade, one `bg-surface` |
+| `Testimonial` | 3 | contact, culture, service shell | 80/80 vs 120/120 rhythm, Contact's warm bloom |
+| `FaqSection` | 3 | industries, careers, service shell | ground tone, top inset |
+| `Hiring` | 2 | contact, culture | one had a dead `href="#"` |
+| `GroundCrossfade` | 3 | index, careers, culture | colours and fade windows only |
+
+`VALUES` was six identical arrays and `HIRING_TRAITS` two; both now live with
+their component. Net: **820 lines deleted against 406 added.**
+
+`GroundCrossfade` is the one worth reading — the scroll-linked mechanism, and
+why it is an animated `backgroundColor` on a wrapper rather than a gradient, is
+documented once at the top of that file instead of three times in three pages.
+
+**The five `Hero` functions are NOT duplication** and stay page-local: the
+homepage animates a gradient angle, Culture layers an SVG grid over a mirrored
+b3, What We Do is a fixed 720px band, Industries is left-aligned with a CTA, and
+Careers is a plain centred header. Different artboards, different components.
+
+### `components/service/` -> `components/sections/`
+
+Renamed. A folder called `service` holding the seven sections the industry pages
+depend on is exactly how things get re-hardcoded. `ServicePage` became
+`ContentPage` at the same time: the industry pages need the same shell with a
+flat ground and no testimonial, so both are now props rather than baked in.
+
+### `FeaturedCase` -> `SplitFeature`
+
+The Financial Services artboard draws the same 519x560-image-beside-628-copy
+block three times: once mirrored with no eyebrow and no claim (3614:6799), once
+with both (3614:6912), and once as the service pages' Featured case (3614:6921).
+So `eyebrow`, `claim`, `headingLevel` and `reverse` are props, and `FeaturedCase`
+is now a two-line wrapper that supplies the eyebrow it always carries.
+
+Column spans check out against the artboard on both sides: the copy is 6 columns
+(6 x 84.67 + 5 x 24 = 628) and the image 5 (519.3), and the mirrored layout puts
+the copy at column 7 (6 x 108.67 = 652), which is where the artboard has it.
+
+### `LevelsList` heading column was 519, not 628 — a real bug
+
+Caught by the visual pass on Financial Services: the section's photograph
+rendered 519 wide against the artboard's 628. The column was `lg:col-span-5`
+while the `max-w-[628px]` inside it never bit, so the constraint was silently
+five columns. `lg:col-span-6` fixes it. Teams, Product and Financial Services
+all measure the same total height after the change — no line count moved — so
+this was purely geometry that had been wrong since the section was written.
+
+The heading column also needed a conditional gap: 16 above an intro paragraph
+(116 -> 132 on Teams), 48 above a photograph (116 -> 163 on Financial Services).
+
+## Financial Services & Insurance — Figma 3162:283
+
+Twelve sections, nine of them already built. The three new ones are in
+`components/sections/industry.tsx`:
+
+- **`IndustryHero`** — a full-bleed 880px band, page title centred on it, no
+  eyebrow and no CTA. The gradient is the whole treatment.
+- **`Statement`** — one 32px Medium paragraph over a 954px measure. The artboard
+  sets it as a single text run, so the opening sentence reads as a heading but
+  is not one; this is a `<p>`, not an `<h2>` over a body.
+- **`StatBand`** — a heading with proof numbers to the right, on Packaging's
+  four-column 302/24 grid rather than the 12-column one. That is why the stats
+  start at 652 and 978.
+
+**The hero gradient is `b7` mirrored.** `get_design_context` on 3614:6576
+reports the named style "Type B BG 7" inside a `rotate-180 -scale-y-100`
+wrapper — a horizontal flip — so the built angle is 360 - 50.68 = 309.32 and
+the stops are the token's, unrescaled. Worth recording that this settled it:
+fitting the artboard PNG's pixels suggested a uniform 0.86-0.94 darkening that
+does not exist, an artifact of Figma's PNG colour management on saturated
+oranges. The flat cream body sampled as exactly `neutral.50`, which is what gave
+the artifact away.
+
+The body ground is flat `neutral.50`, sampled down the full-page render at 28
+points: cream from y=880 to the CTA band, with no gradient. Unlike the service
+pages, whose ground is a vertical three-stop run.
+
+### Review loop
+
+| section | artboard | built | delta |
+|---|---|---|---|
+| Hero band | 880 | 880 | +0 |
+| Statement | 384 | 384 | +0 |
+| Ideal Customer Profiles | 1036 | 1045 | +9 |
+| Levels list | 600 | 595 | -5 |
+| Engagement steps | 336 | 336 | +0 |
+| Split (mirrored) | 560 | 560 | +0 |
+| Stat band | 170 | 170 | +0 |
+| Split (Our Specialty) | 560 | 560 | +0 |
+| Packaging | 536 | 533 | -3 |
+| Related Services | 226 | 226 | +0 |
+| Featured case | 560 | 560 | +0 |
+| FAQ | 572 | 573 | +1 |
+
+Six exact, four within 9. Two notes:
+
+**Statement is 48 short.** ~~Chrome fits one more word per line than Figma's
+text engine.~~ **Wrong — see the correction under the four remaining industry
+pages below.** The block was set in `subHeaderLarge` (32px/48px) where the
+artboard uses `h3` (40px/1.2). Both give 48px line boxes, which is why the
+height arithmetic looked plausible, but 32px fits far more characters per line.
+Corrected 2026-09-04; every one of the five Statements now measures exact.
+
+**One artboard gap is a one-off:** 120 between the mirrored split and the stat
+band, against 160 everywhere else on the page. Kept at 160, as on the service
+pages.
+
+### Deviations
+
+⚠ The artboard's Related Services row is the service pages' row verbatim and
+lists Financial Services & Insurance — this page — as its third card. Swapped
+for Advisory, as on the Product page.
+
+### Still placeholder
+
+FAQ answers (the artboard draws every row collapsed), and all four photographs,
+which reuse the service pages' exports. The four other industry rows on
+`/industries` have inert "Learn more" buttons until their sub-pages exist;
+Financial Services is now linked.
+
+---
+
+## The four remaining industry sub-pages — 2026-09-04
+
+Healthcare & Life Sciences (3149:12091), Real Estate & PropTech (3239:15314),
+Manufacturing, Trade & Logistics (3275:19055), Legal & Professional Services
+(3245:17241). All four are the Financial Services template with different copy;
+no new section type was needed.
+
+Structural differences, which are the only thing the four page files encode
+beyond copy:
+
+| | FSI | Healthcare | Real Estate | Manufacturing | Legal |
+|---|---|---|---|---|---|
+| Mirrored "What can AI do…" | ✓ | — | ✓ | ✓ | ✓ |
+| "Our Specialty" split | after stats | **before** stats | — | — | — |
+| Related Services cards | 3 | 2 | 3 | 2 | 2 |
+| Featured case | claim + body | **claim only** | claim + body | placeholder | placeholder |
+| Hero type | ink | ink | **light** | ink | ink |
+
+### The five hero bands walk BG 4 through BG 8
+
+Each is the named Figma style inside a `rotate-180 -scale-y-100` wrapper — a
+horizontal flip, so the built angle is `360 - θ`:
+
+| page | style | Figma angle | built |
+|---|---|---|---|
+| Real Estate | Type B BG 4 | 230.63 | 129.37 |
+| Manufacturing | Type B BG 5 | 50.64 | 309.36 |
+| Legal | Type B BG 6 | 230.61 | 129.39 |
+| Financial Services | Type B BG 7 | 50.68 | 309.32 |
+| Healthcare | Type B BG 8 | 230.61 | 129.39 |
+
+`b4Stops`, `b5Stops`, `b6Stops` and `b8Stops` join `b7Stops` in tokens, so the
+angle lives with the page and the ramp with the token, as `b1Stops`/`b2Stops`
+already did.
+
+**Real Estate is the one hero with light type,** because b4 starts on
+`neutral.900` and the mirror puts that ink end at the top left. Confirmed off
+the artboard rather than inferred: node 3614:7138 carries `text-[#f5f6f6]` with
+the body at `opacity-80`. `IndustryHero` took a `tone` prop for it.
+
+### Correction: the Statement was the wrong type size
+
+The measurement pass showed all four new Statements one or two lines short of
+the artboard — Healthcare 6 lines against 8, Real Estate 5 against 7,
+Manufacturing 8 against 10. On Financial Services last week the same block was
+48 short and I wrote that off as Chrome and Figma breaking lines differently.
+That was wrong, and re-measuring four more instances is what caught it.
+
+`get_design_context` on node 3614:5656 gives the real spec: **40px SemiBold on
+1.2**, which is the `h3` variant, not `subHeaderLarge` (32px Regular on 1.5).
+Both compute to 48px line boxes, so every block height looked arithmetically
+plausible while the character count per line was out by a third.
+
+After the fix all five Statements measure exactly: 384 / 384 / 336 / 480 / 384.
+
+The lesson is the one this log keeps relearning: a height that matches is not
+evidence the type is right. Two different type specs can share a line box.
+
+### `LevelsList` rows were too wide
+
+Real Estate came in 17 short on the Levels list. The rows in the browser were
+447px wide for the label where the artboard gives 400 — the rules span the full
+519 column, but the row *content* is 472 of it (node 3614:7288), and after the
+48px chip and its 24px gap that leaves exactly 400. With the extra 47px, two of
+Real Estate's six labels fitted on one line where the artboard wraps them.
+
+Capping the row at `max-w-[472px]` fixed it, and put all five industry pages on
+the same delta: **+7 on every Levels list**, which is the seven 1px rules a
+six-row list carries. Figma draws those as zero-height lines; CSS borders
+occupy space. Uniform and explainable, so left alone.
+
+### Review loop
+
+Worst |delta| per page after the two fixes: Financial Services 9, Real Estate 9,
+Manufacturing 9, Legal 9, Healthcare 33. Eight of eleven sections are exact on
+every page.
+
+The recurring +9 is Ideal Customer Profiles — the `Tag` box renders 26 against
+the artboard's 24, plus the row rules. Healthcare's +33 is the same paragraph
+that did it on Advisory ("The platform is slowing down…"): at the artboard's own
+572px measure it needs three lines, and Figma's text frame is pinned to two, so
+Figma is clipping it invisibly. Rendering three lines is correct.
+
+No existing page moved: all nine previously measured document heights are
+unchanged after the `LevelsList` and `Statement` changes.
+
+### More shared copy lifted
+
+`src/pages/industry-content.ts` now holds what the five industry artboards write
+verbatim: the four-stage row (byte-identical on all five), six capability lists,
+six situation paragraphs, and the closing Sovereign AI FAQ row. The
+"AI mandate" profile block alone appears eleven times across the five pages.
+Financial Services was refactored onto it too, dropping 50 lines.
+
+### Deviations
+
+⚠ **Levels heading.** Real Estate, Manufacturing and Legal all read "How we
+frame financial services" — copy-pasted from the Financial Services artboard.
+Corrected to each page's own industry.
+
+⚠ **Related Services self-reference.** As on Product and Financial Services, the
+row on some artboards lists the page it sits on. Swapped for a sibling.
+
+⚠ **Manufacturing split heading** reads "What can AI do for a Manufacturing?" on
+the artboard. Built as "What can AI do for manufacturing?".
+
+⚠ **Legal role chip** reads "General Council"; built as "General Counsel".
+
+⚠ **Real Estate stat band** shows "60+" against copy about a 40% infrastructure
+saving — the numeral is left over from the Financial Services band. Reproduced
+as drawn, since the intended number is unknown.
+
+⚠ **Real Estate featured case** carries Ferry Pay's claim and paragraph verbatim
+under the Mave AI name. Reproduced as drawn; the real copy is a content gap.
+
+⚠ **Real Estate and Legal profile blocks** repeat one capability list and one
+situation paragraph across all six cards — only titles and role chips differ.
+Reproduced as drawn.
+
+### Still placeholder
+
+FAQ answers on all four pages. Manufacturing's and Legal's featured cases read
+"Details needed here." on the artboard and are left that way rather than
+invented. All photography reuses the service pages' exports.
+
+---
+
+## Navigation audit, scroll restoration, and the page-load entrance — 2026-09-04
+
+### Link audit
+
+Fourteen routes exist. Seven were reachable from the footer; seven were not.
+
+| gap | fix |
+|---|---|
+| `/what-we-do` — the column head named it but was plain text | column heads with a route now render as links |
+| the five industry sub-pages | nested under the Industries item |
+| `/` — the footer mark was not a link | wrapped in a `Link`, as the header's already was |
+
+Verified by walking every route against the footer's rendered `href`s:
+`missingFromFooter: []`, `deadInFooter: []`.
+
+Four CTAs pointed at `#` or `#contact` — a page that exists — and three more used
+`Button as="a" href="/contact"`, which is a full document load rather than a
+client-side navigation. All seven now use `Link`:
+
+- `SiteHeader` "Let's talk!" (`#contact`)
+- `ClosingCta` "Let's talk!" (`#`)
+- Industries hero "Book an AI assessment" (`#contact`)
+- Advisory / Product & AI Development / Teams hero CTAs (`as="a"`)
+
+The remaining `href="#"` are left alone on purpose: they point at Case Studies
+and job posts, which have no pages yet. Same policy as the inert footer columns.
+
+**Hub page sections now link from the heading as well as the CTA.** The "Learn
+more" buttons on What We Do and Industries were already wired; the section
+heading is the far larger target, so it links too.
+
+### The industry sub-pages are not in the footer
+
+Nested under the Industries item first, then removed at the client's call: the
+footer does not need them, and they cost 112px of height on all fourteen pages
+(599 -> 711). The five are reached through the Industries hub, whose rows now
+link from both the heading and the CTA.
+
+Recorded because the alternative was considered and rejected: a fifth column
+does not fit either — the nav track is 760px against five columns needing ~890
+at the artboard's 96px gutter, so it wrapped and left Publications alone on a
+second row.
+
+The footer's other gaps stay fixed: the mark links home, the What We Do and
+Industries column heads link to their pages.
+
+### Scroll restoration — the reported bug
+
+Following a footer link from the bottom of a page landed on the *next* page's
+footer. A client-side navigation swaps the DOM and leaves `scrollY` alone.
+
+`ScrollToTop` in the router fixes it, but the obvious version does not work.
+A single `scrollTo(0, 0)` in a `useEffect` left the page a couple of hundred
+pixels down — measured at **192px on /teams, 331 on /industries/healthcare, 307
+on /contact**. The cause is Chrome's **scroll anchoring**: it re-offsets the
+document after the swap to keep the previously visible content stable, and with
+the whole page replaced it settles somewhere arbitrary.
+
+The fix asserts the reset twice — in a `useLayoutEffect` before paint, then
+again on the next frame, after anchoring has had its go. All three test cases
+now land at 0.
+
+Two deliberate non-behaviours:
+
+- **No smooth scroll.** It would race the incoming page's own entrance, and on
+  the pages with pinned scenes it runs the scroll-linked scenes backwards on the
+  way up.
+- **Nothing on `POP`.** Back and forward keep the browser's restored position,
+  which is what people expect. Verified: back from /teams to /what-we-do returns
+  to 1528, not 0.
+
+### Page-load entrance
+
+⚠ Authored — Figma documents no motion tokens. `tokens.motion.intro`.
+
+Two parts, deliberately different in character:
+
+- **`NavIntro`** — the header arrives *from* the top, feathered: it drops the
+  24px it would have travelled and resolves a 10px blur (`reveal.feather`, so
+  the softness of an arriving element is one value site-wide). Lives inside
+  `SiteHeader`, so every page gets it without opting in.
+- **`HeroIntro`** — the hero only fades, over a longer window (1.6s against 1s)
+  so it is still arriving when the nav has settled. It does not travel: the hero
+  is what the rest of the page is measured against, and sliding it makes the
+  whole layout look unsettled.
+
+`Reveal` could not do this job. It is driven by `whileInView`, which fires
+immediately and simultaneously for everything above the fold, so the header and
+the hero pop together.
+
+Applied to all fourteen pages through eight files: `ServiceHero` covers the
+three service pages, `IndustryHero` the five industry pages, and the six pages
+with a page-local hero got it directly.
+
+Measured on /, /what-we-do, /teams, /industries/real-estate and /contact:
+nav `opacity 0->1`, `y -24->0`, `blur(10px)->blur(0)` settling ~1.15s; hero
+`opacity 0->1` settling ~1.7s. Under `prefers-reduced-motion` both render the
+final state with no animated wrappers at all — verified by emulation.
+
+### Housekeeping
+
+Added `.prettierrc.json`. There was no config, so a `prettier --write` during
+this pass reformatted three files to prettier's defaults — double quotes, 80
+columns — against the hand-maintained style. The config pins what the codebase
+already does (no semicolons, single quotes, 100 columns, trailing commas) so
+that cannot recur. Delete it if the formatting should stay by hand.
+
+All fourteen document heights are unchanged from before this pass — the footer
+is back to 599 after the industry list came out, and nothing else moved.
+
+---
+
+## Our Work — Figma 2865:5797
+
+Four sections, three of them new. No page title: the artboard opens straight
+into the featured case study on a full-bleed 880px band.
+
+| section | artboard | built | delta |
+|---|---|---|---|
+| Hero band | 880 | 880 | +0 |
+| Work rows (nine) | 4161 | 4159 | -2 |
+| Industries we serve | 526 | 528 | +2 |
+| Testimonial | 281 | 281 | +0 |
+
+Positions land the same way: the first row at 1040, the Industries heading at
+5359 against 5361, and the quote at 6127 exactly.
+
+### Geometry
+
+**Work rows.** 1280x441 on a 465 pitch (441 with a 24 gap). Copy column 519 at
+x=0, thumbnail 737 at x=543 — five and seven of the twelve columns with the
+standard 24 gutter (5 -> 519.3, 7 -> 736.7), which the build measures at exactly
+519 @ x=80 and 737 @ x=623. Copy is top-aligned, not centred: every left column
+sits at y=0 whatever its height, which runs 169 to 269.
+
+Row internals against the artboard's 199-tall MatchDay column: title 29
+(24px on 1.2), gap 16, then a group at 40 between the paragraph, the tag row and
+the optional stat line. Built: 29 + 16 + (90 + 40 + 24) = 199.
+
+**Two type steps are not on the scale** and are set inline with a comment:
+the row title is 24px on 1.2 leading where `subHeaderSmall` is the same size on
+1.5, and the industries card title is 20px on `normal` with -0.2px tracking
+where `copyLarge` is 20px on 1.5.
+
+**Industries grid.** Three 390px columns on a 48px gutter, each opened by a
+rule; two rows 80 apart. The row is 1266 of 1280 on the artboard, the same
+kind of right-edge slack as the Ideal Customer Profiles' 1224 — built as three
+equal columns at 394.67, which is the +2 in the table.
+
+**Testimonial.** The quote is 144 tall here (three lines at 800 wide) against
+the 96 the service artboards draw for the same sentence, which is Figma
+clipping a fixed-height frame on those. The shared component sets it naturally
+and lands on 281 exactly. 240 sits between the grid and the quote, so 40 of it
+is a wrapper on this page — `Testimonial`'s own loose rhythm is right at 120 on
+Contact and Culture.
+
+### Correction: the tag pill was 26 tall, not 24
+
+Every artboard draws the pill 24 tall: a 16px line box over 4px of padding a
+side (node 3707:10742 here, and the same "Frame 77" instance on every Ideal
+Customer Profile row). The `tag` type step carried `lineHeight: 1.5`, giving an
+18px box and a 26px pill.
+
+**This is the residual delta the industry and service page reviews kept
+reporting** and I kept attributing to "the Tag box renders 26 against the
+artboard's 24" without fixing the cause. Set to 1.3333 — which is what the
+artboard's own export says (`leading-[normal]` for Reddit Sans) — the pill
+measures 23.98.
+
+The eight pages with profile rows moved toward the artboard and nothing else
+moved: Advisory, Product, and the five industry pages -3 (three rows), Teams -2
+(two rows), everything else +0.
+
+### `Tag` gained a `tone`, and why a className was wrong
+
+The hero's pills are inverted — ink fill, cream label — because they sit on the
+photograph. Passing `className="bg-canvas text-paper"` did not work: `cn` is a
+plain join with no Tailwind merge, so `bg-tag-bg` stayed in the class list and
+stylesheet order decided. It rendered as a pale pill. `tone="onDark"` now
+follows the pattern Eyebrow, Button and Accordion already use.
+
+Worth remembering across the codebase: a `className` override can only *add*
+to these components, never replace.
+
+### Placeholders
+
+Thumbnails are flat grey blocks, deliberately empty rather than a blurred
+stand-in, so the slots still needing art are obvious at a glance. **The hero
+placeholder is dark, not grey** — the type over it is white, and a light box
+there makes the heading unreadable, which is a worse placeholder than an
+obviously dark one.
+
+### Deviations
+
+⚠ **Class.fi's body is MatchDay Health's paragraph verbatim** on the artboard.
+Reproduced as drawn.
+
+⚠ **The stat line on the last four rows** repeats "500K users supported." and
+"~45% faster delivery." from rows three and four. Reproduced as drawn.
+
+⚠ **Row titles are 2px taller on four of the nine rows** (31 against 29). Built
+at one size — that reads as authoring drift, not intent.
+
+⚠ **The Real Estate industries card ends with "{Explore real estate and
+proptech}"**, an unresolved note asking for a link. The fragment is dropped from
+the copy and answered with the link instead: all six cards now link to their
+industry page, with Trade pointing at Manufacturing, Trade & Logistics.
+
+### Routing
+
+`/our-work`, wired into the header's "Case studies" and the footer's Case
+Studies column head and "View All". The four case-study names in that column
+stay inert — individual case study pages do not exist yet.
+
+---
+
+## Our Work hero image, and the case study template — Figma 2887:7099
+
+### The Our Work hero is now the real photograph
+
+Node 3707:10655, exported at 1440x880 and saved as
+`public/images/work/our-work-hero.jpg` (145KB). It replaces the dark
+placeholder, and **the placeholder's whole reason for being dark turned out to
+be right**: the image is genuinely dark where the copy sits. Measured over the
+left 628px of the text band, mean RGB (44, 36, 31) — white type on that is
+**5.37:1**, against 4.5 for body text. No scrim needed, which is what the
+artboard's own export implies (it has none).
+
+`Placeholder` on that page lost its `tone` prop with the hero gone; the nine row
+thumbnails are still grey blocks.
+
+### Case study template
+
+The artboard defines a template, so it is built as components in
+`components/sections/case-study.tsx` and `pages/ferry-pay.tsx` is only copy and
+six photographs. Eleven slots in a fixed order:
+
+`CaseHero` · `Statement` · `CaseGallery` · `CaseChallenge` · `CaseBand` ·
+`CaseSolution` · `CaseBand` · `CaseImpact` · `CaseFigure` · testimonial ·
+marquee, wrapped by `CaseStudyPage`.
+
+`Statement` is reused unchanged from the industry pages — the artboard's block
+here is the same 954-wide, 40px SemiBold paragraph, and it measures 480 against
+480.
+
+| section | artboard | built | delta |
+|---|---|---|---|
+| Hero, to the image's bottom edge | 1367 | 1372 | +5 |
+| Statement | 480 | 480 | +0 |
+| Two-up gallery | 515 | 515 | +0 |
+| The challenge | 390 | 392 | +2 |
+| Band 1 | 800 | 800 | +0 |
+| The solution | 585 | 584 | -1 |
+| Band 2 | 804 | 804 | +0 |
+| Our impact | 1232 | 1236 | +4 |
+| Closing figure | 711 | 711 | +0 |
+| Testimonial | 281 | 281 | +0 |
+
+Six exact, worst 5.
+
+### `HeroStats`, shared with Culture
+
+The client asked for Culture's hero stats layout here, and it is the same three
+values (100 / 30+ / 25+), so Culture's block moved to
+`components/HeroStats.tsx` and both pages use it. Culture's height is unchanged.
+
+⚠ The case study artboard places its three stats at right edges 788 / 1026 /
+1360, which is neither the 12-column grid nor a consistent rhythm. Built on
+Culture's alignment — columns 4-6, 7-9, 10-12, so the right edges land on
+708 / 1034 / 1360 — because that is the one the grid supports and the one the
+client asked for.
+
+### Two spacing calls worth recording
+
+**The solution's header-to-roles gap is 160, not 80.** Built at 80 first, which
+came out -81 on the section. The roles grid's own two rows are 80 apart, so the
+two gaps are genuinely different and the section needs both.
+
+**Our impact's rows are hand-placed on the artboard.** The pitch runs 144, 144,
+144, 144, 144, 120, 120 with no relation to the body height inside — two of the
+seven bodies are three lines and they are *not* the tall rows. Built as a
+regular list at 40 above and below, which gives 952 against 960. The
+header-to-list gap is 107 on the artboard, between the 80 and 120 tokens; 120
+lands the section at 1236 against 1232 and keeps everything below where the
+artboard has it, where 80 came out -36.
+
+### Other notes
+
+- The roles grid is 894 wide with an **87px gutter**, off the 8-based scale.
+  Uses the nearest token (80), the same call the footer's 96px gutter got; cards
+  come out 244.67 against 240.
+- `Eyebrow` gained a `slate` tone: the case study's pill is `neutral.800`
+  (node 2887:7159), one ramp step up from the existing `ink`.
+- The solution's paragraph is offset 45 from the top on the artboard so it
+  aligns with the heading rather than the eyebrow above it.
+
+### Images
+
+Six exports downloaded from Figma and converted to progressive JPEG at quality
+82 — 56 to 179KB each, 1x at the size they render. The two bands and the
+closing figure reuse assets the service pages already had
+(`Gemini_Generated_Image_l9brq1…` and `…j2xnnoj2xnnoj2xn…`), which is why only
+five new files were needed. A 2x re-export is a one-line change to
+`defaultScale` if the finals should be retina-crisp.
+
+### Routing
+
+`/our-work/ferry-pay`, wired into the footer's "Ferry Pay". The other three
+case-study names stay inert until their pages exist. No existing page moved:
+all fifteen document heights are unchanged.
+
+## Navigation dropdowns and the footer update — Figma 3731:4239 — 2026-09-04
+
+The "Navigation & Footer Updates" section, applied globally: both components
+live in `PageShell`, so all fifteen pages take the change without an edit.
+
+Six boards. Five are the nav, one state each — 0.0 What We Do (3729:3585),
+0.1 Industries (3728:2907), 0.2 Case Studies (3729:3810), 0.3 Who We Are
+(3729:4056), 0.4 Publications (3731:4145) — and the sixth is the footer
+(3729:3711).
+
+### The nav is a disclosure now, not five links
+
+Every top-level item has carried a caret since the first build and none of them
+did anything. The section makes them dropdowns: a 587px cream curtain over the
+top of the page, the section name at 48px with an arrow to its own page, and
+that section's pages listed at 32px beneath it.
+
+Measured against the artboard after the build, over CDP:
+
+| | artboard | built |
+|---|---|---|
+| panel height | 587 | 587 |
+| heading y | 120 | 120 |
+| link x / first y | 80 / 202 | 80 / 202 |
+| link pitch | 50 | 50 |
+| open pill | 142x40, `#C6C4C2` | 144x40, `#C6C4C2` |
+| link colour | `#343C43` | `#343C43` (neutral.800) |
+| dimmed labels | `#65696D` | `#65696D` (neutral.600) |
+
+The pill is 2px wide because the trigger keeps its existing `gap-xs` between
+label and caret; the artboard has them touching.
+
+**The pill is drawn as an inset backdrop, not as padding.** Figma gives the open
+item 16px more a side and 8px more top and bottom, which as real padding would
+shove the four labels beside it sideways every time the pointer crossed one. An
+absolutely-positioned `-inset-x-md -inset-y-sm` span paints the same pill and
+moves nothing, so the closed bar keeps the geometry it was signed off with.
+
+**The nav goes light while a panel is open, whatever the page is.** The curtain
+is cream and the bar sits on top of it, so `tone` is overridden for the duration
+— logo, links and CTA all invert. Without it the homepage's cream nav is drawn
+on cream.
+
+### Deviations
+
+- **Labels are Title Case.** The section disagrees with itself: 0.0 and 0.1 say
+  "What we do" / "Case studies" / "Who we are", 0.2-0.4 and the whole footer say
+  "What We Do" / "Case Studies" / "Who We Are". Followed the majority and the
+  footer, which is where both would otherwise appear on one page.
+- **A caret only where there is a page.** The artboard draws one on all five nav
+  items and all five footer headings, but Who We Are and Publications have no
+  hub page. They render as plain text rather than promising a destination —
+  the same call the footer's inert links already get.
+- **Panel heading is `#040E19`, not `#030B15`.** The artboard uses the footer
+  ground for this one heading; snapped to neutral.900 rather than carry a
+  fourth near-ink for a difference of one value per channel.
+- **The nav panel omits Legal; the footer includes it.** Board 0.1 lists four
+  industries and the footer update lists five, with all five pages built. Left
+  as drawn — this one is a question for design, not a call to make in code.
+- **Motion is authored, as ever.** Five static boards, no transition between
+  them. `motion.navPanel` proposes open/close/`contentLag`/`hoverGrace`; the
+  grace period exists because the diagonal from a nav item to the link you are
+  aiming at leaves the trigger before it reaches the panel.
+
+### The footer gained a column and lost the lockup
+
+Industries is its own column now (all five industry pages, Legal included)
+rather than one link inside What We Do; Case Studies drops "View All"; "About
+Us" becomes "Our Culture"; headings go 14px to 16px and gain the caret. The
+statement column opens with the 24px B monogram — `TypeBMark`, node 3729:3745 —
+instead of the 97x32 lockup, and the statement's line break after "slice." is
+authored, because the artboard breaks it by hand rather than wrapping it.
+
+The 411px statement column and the 24px gap to the nav block put the columns at
+x=515, which is the artboard's. The previous 80px gap had them starting at 571.
+
+### One bug found on the way in
+
+`bg-gradient-nav-panel` generated nothing. `tailwind.config.ts` kebab-cased
+gradient names on the nested branch (`gradient-industry-*`) but not the
+top-level one, which nobody could see while every top-level gradient was named
+`b1`…`b8`. The first camelCase gradient token silently produced
+`bg-gradient-navPanel` — a class no one would think to write, and no error.
+Both branches kebab-case now.
+
+### New tokens
+
+`gradients.navPanel` (white -> cream, the only genuinely new value in the
+section), `typography.navPanelLink` (32px on a 42px line box — `subHeaderLarge`
+is the same size but 1.5, which would push the fourth link 24px low),
+`layout.navPanelHeight`, `motion.navPanel`.

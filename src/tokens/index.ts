@@ -134,26 +134,65 @@ export const gradients = {
   b3:
     `linear-gradient(50.55deg, ${palette.neutral[900]} 0%, ${palette.turquoise[500]} 63.82%, ` +
     `${palette.neutral[50]} 127.63%)`,
+  /**
+   * b4's stops without a direction. The Real Estate hero band mirrors this ramp
+   * (Figma node 3614:7091, style "Type B BG 4" inside a horizontal flip), which
+   * puts the ink end at the top left — the one industry hero with light type.
+   */
+  b4Stops:
+    `${palette.neutral[900]} 0%, ${palette.orange[400]} 75.52%, ` +
+    `${palette.amber[300]} 115.50%`,
   /** Ink -> orange -> amber. */
   b4:
     `linear-gradient(230.54deg, ${palette.neutral[900]} 0%, ${palette.orange[400]} 75.52%, ` +
     `${palette.amber[300]} 115.50%)`,
+  /** b5's stops without a direction. Manufacturing hero — node 3614:7569. */
+  b5Stops:
+    `${palette.turquoise[500]} 0%, ${palette.turquoise[100]} 63.82%, ` +
+    `${palette.neutral[50]} 127.63%`,
   /** Deep turquoise -> pale turquoise -> cream. */
   b5:
     `linear-gradient(50.55deg, ${palette.turquoise[500]} 0%, ${palette.turquoise[100]} 63.82%, ` +
     `${palette.neutral[50]} 127.63%)`,
+  /** b6's stops without a direction. Legal hero — node 3614:8588. */
+  b6Stops:
+    `${palette.neutral[50]} 0%, ${palette.orange[300]} 53.37%, ` +
+    `${palette.amber[400]} 100%`,
   /** Cream -> coral -> amber. */
   b6:
     `linear-gradient(230.53deg, ${palette.neutral[50]} 0%, ${palette.orange[300]} 53.37%, ` +
     `${palette.amber[400]} 100%)`,
+  /**
+   * b7's stops without a direction. The Financial Services hero band draws the
+   * same ramp mirrored: Figma node 3614:6576 carries the named style "Type B
+   * BG 7" inside a `rotate-180 -scale-y-100` wrapper, which is a horizontal
+   * flip, so the built angle is the reflection, 309.32.
+   */
+  b7Stops:
+    `${palette.amber[700]} 0%, ${palette.amber[500]} 53.34%, ` +
+    `${palette.neutral[50]} 106.67%`,
   /** Burnt amber -> bright amber -> cream. */
   b7:
     `linear-gradient(50.60deg, ${palette.amber[700]} 0%, ${palette.amber[500]} 53.34%, ` +
     `${palette.neutral[50]} 106.67%)`,
+  /** b8's stops without a direction. Healthcare hero — node 3614:5645. */
+  b8Stops:
+    `${palette.neutral[50]} 0%, ${palette.amber[200]} 30.73%, ` +
+    `${palette.neutral[200]} 63.94%, ${palette.turquoise[300]} 100%`,
   /** Cream -> sand -> warm grey -> turquoise. */
   b8:
     `linear-gradient(230.53deg, ${palette.neutral[50]} 0%, ${palette.amber[200]} 30.73%, ` +
     `${palette.neutral[200]} 63.94%, ${palette.turquoise[300]} 100%)`,
+  /**
+   * The navigation dropdown panel — Figma "Navigation & Footer Updates",
+   * node 3729:3599 (Rectangle 12602), repeated on all five nav states.
+   *
+   * White into the brand cream, near-vertical. The only genuinely new value in
+   * that section: every other colour on those artboards is an existing ramp
+   * step. Composed rather than restated as hex, like b1-b8 above.
+   */
+  navPanel: `linear-gradient(219.09deg, ${unmapped.white} 0%, ${palette.neutral[50]} 100%)`,
+
   /* ------------------------------------------------------------------ *
    * Industry row fills — Figma nodes 3276:21593 / 21597 / 21601 / 21605
    * / 21609 on the Industries page.
@@ -407,7 +446,15 @@ export const typography = {
   /** Eyebrow chip label. Figma: "label-eyebrow" — node 3383:25390 */
   eyebrow: { fontSize: '14px', lineHeight: 1.2, fontWeight: fontWeight.semibold },
   /** Tag pill label. Figma: "label-tag" — node 3383:25393 */
-  tag: { fontSize: '12px', lineHeight: 1.5, fontWeight: fontWeight.regular },
+  /**
+   * Pill labels. Line-height 1.333, not the 1.5 the rest of the copy scale
+   * uses: every artboard draws the pill 24 tall with a 16px line box over
+   * 4px of padding a side (Our Work node 3707:10742, and the same "Frame 77"
+   * instance on every Ideal Customer Profile row). At 1.5 the box is 18 and
+   * the pill 26, which is the residual +2 per tag row that the industry and
+   * service page measurements kept reporting.
+   */
+  tag: { fontSize: '12px', lineHeight: 1.3333, fontWeight: fontWeight.regular },
   /** Interactive label — buttons, nav CTA. Figma: 3369:24490 */
   button: { fontSize: '16px', lineHeight: 1.2, fontWeight: fontWeight.semibold },
   /** Nav links carry -0.01em tracking. Figma: 3390:26615 */
@@ -416,6 +463,19 @@ export const typography = {
     lineHeight: 1.2,
     fontWeight: fontWeight.regular,
     letterSpacing: '-0.01em',
+  },
+  /**
+   * Links inside the navigation dropdown panel — Figma node 3729:3601.
+   *
+   * 32px, the `subHeaderLarge` size, but NOT that token: the panel draws its
+   * rows on a 50px pitch (42px line box + 8px gap), where `subHeaderLarge`'s
+   * 1.5 line-height would make it 56 and push the fourth link 24px below where
+   * the artboard has it.
+   */
+  navPanelLink: {
+    fontSize: '32px',
+    lineHeight: 42 / 32,
+    fontWeight: fontWeight.regular,
   },
   /**
    * The Careers hero carousel's index numeral — Figma node 3638:9412.
@@ -496,6 +556,13 @@ export const layout = {
   margin: '80px',
   gutter: '24px',
   columns: 12,
+  /**
+   * Height of the navigation dropdown panel — Figma node 3729:3599, 587px on
+   * the 880px artboard. Fixed rather than content-sized: all five states draw
+   * the same curtain, and the shortest (three links) would otherwise stop
+   * 100px higher than the tallest.
+   */
+  navPanelHeight: '587px',
 } as const
 
 /* ------------------------------------------------------------------ *
@@ -555,6 +622,49 @@ export const motion = {
     scroll: [0.42, 0, 0.58, 1],
     /** Linear, for continuous motion (marquee). */
     linear: [0, 0, 1, 1],
+  },
+
+  /**
+   * Page-load entrance. ⚠ Authored — Figma documents no motion tokens.
+   *
+   * Two parts, deliberately different in character:
+   *
+   * - the navigation arrives *from* the top, feathered: it drops the 24px it
+   *   would have travelled and resolves a blur, so it reads as settling onto
+   *   the page rather than switching on. The lag keeps it a beat behind the
+   *   first paint, which is what stops it feeling welded to the load.
+   * - the hero only fades. It does not move, because it is the thing the page
+   *   is measured against — sliding it makes the whole layout look unsettled.
+   *   `slow` here is longer than any `Reveal`, so the hero is still arriving
+   *   when the nav has finished.
+   *
+   * Reuses `reveal.feather` so the softness of an arriving element is one
+   * value across the site.
+   */
+  intro: {
+    nav: { distance: 24, duration: 1, lag: 0.15 },
+    hero: { duration: 1.6, lag: 0.1 },
+  },
+
+  /**
+   * The navigation dropdown curtain. ⚠ Authored — the "Navigation & Footer
+   * Updates" section documents five static states and no transition between
+   * them, so open/close timing is a proposal like the rest of `motion`.
+   *
+   * `open` is longer than `close` on purpose: the panel is 587px of travel and
+   * a symmetric close leaves the page feeling like it is still catching up.
+   * `contentLag` holds the links back until the curtain is most of the way
+   * down, so type never renders over a half-drawn ground.
+   *
+   * `hoverGrace` is the delay before a pointer leaving the header closes the
+   * panel — without it, the diagonal from a nav item down to the link you are
+   * aiming at exits the trigger and shuts the menu mid-gesture.
+   */
+  navPanel: {
+    open: 0.45,
+    close: 0.3,
+    contentLag: 0.12,
+    hoverGrace: 0.18,
   },
 
   /**

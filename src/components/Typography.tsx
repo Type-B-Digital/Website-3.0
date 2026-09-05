@@ -35,6 +35,7 @@ const variantClass: Record<TypographyVariant, string> = {
   tag: 'text-tag',
   button: 'text-button',
   navLink: 'text-nav-link',
+  navPanelLink: 'text-nav-panel-link',
   numeral: 'text-numeral',
 }
 
@@ -71,6 +72,7 @@ const defaultElement: Record<TypographyVariant, ElementType> = {
   tag: 'span',
   button: 'span',
   navLink: 'span',
+  navPanelLink: 'span',
   // Decorative by default — the Careers carousel numeral is a graphic.
   numeral: 'span',
 }
