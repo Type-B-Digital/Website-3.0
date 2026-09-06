@@ -504,6 +504,8 @@ export function CulturePage() {
       <HowWeShowUp />
       <OurApproach />
       <DesignToTalent />
+      {/* Takes its own cream ground — the Talent crossfade above ends on deep
+          turquoise and nothing below paints one. See Testimonial. */}
       <Testimonial quote={QUOTE} name="Fauad Sheriff" role="CEO, Class.fi" spacing="loose" />
       <Hiring />
       <ValuesMarquee className="bg-surface" />

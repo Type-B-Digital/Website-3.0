@@ -3051,3 +3051,71 @@ Publications section are inert in both the nav and the footer. Those need
 artboards, not engineering — building them now would mean inventing layout and
 copy, which this log has refused to do everywhere else. Node 3679:10413 is also
 still unread.
+
+## The testimonial was on the wrong ground, and so was the block under it — 2026-09-06
+
+Reported against Culture. It was not one section on one page.
+
+### The defect
+
+`Testimonial`'s quote is `text-on-light` — ink — and always has been, so the
+block always needs a light ground. But it shipped `tone="none"`, which paints
+nothing and takes whatever an ancestor happens to have. That is correct only
+where an ancestor actually paints one, and it was not a rule anyone was
+enforcing; it was an accident that held on three pages out of five.
+
+Where it did not hold, the section fell through to the body's ink canvas.
+Measured at each call site:
+
+| | ground | quote | |
+|---|---|---|---|
+| `/culture` | `rgb(4, 14, 25)` | `rgb(4, 14, 25)` | invisible |
+| `/contact` | `rgb(4, 14, 25)` | `rgb(4, 14, 25)` | invisible |
+| `/advisory` (and Product, Teams via `ContentPage`) | `rgb(4, 14, 25)` | `rgb(4, 14, 25)` | invisible |
+| `/our-work` | `rgb(246, 242, 236)` | `rgb(4, 14, 25)` | fine |
+| `/our-work/ferry-pay` | `rgb(246, 242, 236)` | `rgb(4, 14, 25)` | fine |
+
+Not dim — a luminance gap of **0**. The quote was not being read anywhere on
+Culture, Contact, or the three service pages.
+
+### The fix is the default, not the call site
+
+Adding `tone="light"` to the reported page would have left the other four
+broken, so `light` is the DEFAULT now. It is a no-op where things already
+worked — the cream an ancestor was providing is the same `bg-surface` this
+paints — and `none` stays available for a caller that genuinely owns its
+ground, but it has to be asked for.
+
+### `Hiring` had it too
+
+Found while fixing the above: same shape, `tone="none"` with `text-on-light`,
+and both of its call sites are Culture and Contact — the two pages with nothing
+painting behind it. "We're Hiring!" was rendering ink on ink on both. Also now
+`tone="light"`.
+
+### A stacking trap the fix would have sprung
+
+Contact's testimonial carries the warm bloom, and the glow div was
+`absolute inset-0 -z-10`. `Section` is `relative` with `z-index: auto`, so it
+opens no stacking context and a negatively-stacked child paints *behind its
+parent's own background*. That was invisible while the section was transparent
+and would have silently swallowed the bloom the moment `tone="light"` gave the
+section a background. Moved to `z-0` with `relative z-10` content: identical on
+a transparent ground, correct on a painted one. Verified the bloom still
+renders after the change.
+
+### On the audit
+
+Wrote a crawler to find every low-contrast text/ground pair across all sixteen
+routes, hoping to catch the rest of this class. **It is not trustworthy and the
+result should not be read as a clean bill of health.** It resolves a ground by
+walking up for a `background-color`, which means it walks straight past the two
+things this site uses most — gradient grounds (`background-image`) and the
+scroll-driven crossfades, whose colour is animated inline and read mid-flight.
+After excluding gradients and the header it still flagged the "Bold. Brilliant.
+Beautiful." scene, What We Do's Three Lines, and Careers' Our Bench, all of
+which are fine.
+
+Both real bugs here were found and confirmed the reliable way instead: direct
+measurement at a known element, then a screenshot. Seven testimonial call sites
+and both `Hiring` call sites now measure a luminance gap of 229.
