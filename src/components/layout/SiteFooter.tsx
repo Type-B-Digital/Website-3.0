@@ -66,17 +66,27 @@ const FOOTER_COLUMNS: { heading: string; to?: string; links: FooterLink[] }[] = 
     ],
   },
   {
+    /* The heading is the culture page — the same change the nav panel took, so
+       the two now agree. "Our Culture" was a row underneath a heading that went
+       nowhere. */
     heading: 'Who We Are',
+    to: '/culture',
     links: [
-      { label: 'Our Culture', to: '/culture' },
       { label: 'We’re Hiring!', to: '/careers' },
       { label: 'Contact', to: '/contact' },
     ],
   },
   {
+    /*
+      Points at the blog index that is being built next, so this is the one
+      heading here whose page does not exist yet — it lands on the 404 until it
+      does, rather than being inert. A deliberate exception to the dead-link
+      rule the rest of this file follows, and the reason the catch-all route
+      went in first.
+    */
     heading: 'Publications',
+    to: '/publications',
     links: [
-      { label: 'News' },
       { label: 'Substack' },
       { label: 'Linkedin' },
       { label: 'Clutch (4.9)' },

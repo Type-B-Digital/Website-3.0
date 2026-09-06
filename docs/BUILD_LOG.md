@@ -3119,3 +3119,33 @@ which are fine.
 Both real bugs here were found and confirmed the reliable way instead: direct
 measurement at a known element, then a screenshot. Seven testimonial call sites
 and both `Hiring` call sites now measure a luminance gap of 229.
+
+## Footer headings, and Publications gets a destination — 2026-09-06
+
+Brings the footer to the parity the nav panel already had, and adds the one
+link on this site that deliberately points at a page that does not exist yet.
+
+- **Who We Are** takes `/culture` and "Our Culture" leaves the column — the
+  same swap the nav panel took, so the two now agree.
+- **Publications** takes `/publications` and "News" leaves. Confirmed by
+  Eduardo as the blog index being built next.
+
+All five footer headings are links with a caret now; there is no inert heading
+left.
+
+### The one dead link on the site, on purpose
+
+`/publications` has no route yet, so it lands on the 404. That is a deliberate
+exception to the rule the rest of this file follows — an inert label beats one
+that 404s — taken because the destination is real and imminent rather than
+hypothetical. It degrades to a page with a heading, header and footer rather
+than the blank document it would have hit a day ago, which is the catch-all
+route earning its keep sooner than expected.
+
+### Also changed in the nav, though the ask was the footer
+
+The nav panel's Publications section had the same "News" row and the same inert
+heading. Changing only the footer would have re-created exactly the
+footer/nav divergence the previous two passes were closing, so both moved
+together. Route name is `/publications` to match the section; `/blog` is a
+one-line change if that is what the pages end up being called.

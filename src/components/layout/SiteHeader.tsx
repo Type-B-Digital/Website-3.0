@@ -123,9 +123,12 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
+    /* Same change the footer took, so the two stay in agreement: the heading
+       is the blog index being built next, and "News" was a row standing in for
+       it. Lands on the 404 until that page exists. */
     label: 'Publications',
+    to: '/publications',
     links: [
-      { label: 'News' },
       { label: 'Substack' },
       { label: 'Linkedin' },
       { label: 'Clutch (4.9)' },
