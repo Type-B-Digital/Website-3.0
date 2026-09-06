@@ -30,6 +30,8 @@ export { default as ValuesMarquee } from './ValuesMarquee'
 
 export { default as ArrowRight } from './icons/ArrowRight'
 export { default as CaretDown } from './icons/CaretDown'
+export { default as CloseIcon } from './icons/CloseIcon'
+export { default as MenuIcon } from './icons/MenuIcon'
 export { default as ChevronDown } from './icons/ChevronDown'
 export { default as TypeBLogo } from './icons/TypeBLogo'
 export { default as TypeBMark } from './icons/TypeBMark'

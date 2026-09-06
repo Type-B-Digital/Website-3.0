@@ -2958,3 +2958,96 @@ The component this was meant to be built from — node 3679:10413 — was never
 read: both Figma connections were down (the claude.ai server disconnected
 mid-session, the framelink one returned `403 Token expired`). Sizes here came
 from a verbal spec, so anything else that node changes is still outstanding.
+
+## Mobile navigation, the 404, and the bleed — 2026-09-06
+
+Figma was unreachable this session (the claude.ai server disconnected, the
+framelink one returns `403 Token expired`), so this is deliberately not
+design-driven work: three things that were broken rather than undrawn, all in
+territory the file never covered anyway.
+
+### The site had no mobile navigation at all
+
+Not "a rough mobile nav" — none. Below `lg` the five nav items were `hidden`
+and nothing replaced them. Measured at 390x844 before the fix:
+
+```
+navLinksVisible: 0
+headerControls: ["Type B Digital — home", "Let's talk!"]
+```
+
+Two controls, sixteen pages, no way to reach fourteen of them.
+
+⚠ NOT IN FIGMA, and unavoidably so — there is no artboard narrower than 1440.
+Rather than invent a visual language, the drawer is the desktop panel's,
+stacked: same cream ground (`bg-gradient-nav-panel`), same section heading with
+its arrow, same 32px links. `NavPanelContent` grew a `bare` prop so one
+component serves both, which is also what keeps them from drifting.
+
+Three judgment calls, all authored:
+
+- **No accordion.** Collapsing the sections would hide the fifteen
+  destinations the drawer exists to expose, to save a swipe.
+- **Headings step to h3 below `md`.** 48px is the artboard's at 1440; five of
+  them stacked in a 390px viewport is not the same decision. Uses the
+  `text-h3 md:text-h2` step the rest of the site already uses.
+- **40px between sections, not the panel's 80.** At 80 the drawer is 2.5
+  screens of scroll and the headings already separate the sections clearly.
+
+`MenuIcon` and `CloseIcon` are new and also not in the file. Both drawn to the
+spec the icons that ARE in the file use — 24x24, 2px stroke, round caps,
+`currentColor` — so they sit in the set rather than beside it.
+
+### An unknown path rendered nothing
+
+`main.tsx` had no catch-all, so a path matching no route rendered an empty
+`<Routes>`. Not a bare heading — nothing: no header, no footer, `body`
+scrollHeight **0**. And `postbuild` copies `index.html` to `404.html` so Pages
+can serve the SPA, which means every mistyped deep link on the deployed staging
+site landed on that blank page.
+
+`/pages/not-found.tsx` plus a `path="*"` route. Also ⚠ not in Figma — the file
+documents no error state anywhere, the same gap `colors.feedback` already
+records for form validation — so it is built from pieces the site already owns:
+the b1 hero ground, an eyebrow, the h1, and the two routes worth offering
+someone who is lost. After: header and footer present, scrollHeight 2402.
+
+### 5px of sideways rock on a phone
+
+The homepage sat 5px wider than a 390px screen and What We Do 11px. Cause: the
+decorative bleed — `.stages-glow` at `inset-x-[-6%]`, `.footer-glow` at
+`inset-x-[-8%]`, the marquees, the scaled hero images — all wider than the
+viewport on purpose and all relying on an ancestor to contain them. Contained
+at 1440; a few escape at 390.
+
+`overflow-x: clip` on **both** `html` and `body`. Three measurements to get
+there, and the two obvious versions are both wrong:
+
+- **`hidden` would break the site.** It makes the element a scroll container,
+  and `position: sticky` does not work inside one. Every pinned scene here —
+  Talent, the offerings panel, the Careers hero — is sticky. `clip` suppresses
+  the overflow without creating that container, and is also the one value that
+  leaves the other axis alone (a non-visible `overflow-x` normally forces
+  `overflow-y: visible` to compute to `auto`; `clip` is exempt).
+- **Neither element alone does anything.** Overflow on the root propagates to
+  the viewport rather than clipping the root's own box, so `html` alone leaves
+  `scrollWidth` at 395 against 390. With `html` visible, `body` becomes the
+  propagating element instead, so `body` alone also leaves it at 395. Set on
+  both: 390.
+
+Verified rather than assumed — the Talent pin was driven with real scroll
+gestures after the change and still holds (panel top 48 -> 0 across a further
+600px).
+
+### Swept
+
+All 17 routes at 390 and at 1440: no horizontal overflow anywhere, header and
+footer present on every one, drawer trigger visible on every one at 390.
+
+### Still blocked on design
+
+The three case studies (Class-fi, MatchDay Health, Mave AI) and the whole
+Publications section are inert in both the nav and the footer. Those need
+artboards, not engineering — building them now would mean inventing layout and
+copy, which this log has refused to do everywhere else. Node 3679:10413 is also
+still unread.

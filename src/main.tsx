@@ -18,6 +18,7 @@ import FerryPayPage from '@/pages/ferry-pay'
 import OurWorkPage from '@/pages/our-work'
 import TeamsPage from '@/pages/teams'
 import WhatWeDoPage from '@/pages/what-we-do'
+import NotFoundPage from '@/pages/not-found'
 import '@/styles/globals.css'
 
 const container = document.getElementById('root')
@@ -55,6 +56,13 @@ createRoot(container).render(
         <Route path="/advisory" element={<AdvisoryPage />} />
         <Route path="/product-development" element={<ProductDevelopmentPage />} />
         <Route path="/teams" element={<TeamsPage />} />
+        {/*
+          Catch-all. Without it an unknown path matched nothing and `<Routes>`
+          rendered an empty document — no header, no footer, no text. This also
+          catches every mistyped deep link on the deployed site, where
+          `404.html` is a copy of `index.html` so Pages can serve the SPA.
+        */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
     {/*

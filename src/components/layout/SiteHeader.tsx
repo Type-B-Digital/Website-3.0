@@ -1,7 +1,16 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion as fm, useReducedMotion } from 'framer-motion'
-import { ArrowRight, Button, CaretDown, Container, NavIntro, Typography } from '@/components'
+import {
+  ArrowRight,
+  Button,
+  CaretDown,
+  CloseIcon,
+  Container,
+  MenuIcon,
+  NavIntro,
+  Typography,
+} from '@/components'
 import { cn } from '@/lib/cn'
 import TypeBLogo from '@/components/icons/TypeBLogo'
 import { layout, motion as motionTokens } from '@/tokens'
@@ -141,10 +150,28 @@ export type SiteHeaderTone = 'onDark' | 'onLight'
  * colour: it renders here on hover, on focus, and on the row whose page you
  * are already reading.
  */
-function NavPanelContent({ item, currentPath }: { item: NavItem; currentPath: string }) {
+function NavPanelContent({
+  item,
+  currentPath,
+  bare = false,
+}: {
+  item: NavItem
+  currentPath: string
+  /** Drop the panel's own frame — the drawer supplies its own. */
+  bare?: boolean
+}) {
+  const Frame = bare ? 'div' : Container
   return (
-    <Container className="pt-5xl">
-      <Typography variant="h2" as="h2" className="text-on-light">
+    <Frame className={bare ? 'flex flex-col' : 'pt-5xl'}>
+      <Typography
+        variant="h2"
+        as="h2"
+        /* 48px is the artboard's, and it is the artboard's at 1440. Five of
+           them stacked in a 390px drawer is not the same design decision, so
+           the drawer takes the h3 step the rest of the site already uses for
+           this. */
+        className={cn('text-on-light', bare && 'text-h3 md:text-h2')}
+      >
         {item.to ? (
           <Link
             to={item.to}
@@ -181,7 +208,97 @@ function NavPanelContent({ item, currentPath }: { item: NavItem; currentPath: st
           )
         })}
       </ul>
-    </Container>
+    </Frame>
+  )
+}
+
+/* ================================================================== *
+ * THE DRAWER
+ * ================================================================== */
+
+/**
+ * Navigation below `lg`.
+ *
+ * ⚠ NOT IN FIGMA — the file has no artboard narrower than 1440, so there is no
+ * drawn mobile navigation to reproduce. Until this, the site had none at all:
+ * under 1024px the five nav items were `hidden` and nothing replaced them, so
+ * a phone could reach the logo and "Let's talk!" and none of the other fifteen
+ * pages.
+ *
+ * Rather than invent a visual language, this is the desktop panel's, stacked:
+ * the same cream ground, the same section heading with its arrow, the same
+ * 32px links. Five dropdowns that cannot hover become five sections you scroll,
+ * which is also why there is no accordion here — collapsing them would hide
+ * the fourteen destinations this exists to expose, to save a swipe.
+ */
+function NavDrawer({
+  open,
+  onClose,
+  currentPath,
+}: {
+  open: boolean
+  onClose: () => void
+  currentPath: string
+}) {
+  const prefersReduced = useReducedMotion()
+  const { navPanel, easing } = motionTokens
+
+  /*
+    The drawer is the full viewport, so the page behind it must not scroll —
+    on iOS a scrollable body under a fixed overlay is what makes the overlay
+    feel like it is sliding around.
+  */
+  useEffect(() => {
+    if (!open) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previous
+    }
+  }, [open])
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <fm.div
+          className="fixed inset-0 z-50 overflow-y-auto bg-gradient-nav-panel lg:hidden"
+          initial={{ opacity: prefersReduced ? 1 : 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: prefersReduced ? 1 : 0 }}
+          transition={{ duration: prefersReduced ? 0 : navPanel.close, ease: [...easing.out] }}
+        >
+          <Container className="flex flex-col gap-2xl py-xl">
+            <div className="flex items-center justify-between">
+              <Link to="/" className="shrink-0 text-neutral-900" aria-label="Type B Digital — home">
+                <TypeBLogo />
+              </Link>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close menu"
+                className="flex size-2xl items-center justify-center rounded-full text-neutral-900 transition-opacity duration-fast ease-out hover:opacity-muted"
+              >
+                <CloseIcon />
+              </button>
+            </div>
+
+            {/* 40 between sections, not the panel's 80: five of them stacked
+                in a 390px viewport is 2.5 screens of scroll at 80, and the h3
+                headings already separate them clearly. */}
+            <nav className="flex flex-col gap-2xl" aria-label="Primary, mobile">
+              {NAV_ITEMS.map((item) => (
+                <NavPanelContent key={item.label} item={item} currentPath={currentPath} bare />
+              ))}
+            </nav>
+
+            {/* The CTA is in the bar on desktop; in the drawer it belongs at the end. */}
+            <Button as={Link} to="/contact" variant="primary" tone="onLight" className="w-max">
+              Let’s talk!
+            </Button>
+          </Container>
+        </fm.div>
+      )}
+    </AnimatePresence>
   )
 }
 
@@ -191,6 +308,7 @@ function NavPanelContent({ item, currentPath }: { item: NavItem; currentPath: st
 
 export function SiteHeader({ tone = 'onDark' }: { tone?: SiteHeaderTone }) {
   const [openLabel, setOpenLabel] = useState<string | null>(null)
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const prefersReduced = useReducedMotion()
   const { pathname } = useLocation()
   const panelId = useId()
@@ -216,20 +334,25 @@ export function SiteHeader({ tone = 'onDark' }: { tone?: SiteHeaderTone }) {
     )
   }, [cancelClose])
 
-  /* A new route always closes the panel — the link that navigated is inside it. */
-  useEffect(() => setOpenLabel(null), [pathname])
+  /* A new route always closes both — the link that navigated is inside them. */
+  useEffect(() => {
+    setOpenLabel(null)
+    setDrawerOpen(false)
+  }, [pathname])
 
   useEffect(() => cancelClose, [cancelClose])
 
   /* Escape closes, from anywhere: the panel covers the top of the page. */
   useEffect(() => {
-    if (!openItem) return
+    if (!openItem && !drawerOpen) return
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpenLabel(null)
+      if (event.key !== 'Escape') return
+      setOpenLabel(null)
+      setDrawerOpen(false)
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [openItem])
+  }, [openItem, drawerOpen])
 
   /**
    * While a panel is open the nav is drawn over cream, so it takes the light
@@ -359,14 +482,40 @@ export function SiteHeader({ tone = 'onDark' }: { tone?: SiteHeaderTone }) {
                 })}
               </ul>
 
-              {/* Inverts with the ground: cream pill on dark, ink pill on light. */}
-              <Button as={Link} to="/contact" variant="primary" tone={activeTone}>
-                Let’s talk!
-              </Button>
+              <div className="flex items-center gap-md">
+                {/* Inverts with the ground: cream pill on dark, ink pill on light. */}
+                <Button as={Link} to="/contact" variant="primary" tone={activeTone}>
+                  Let’s talk!
+                </Button>
+
+                {/*
+                  The drawer trigger, and the only nav there was below `lg`
+                  until now. Hidden at `lg` and up, where the five dropdowns
+                  take over.
+                */}
+                <button
+                  type="button"
+                  onClick={() => setDrawerOpen(true)}
+                  aria-label="Open menu"
+                  aria-expanded={drawerOpen}
+                  className={cn(
+                    'flex size-2xl items-center justify-center rounded-full transition-opacity duration-fast ease-out hover:opacity-muted lg:hidden',
+                    onDark ? 'text-neutral-50' : 'text-neutral-900',
+                  )}
+                >
+                  <MenuIcon />
+                </button>
+              </div>
             </nav>
           </NavIntro>
         </Container>
       </div>
+
+      <NavDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        currentPath={pathname}
+      />
     </header>
   )
 }

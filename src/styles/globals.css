@@ -223,10 +223,46 @@
     */
     scroll-snap-type: y proximity;
     background-color: var(--color-bg-canvas);
+    /* Half of the bleed fix — see the long note on `body` for why it takes
+       both elements and why the value is `clip`. */
+    overflow-x: clip;
   }
 
   body {
     margin: 0;
+    /*
+      Contain the decorative bleed. `clip`, deliberately NOT `hidden`, and on
+      `body`, not `html`.
+
+      The site is full of elements wider than the viewport on purpose —
+      `.stages-glow` at `inset-x-[-6%]`, `.footer-glow` at `inset-x-[-8%]`, the
+      marquees, the scaled hero images — each relying on an ancestor to contain
+      it. At 1440 they are contained. At 390 a few escaped: the homepage sat
+      5px wider than the screen and What We Do 11px, which is the sideways rock
+      you feel on a phone rather than anything you can see.
+
+      Two things this rule gets right that the obvious version does not:
+
+      - **`clip`, not `hidden`.** `hidden` makes the element a scroll
+        container, and `position: sticky` does not work inside one. Every
+        pinned scene here — Talent, the offerings panel, the Careers hero — is
+        sticky, so `hidden` would trade 5px of overflow for every pin on the
+        site. `clip` suppresses the overflow without creating a scroll
+        container. It is also the one value that leaves the other axis alone:
+        a non-visible `overflow-x` normally forces `overflow-y: visible` to
+        compute to `auto`, and `clip` is exempt.
+      - **On BOTH `html` and `body`.** Neither alone does anything measurable,
+        and it took three measurements to see why. Overflow on the root
+        propagates to the viewport rather than clipping the root's own box, so
+        `html` alone leaves `scrollWidth` at 395 against a 390 client width.
+        With `html` visible, `body` becomes the propagating element instead and
+        `body` alone also leaves it at 395. Set on both, the root absorbs the
+        propagation and `body` clips its own content: 390.
+
+      Both halves verified rather than assumed — the pins were driven with real
+      scroll gestures after the change and still hold.
+    */
+    overflow-x: clip;
     background-color: var(--color-bg-canvas);
     color: var(--color-text-on-dark);
     font-family: var(--font-sans);
