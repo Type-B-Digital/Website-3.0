@@ -59,8 +59,16 @@ import { layout, motion as motionTokens } from '@/tokens'
  * page is built — better an honest dead link than one that 404s.
  *
  * `to` is the section's own hub page, reached from the big heading inside the
- * panel; the top-level item itself is now a dropdown trigger rather than a
+ * panel; the top-level item is otherwise a dropdown trigger rather than a
  * link, which is what its caret has always promised.
+ *
+ * `hubFromBar` opts an item out of that: the bar label becomes a link to `to`
+ * and clicking it navigates instead of toggling. Set on Industries only, at
+ * Eduardo's request — the panel heading was the sole route to the Industries
+ * landing and it was not being found. The other four keep the trigger
+ * behaviour, so the bar is deliberately mixed; flipping any of them is this
+ * one flag. Hover and focus still open the panel either way, so nothing in
+ * the dropdown becomes unreachable.
  *
  * Labels are Title Case throughout. The section is inconsistent with itself —
  * boards 0.0 and 0.1 carry "What we do" / "Case studies" / "Who we are" while
@@ -73,6 +81,8 @@ type NavItem = {
   label: string
   /** The section's hub page, where one exists. */
   to?: string
+  /** Render the bar label as a link to `to` rather than as a toggle. */
+  hubFromBar?: boolean
   links: NavLink[]
 }
 
@@ -90,11 +100,15 @@ const NAV_ITEMS: NavItem[] = [
   {
     label: 'Industries',
     to: '/industries',
+    hubFromBar: true,
     links: [
       { label: 'Healthcare', to: '/industries/healthcare' },
       { label: 'Financial', to: '/industries/financial-services' },
       { label: 'Manufacturing', to: '/industries/manufacturing' },
       { label: 'Real Estate', to: '/industries/real-estate' },
+      /* The footer has listed all five since the nav update; the panel had
+         four. Legal is a live page, so the omission was the divergence. */
+      { label: 'Legal', to: '/industries/legal' },
     ],
   },
   {
@@ -124,8 +138,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     /* Same change the footer took, so the two stay in agreement: the heading
-       is the blog index being built next, and "News" was a row standing in for
-       it. Lands on the 404 until that page exists. */
+       is the blog index, and "News" was a row standing in for it. */
     label: 'Publications',
     to: '/publications',
     links: [
@@ -433,31 +446,33 @@ export function SiteHeader({ tone = 'onDark' }: { tone?: SiteHeaderTone }) {
               <ul className="hidden items-center gap-lg opacity-muted lg:flex">
                 {NAV_ITEMS.map((item) => {
                   const isOpen = item.label === openLabel
-                  return (
-                    <li key={item.label}>
-                      <button
-                        type="button"
-                        aria-expanded={isOpen}
-                        aria-controls={isOpen ? panelId : undefined}
-                        onMouseEnter={() => {
-                          cancelClose()
-                          setOpenLabel(item.label)
-                        }}
-                        onFocus={() => {
-                          cancelClose()
-                          setOpenLabel(item.label)
-                        }}
-                        onClick={() => setOpenLabel(isOpen ? null : item.label)}
-                        className={cn(
-                          'relative flex items-center gap-xs text-nav-link transition-colors duration-fast ease-out',
-                          isOpen ? 'text-neutral-900' : 'hover:opacity-muted',
-                          /* Every label goes grey behind an open panel — the
-                             ground under them is cream now, so the page's own
-                             tone no longer applies to any of them. */
-                          !isOpen && (openItem ? 'text-neutral-600' : linkColour),
-                        )}
-                      >
-                        {/*
+                  const open = () => {
+                    cancelClose()
+                    setOpenLabel(item.label)
+                  }
+                  /*
+                    Shared by both renderings so the two are the same control
+                    to look at and to a screen reader — only what a click does
+                    differs. `aria-expanded` is valid on the link role, so the
+                    disclosure is still announced when the label navigates.
+                  */
+                  const triggerProps = {
+                    'aria-expanded': isOpen,
+                    'aria-controls': isOpen ? panelId : undefined,
+                    onMouseEnter: open,
+                    onFocus: open,
+                    className: cn(
+                      'relative flex items-center gap-xs text-nav-link transition-colors duration-fast ease-out',
+                      isOpen ? 'text-neutral-900' : 'hover:opacity-muted',
+                      /* Every label goes grey behind an open panel — the
+                         ground under them is cream now, so the page's own
+                         tone no longer applies to any of them. */
+                      !isOpen && (openItem ? 'text-neutral-600' : linkColour),
+                    ),
+                  }
+                  const label = (
+                    <>
+                      {/*
                           Figma node 3729:3626 gives the open item a
                           `neutral.200` pill, 16px wider a side and 8px taller.
                           Drawn as an inset backdrop rather than as padding so
@@ -465,21 +480,43 @@ export function SiteHeader({ tone = 'onDark' }: { tone?: SiteHeaderTone }) {
                           the closed bar keeps the geometry it was signed off
                           with.
                         */}
-                        <span
-                          aria-hidden
-                          className={cn(
-                            '-inset-x-md -inset-y-sm absolute rounded-full transition-colors duration-fast ease-out',
-                            isOpen ? 'bg-neutral-200' : 'bg-transparent',
-                          )}
-                        />
-                        <span className="relative">{item.label}</span>
-                        <CaretDown
-                          className={cn(
-                            'relative size-lg shrink-0 transition-transform duration-fast ease-out',
-                            isOpen && 'rotate-180',
-                          )}
-                        />
-                      </button>
+                      <span
+                        aria-hidden
+                        className={cn(
+                          '-inset-x-md -inset-y-sm absolute rounded-full transition-colors duration-fast ease-out',
+                          isOpen ? 'bg-neutral-200' : 'bg-transparent',
+                        )}
+                      />
+                      <span className="relative">{item.label}</span>
+                      <CaretDown
+                        className={cn(
+                          'relative size-lg shrink-0 transition-transform duration-fast ease-out',
+                          isOpen && 'rotate-180',
+                        )}
+                      />
+                    </>
+                  )
+
+                  return (
+                    <li key={item.label}>
+                      {item.hubFromBar && item.to ? (
+                        /*
+                          Clicking navigates; the panel is still opened by
+                          hover and by focus, so the rows inside it stay
+                          reachable by pointer and by keyboard alike.
+                        */
+                        <Link to={item.to} {...triggerProps}>
+                          {label}
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setOpenLabel(isOpen ? null : item.label)}
+                          {...triggerProps}
+                        >
+                          {label}
+                        </button>
+                      )}
                     </li>
                   )
                 })}
@@ -514,11 +551,7 @@ export function SiteHeader({ tone = 'onDark' }: { tone?: SiteHeaderTone }) {
         </Container>
       </div>
 
-      <NavDrawer
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        currentPath={pathname}
-      />
+      <NavDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} currentPath={pathname} />
     </header>
   )
 }

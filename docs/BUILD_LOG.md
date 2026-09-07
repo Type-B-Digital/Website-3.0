@@ -3268,3 +3268,54 @@ AI) are still inert in the nav and the footer — `4.4 Casestudy` (node
 2887:7099) is the Ferry Pay artboard, and the other three have none. Five of
 the six publication cards need headlines. Node 3679:10413 has now been read:
 it is the Global by design city row, and it agrees with what is built.
+
+## Industries is reachable from the bar, and the panel gained Legal — 2026-09-06
+
+Reported as "the link to Industries landing in the main nav goes to the wrong
+page". It went to the right page. There was no link.
+
+### What was actually wrong
+
+Every Industries link on the site already resolved to `/industries`: the row
+inside the What We Do panel, the Industries panel heading, and the footer
+heading. What did not exist was a link in the bar itself — all five top-level
+items are dropdown triggers, so the only route to the landing page was to open
+the panel and click the heading inside it, and that was not being found.
+
+Worth recording, because the earlier note in this file argued the opposite
+case: the bar item became a trigger "which is what its caret has always
+promised". That reasoning holds for a section whose name is only a grouping. It
+does not hold for Industries, where the name is also a page someone wants to
+open.
+
+### `hubFromBar`
+
+One flag on the nav item. With it, the bar label renders as a `Link` to the
+item's `to` and a click navigates; without it, the label stays a button and a
+click toggles the panel. Set on Industries alone, so the bar is now
+deliberately mixed — the other four are unchanged, and flipping any of them is
+one line.
+
+Hover and focus still open the panel in both renderings, so nothing inside the
+dropdown became unreachable by pointer or by keyboard; only what a *click* does
+differs. The two renderings share one `triggerProps` object, so they are the
+same control to look at and to a screen reader, pill and caret included.
+`aria-expanded` is valid on the link role, so the disclosure is still
+announced.
+
+### Legal, found on the way in
+
+The Industries panel listed four industries. The footer has listed five since
+the nav update, and `/industries/legal` has been a live page since the industry
+pages landed — so the panel was the one out of step, not the footer. Added.
+Five rows put the last one at y=443 inside the 587px curtain.
+
+### Verified
+
+Under a real pointer and real focus, not synthetic events — a dispatched
+`mouseenter` does not reach React, which listens on `mouseover`, and the first
+run of this check reported a false negative because of it. Bar renders four
+buttons and one link; hovering Industries opens its panel; focusing it opens
+its panel; clicking it lands on `/industries` with the "Where we go deepest"
+hero. The mobile drawer, which shares `NavPanelContent`, picked Legal up for
+free. All 20 routes still clean at 1440 and 390.

@@ -19,13 +19,11 @@ import { asset } from '@/lib/asset'
  */
 /**
  * `to` is the route where one exists; the rest stay inert until their page is
- * built — an honest dead link beats one that 404s. Publications is the one
- * column with no live route at all.
+ * built — an honest dead link beats one that 404s.
  *
  * A `heading` with a `to` renders as a link, and only then gets the caret: the
  * artboard draws one on all five, but a caret on a heading that goes nowhere
- * promises a page that does not exist. Who We Are and Publications are the two
- * without a hub, so they render as plain text.
+ * promises a page that does not exist.
  *
  * Kept in step with `NAV_ITEMS` in SiteHeader — the update gives the footer and
  * the nav dropdowns the same five sections. They are not shared: the footer
@@ -78,11 +76,9 @@ const FOOTER_COLUMNS: { heading: string; to?: string; links: FooterLink[] }[] = 
   },
   {
     /*
-      Points at the blog index that is being built next, so this is the one
-      heading here whose page does not exist yet — it lands on the 404 until it
-      does, rather than being inert. A deliberate exception to the dead-link
-      rule the rest of this file follows, and the reason the catch-all route
-      went in first.
+      Was the one heading here pointing at a page that did not exist — a
+      deliberate exception to the dead-link rule, taken because the destination
+      was imminent. `/publications` is a real route now.
     */
     heading: 'Publications',
     to: '/publications',
