@@ -3595,3 +3595,43 @@ Product & AI Development. Its ground is already in `gradients.service.product`
 (-49deg amber.100 -> neutral.50 -> turquoise.100, node 3141:2722) and it
 currently renders `SERVICE_GRADIENT` and the accent hero chip — its own chip
 colours have not been read off the artboard yet.
+
+## Branches and where a push goes — 2026-09-07
+
+The client repo has a `staging` branch now, and this clone is configured so
+that the easy thing to type never reaches `main`.
+
+    git push                        -> client/staging   (Type B, staging)
+    git push client main:main       -> client/main      (Type B, LIVE)
+    git push origin main            -> origin/main      (Eduardo's personal copy)
+
+`origin` (`Etovardesign/type-b-digital`) is the personal staging copy and is
+level with local. `client` (`Type-B-Digital/Website-3.0`) is the client repo.
+
+### How the default is redirected
+
+    git config remote.client.push refs/heads/main:refs/heads/staging
+    git branch --set-upstream-to=client/staging main
+
+The local branch is still called `main` and still holds all the work; only
+where it *lands* changed. Upstream points at `client/staging`, so `git status`
+and `git pull` track staging.
+
+⚠ **`git push client main` does NOT push to main.** A lone `<src>` refspec is
+resolved through the configured `remote.client.push` mapping, so that command
+lands on staging like the bare form does. Only a fully-qualified
+`main:main` (or `HEAD:main`) reaches the live branch. That is worth knowing in
+both directions: nothing routine can reach `main` by accident, and releasing to
+it has to be spelled out.
+
+Verified with `--dry-run` on all three forms rather than assumed — the first
+attempt used `push.default=upstream`, which sent BOTH the bare push and
+`git push client main` to staging and would have made `main` unreachable.
+
+### Not set up
+
+No branch protection on `client/main` — the org is on the free plan, where the
+API refuses it for a private repo (the same limitation that blocks GitHub Pages
+there; see the deploy notes above). The redirect above is a local convention,
+not a server-side guard: a clone without this config still pushes to whatever
+its own upstream says.
