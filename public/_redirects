@@ -1,0 +1,8 @@
+# SPA fallback: every path is served by index.html and the router takes it
+# from there. Without this, a deep link like /publications/build-your-future-ip
+# is a 404 at the host — the file does not exist, the route only exists in JS.
+#
+# Read by BOTH Netlify and Cloudflare Pages from the publish directory, so this
+# file is host-agnostic. On GitHub Pages the equivalent is `404.html`, which
+# `npm run postbuild` still writes.
+/*  /index.html  200
