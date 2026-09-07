@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Eyebrow, Reveal, Section, Typography } from '@/components'
+import type { EyebrowTone } from '@/components'
 import { cn } from '@/lib/cn'
 
 /**
@@ -39,11 +40,18 @@ export function Packaging({
   tiers,
   /** What We Do runs the doubled 160/160 rhythm; the service pages run 80/80. */
   spacing = 'service',
+  /**
+   * Teams draws this chip white (node 3605:2713) rather than the amber.100
+   * `onLight` chip, because its page ground is warm and the two sit too close
+   * together. Every other page keeps `onLight`.
+   */
+  eyebrowTone = 'onLight',
 }: {
   eyebrow?: string
   heading?: ReactNode
   tiers: readonly PackageTier[]
   spacing?: 'service' | 'loose'
+  eyebrowTone?: EyebrowTone
 }) {
   return (
     <Section
@@ -54,7 +62,7 @@ export function Packaging({
       <div className="flex flex-col gap-4xl">
         <Reveal>
           <div className="flex max-w-[549px] flex-col items-start gap-md">
-            <Eyebrow tone="onLight">{eyebrow}</Eyebrow>
+            <Eyebrow tone={eyebrowTone}>{eyebrow}</Eyebrow>
             <Typography variant="h2" className="text-h3 md:text-h2">
               {heading}
             </Typography>

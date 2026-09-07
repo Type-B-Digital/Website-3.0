@@ -2,6 +2,7 @@ import { Fragment, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { cn } from '@/lib/cn'
 import { Eyebrow, HeroIntro, Reveal, Section, Tag, Typography } from '@/components'
+import type { EyebrowTone } from '@/components'
 import ArrowRight from '@/components/icons/ArrowRight'
 import { asset } from '@/lib/asset'
 
@@ -553,12 +554,18 @@ export function ServiceHero({
   body,
   cta,
   image,
+  /**
+   * The chip colour. Advisory and Product keep the accent chip; Teams draws
+   * amber.500 (node 3605:2526), which is the ramp its whole page runs on.
+   */
+  eyebrowTone = 'onAccent',
 }: {
   eyebrow: string
   heading: ReactNode
   body: string
   cta: ReactNode
   image: string
+  eyebrowTone?: EyebrowTone
 }) {
   return (
     <HeroIntro>
@@ -567,7 +574,7 @@ export function ServiceHero({
         <div className="flex flex-col gap-4xl">
           <Reveal>
             <div className="flex max-w-[800px] flex-col items-start gap-md">
-              <Eyebrow tone="onAccent">{eyebrow}</Eyebrow>
+              <Eyebrow tone={eyebrowTone}>{eyebrow}</Eyebrow>
               <Typography variant="h1" className="text-h2 md:text-h1">
                 {heading}
               </Typography>

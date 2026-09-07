@@ -140,8 +140,7 @@ export const gradients = {
    * puts the ink end at the top left — the one industry hero with light type.
    */
   b4Stops:
-    `${palette.neutral[900]} 0%, ${palette.orange[400]} 75.52%, ` +
-    `${palette.amber[300]} 115.50%`,
+    `${palette.neutral[900]} 0%, ${palette.orange[400]} 75.52%, ` + `${palette.amber[300]} 115.50%`,
   /** Ink -> orange -> amber. */
   b4:
     `linear-gradient(230.54deg, ${palette.neutral[900]} 0%, ${palette.orange[400]} 75.52%, ` +
@@ -156,8 +155,7 @@ export const gradients = {
     `${palette.neutral[50]} 127.63%)`,
   /** b6's stops without a direction. Legal hero — node 3614:8588. */
   b6Stops:
-    `${palette.neutral[50]} 0%, ${palette.orange[300]} 53.37%, ` +
-    `${palette.amber[400]} 100%`,
+    `${palette.neutral[50]} 0%, ${palette.orange[300]} 53.37%, ` + `${palette.amber[400]} 100%`,
   /** Cream -> coral -> amber. */
   b6:
     `linear-gradient(230.53deg, ${palette.neutral[50]} 0%, ${palette.orange[300]} 53.37%, ` +
@@ -169,8 +167,7 @@ export const gradients = {
    * flip, so the built angle is the reflection, 309.32.
    */
   b7Stops:
-    `${palette.amber[700]} 0%, ${palette.amber[500]} 53.34%, ` +
-    `${palette.neutral[50]} 106.67%`,
+    `${palette.amber[700]} 0%, ${palette.amber[500]} 53.34%, ` + `${palette.neutral[50]} 106.67%`,
   /** Burnt amber -> bright amber -> cream. */
   b7:
     `linear-gradient(50.60deg, ${palette.amber[700]} 0%, ${palette.amber[500]} 53.34%, ` +
@@ -245,6 +242,38 @@ export const gradients = {
       `${palette.amber[400]} 100%)`,
   },
 
+  /**
+   * The three service-page grounds, read off the artboard frames themselves.
+   *
+   * Each page carries its OWN diagonal ramp — they are not one shared
+   * gradient, and the shared `SERVICE_GRADIENT` in ContentPage (a 180deg
+   * three-stop fit sampled down the left gutter) matches none of them. Sampling
+   * a diagonal vertically is what produced it; the frame fills are exact:
+   *
+   *   advisory  -53deg  turquoise.100 -> neutral.50 -> orange.100    cool to warm
+   *   product   -49deg  amber.100     -> neutral.50 -> turquoise.100 warm to cool
+   *   teams     -49deg  orange.100    -> neutral.50 -> amber.100     warm throughout
+   *
+   * Figma: nodes 2910:15211, 3141:2722, 3149:7942. Every stop is a ramp value
+   * and every stop position is 0 / 55 / 100.
+   *
+   * ⚠ Only `teams` is wired up. Advisory and Product still run the shared
+   * default and are one line each when they are asked for.
+   */
+  service: {
+    /** Node 2910:15211. The one at -53deg rather than -49deg. */
+    advisory:
+      `linear-gradient(-53deg, ${palette.turquoise[100]} 0%, ${palette.neutral[50]} 55%, ` +
+      `${palette.orange[100]} 100%)`,
+    /** Node 3141:2722. */
+    product:
+      `linear-gradient(-49deg, ${palette.amber[100]} 0%, ${palette.neutral[50]} 55%, ` +
+      `${palette.turquoise[100]} 100%)`,
+    /** Node 3149:7942. The only one that stays warm end to end. */
+    teams:
+      `linear-gradient(-49deg, ${palette.orange[100]} 0%, ${palette.neutral[50]} 55%, ` +
+      `${palette.amber[100]} 100%)`,
+  },
 } as const
 
 export type GradientToken = keyof typeof gradients
@@ -317,7 +346,6 @@ export const colors = {
     onDarkMuted: palette.neutral[50],
     /** Accent display type — "Advisory" / "Teams". Figma: 3390:26552 */
     accent: palette.turquoise[400],
-
   },
   border: {
     /** Secondary CTA on dark. Figma: 3369:24517 */

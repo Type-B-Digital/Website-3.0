@@ -28,12 +28,22 @@ export const VALUES = [
   'Approachable',
 ] as const
 
-/** `deep` is the type colour on cream; `soft` is the one used on the warm ground. */
-export type ValuesMarqueeTone = 'deep' | 'soft'
+/**
+ * `deep` is the type colour on cream; `soft` is the one used on the warm ground.
+ *
+ * `ember` is the orange ramp's own 300 — `#FB936B`, which is what the Teams
+ * artboard draws (node 3605:2702). It is a fixed ramp value rather than
+ * `accent-300`, because the Teams page is NOT a wholesale `ember` mood: its FAQ
+ * rule and its Featured chip stay turquoise. Swapping the mood would have
+ * carried those with it. The marquee colour is per-artboard — Publications runs
+ * amber.500 at 32%, the blog post orange.500 at 32%, this one orange.300 solid.
+ */
+export type ValuesMarqueeTone = 'deep' | 'soft' | 'ember'
 
 const toneClasses: Record<ValuesMarqueeTone, string> = {
   deep: 'text-accent-300',
   soft: 'text-accent-800',
+  ember: 'text-orange-300',
 }
 
 export function ValuesMarquee({

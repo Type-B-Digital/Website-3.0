@@ -25,7 +25,7 @@ import Typography from './Typography'
  * The Industries hero (node 2894:14357) is SemiBold, agreeing with the token,
  * so the token stays. Logged in BUILD_LOG.
  */
-export type EyebrowTone = 'onLight' | 'onAccent' | 'ink' | 'white' | 'slate'
+export type EyebrowTone = 'onLight' | 'onAccent' | 'ink' | 'white' | 'slate' | 'solar' | 'ember'
 
 const toneClasses: Record<EyebrowTone, string> = {
   onLight: 'bg-chip-light text-on-light',
@@ -34,6 +34,21 @@ const toneClasses: Record<EyebrowTone, string> = {
   /** One ramp step up from `ink` — the case study eyebrow (node 2887:7159). */
   slate: 'bg-neutral-800 text-paper',
   white: 'bg-white text-on-light',
+  /**
+   * The two service-hero chips, each the 500 of a warm ramp with ink text.
+   * Named for the MOODS those ramps are — `solar` is the amber ramp, `ember`
+   * the orange one (see `moods` in tokens) — because "amber" and "orange" name
+   * two different ramps in this file and a tone called `amber` sitting beside a
+   * tone called `orange` would be a coin toss every time.
+   *
+   *   solar  amber.500  #FD8816   Teams hero      node 3605:2526
+   *   ember  orange.500 #FF5315   Advisory hero   node 3605:1488
+   *
+   * Both exist because the `onLight` chip is amber.100, which all but
+   * disappears into these pages' own warm grounds.
+   */
+  solar: 'bg-amber-500 text-on-light',
+  ember: 'bg-orange-500 text-on-light',
 }
 
 export function Eyebrow({

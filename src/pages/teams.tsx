@@ -10,6 +10,7 @@ import {
   RelatedServices,
   ServiceHero,
 } from '@/components/sections'
+import { gradients } from '@/tokens'
 import { CAPABILITIES, TIERS, related } from './service-content'
 
 /**
@@ -19,6 +20,25 @@ import { CAPABILITIES, TIERS, related } from './service-content'
  * The shortest of the three. No engagement-step row and no Sovereign AI cards;
  * the vetting list carries the weight instead, at seven rows against Product's
  * five, with an intro column beside it.
+ *
+ * ── Colour ───────────────────────────────────────────────────────────────
+ *
+ * This page runs its own ground and its own warm accents, read off the
+ * artboard rather than taking `ContentPage`'s shared default:
+ *
+ *   ground          -49deg orange.100 -> neutral.50 -> amber.100   frame fill
+ *   hero chip       amber.500  #FD8816 + ink text                  3605:2526
+ *   packaging chip  white                                          3605:2713
+ *   values band     orange.300 #FB936B                             3605:2702
+ *
+ * It is warm end to end, which the shared `SERVICE_GRADIENT` is not — that one
+ * opens on turquoise.
+ *
+ * ⚠ It is NOT the `ember` mood. Two things on this artboard stay turquoise: the
+ * FAQ rule (`#17616E` at 40%, which is what `border-accent-soft` already
+ * resolves to) and the Featured chip (`#17616E`, node 3605:2652). Swapping
+ * `data-mood` would have turned both orange, so the warm pieces are named
+ * individually instead.
  */
 
 const PROFILES = [
@@ -107,6 +127,8 @@ export function TeamsPage() {
   return (
     <ContentPage
       faq={FAQ}
+      ground={{ backgroundImage: gradients.service.teams }}
+      marqueeTone="ember"
       testimonial={{
         quote:
           '“Type B’s professionalism and ability to work with limited supervision from my side were most impressive.”',
@@ -116,6 +138,7 @@ export function TeamsPage() {
     >
       <ServiceHero
         eyebrow="Teams"
+        eyebrowTone="solar"
         heading="Senior teams, managed end to end"
         body="We source, screen, assess, and actively manage senior engineering, design, and data talent who ship with agents day to day, with a North America-based lead who owns the outcome, and build-operate-transfer for when you are ready to bring the team in-house."
         image="/images/services/product-hero.jpg"
@@ -140,7 +163,7 @@ export function TeamsPage() {
         levels={LEVELS}
       />
 
-      <Packaging tiers={TIERS} />
+      <Packaging tiers={TIERS} eyebrowTone="white" />
 
       <RelatedServices
         services={related(

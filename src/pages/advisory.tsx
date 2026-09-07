@@ -10,6 +10,7 @@ import {
   RelatedServices,
   ServiceHero,
 } from '@/components/sections'
+import { gradients } from '@/tokens'
 import { CAPABILITIES, TIERS, related } from './service-content'
 
 /**
@@ -18,6 +19,23 @@ import { CAPABILITIES, TIERS, related } from './service-content'
  *
  * Same shell as Product & AI Development, minus the Levels list and the
  * Sovereign AI cards, and with a four-step engagement row instead of three.
+ *
+ * ── Colour ───────────────────────────────────────────────────────────────
+ *
+ * Its own ground and its own hero chip, read off the artboard rather than
+ * taking `ContentPage`'s shared default:
+ *
+ *   ground          -53deg turquoise.100 -> neutral.50 -> orange.100  frame fill
+ *   hero chip       orange.500 #FF5315 + ink text  (`ember`)          3605:1488
+ *   packaging chip  white                                             3605:1804
+ *
+ * The run is cool to warm — the reverse of Teams, which is warm end to end —
+ * and it is the only one of the three drawn at -53deg rather than -49deg.
+ *
+ * ⚠ Unlike Teams, the values band here stays turquoise.300 (`#709BA0`, node
+ * 3605:1786), which is what `deep` already resolves to. So this page is warm at
+ * the hero and cool at the foot, and only the two chips move. Nothing else on
+ * the artboard leaves the default accent.
  */
 
 const PROFILES = [
@@ -151,6 +169,7 @@ export function AdvisoryPage() {
   return (
     <ContentPage
       faq={FAQ}
+      ground={{ backgroundImage: gradients.service.advisory }}
       testimonial={{
         quote:
           '“Type B’s professionalism and ability to work with limited supervision from my side were most impressive.”',
@@ -160,6 +179,7 @@ export function AdvisoryPage() {
     >
       <ServiceHero
         eyebrow="Advisory"
+        eyebrowTone="ember"
         heading="Clarity and the right plan before you build"
         body="AI strategy and roadmaps, technology due diligence for M&A and investment, and the change management that makes a transformation stick. Everything we recommend is something our own delivery teams could build, which keeps the advice honest."
         image="/images/services/product-hero.jpg"
@@ -185,7 +205,7 @@ export function AdvisoryPage() {
         footnote="The roadmap scores every use case across both architectures, what should ship as standard cloud AI (faster and cheaper, and most use cases land here) and what genuinely requires the sovereign treatment we specialize in. Telling those apart is itself a deliverable, and it is where most AI budgets are quietly wasted."
       />
 
-      <Packaging tiers={TIERS} />
+      <Packaging tiers={TIERS} eyebrowTone="white" />
 
       <RelatedServices
         services={related(

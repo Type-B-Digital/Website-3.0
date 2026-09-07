@@ -3472,3 +3472,126 @@ than one treatment. `HeroStats` parses its display strings ("30+", "25%",
 "100") into the prefix/number/suffix `CountUp` wants, rather than every call
 site being restated — six on Culture, three on each case study. A value with no
 digits renders as plain text and cannot animate from zero to nothing.
+
+## Teams takes its own colour — Figma 3149:7942 — 2026-09-07
+
+### The shared service gradient matches none of the three pages
+
+`SERVICE_GRADIENT` is a 180deg three-stop fit, sampled down the artboard's left
+gutter. The frame fills are diagonal, and reading a diagonal vertically is what
+produced a ramp that belongs to no page:
+
+    shared    180deg  turquoise.100 -> neutral.50 -> amber.100
+    advisory  -53deg  turquoise.100 -> neutral.50 -> orange.100
+    product   -49deg  amber.100     -> neutral.50 -> turquoise.100
+    teams     -49deg  orange.100    -> neutral.50 -> amber.100
+
+Every stop is an exact ramp value and every stop position is 0 / 55 / 100.
+All three are now in `gradients.service`; **only Teams is wired up**, since
+that is what was asked for. Advisory and Product are one line each.
+
+Teams is the one that stays warm end to end. The shared default opened it on
+turquoise, which is why it read as belonging to a different page than the
+artboard.
+
+### ⚠ It is not the `ember` mood, and that was the trap
+
+The obvious move was `data-mood="ember"` — the orange ramp is a mood, and
+ember's `accent-300` is `#FB936B`, exactly the marquee colour on this artboard.
+It would have been one attribute.
+
+It is wrong. Two things on this artboard stay turquoise while everything around
+them goes warm:
+
+- the FAQ rule, `#17616E` at 40% (node 3605:2662) — which is what
+  `border-accent-soft` already resolves to in the default mood; and
+- the Featured chip, `#17616E` (node 3605:2652).
+
+A mood swap carries the whole accent ramp, so both would have turned orange.
+The warm pieces are named individually instead.
+
+### What changed, measured against the artboard
+
+    element          artboard              rendered              node
+    ground           -49deg F8D2C1/F6F2EC/F7DDC1  exact          3149:7942
+    hero chip        #FD8816 + ink         rgb(253,136,22) + ink  3605:2526
+    packaging chip   #FFFFFF               rgb(255,255,255)       3605:2713
+    capability chip  #FFFFFF               rgb(255,255,255)       3605:2608
+    testimonial chip #FFFFFF               rgb(255,255,255)       3605:2697
+    values band      #FB936B               rgb(251,147,107)       3605:2702
+    FAQ rule         #17616E @ 40%         rgba(23,97,110,0.4)    3605:2662
+
+The packaging chip is white here rather than the amber.100 `onLight` chip
+because this page's ground *is* warm — an amber chip on an amber ground is two
+values of the same hue a step apart. The artboard makes the same call.
+
+### Three props, not three forks
+
+`ServiceHero` takes `eyebrowTone`, `Packaging` takes `eyebrowTone`, and
+`ContentPage` takes `marqueeTone`. All three default to what they did before,
+so Advisory, Product and the five industry pages are untouched — verified after
+the change: both siblings still render the shared gradient, `rgb(112,155,160)`
+in the values band and the accent chip in the hero.
+
+`Eyebrow` gains an `amber` tone (amber.500 + ink) and `ValuesMarquee` an
+`ember` tone (orange.300). `ember` is a fixed ramp value, not `accent-300`, for
+the reason above.
+
+### Left alone
+
+The Featured chip renders `accent-600` (`#13505D`) where the artboard has
+turquoise.500 (`#17616E`) — one ramp step darker. `FeaturedCase` shares that
+chip with every industry page and the homepage, so correcting it is a
+site-wide change rather than a Teams one. Noted, not touched.
+
+## Advisory takes its own colour — Figma 2910:15211 — 2026-09-07
+
+Same treatment as Teams the day before, and the second of the three service
+grounds already sitting in `gradients.service` gets wired up.
+
+    ground          -53deg turquoise.100 -> neutral.50 -> orange.100   frame fill
+    hero chip       orange.500 #FF5315 + ink text  (`ember`)           3605:1488
+    packaging chip  white                                              3605:1804
+
+Rendered and measured: the ground comes back
+`linear-gradient(-53deg, rgb(201,213,211) 0%, rgb(246,242,236) 55%, rgb(248,210,193) 100%)`
+and the chip `rgb(255,83,21)` on ink — both exact.
+
+### Where it differs from Teams
+
+Teams is warm end to end and moves its values band to orange.300. Advisory
+runs cool to warm and **keeps** turquoise.300 (`#709BA0`, node 3605:1786),
+which is what `deep` already resolves to. So only the two chips moved here;
+nothing else on this artboard leaves the default accent. It is also the one
+drawn at -53deg rather than -49deg.
+
+### Direction, checked rather than assumed
+
+This ground has a cool end and a warm end, so which end lands at the top is a
+visible fact rather than a rounding detail — and `linear-gradient(-53deg, …)`
+puts the 100% stop at the top-left, not the 0% stop. Reading the stop list in
+source order suggests the opposite.
+
+Verified by rendering the artboard itself out of Figma at 0.14 scale and
+comparing: the artboard is warm at the hero and turquoise at the foot, and so
+is the page. Teams gave no way to check this — both its ends are warm.
+
+### The chip tones are named after the moods now
+
+`Eyebrow` gained `amber` yesterday for the Teams hero. With a second warm chip
+arriving, `amber` next to a future `orange` would have been a coin toss every
+time, because "amber" and "orange" are two different ramps in this file. Both
+are named for the mood their ramp is instead:
+
+    solar  amber.500  #FD8816   Teams hero
+    ember  orange.500 #FF5315   Advisory hero
+
+Teams was updated to `solar` in the same change; the rename touched nothing
+else, since these tones are two days old and have no other call sites.
+
+### Still on the shared default
+
+Product & AI Development. Its ground is already in `gradients.service.product`
+(-49deg amber.100 -> neutral.50 -> turquoise.100, node 3141:2722) and it
+currently renders `SERVICE_GRADIENT` and the accent hero chip — its own chip
+colours have not been read off the artboard yet.
