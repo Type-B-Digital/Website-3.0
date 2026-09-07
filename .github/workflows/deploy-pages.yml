@@ -1,32 +1,34 @@
 # Build the site and publish it to GitHub Pages.
 #
 # Deploys from the built output rather than committing `dist/`, so the repo
-# stays source-only and the staging link always reflects `main`.
+# stays source-only and the staging link always reflects `staging`.
 #
-# `configure-pages` enables Pages on first run (`enablement: true`), so no
-# manual visit to Settings -> Pages is needed.
-name: Deploy staging site
-
-# Manual only. `configure-pages` has `enablement: true` and would normally
-# switch Pages on itself, but it cannot here: Type-B-Digital is on the free
-# plan, and GitHub Pages from a PRIVATE repository needs Pro, Team or
-# Enterprise. The API says so directly —
+# ── Why this is on a push trigger again ──────────────────────────────────
+#
+# It was manual-only because Pages could not be switched on at all:
+# Type-B-Digital was on the free plan, and Pages from a PRIVATE repository
+# needs Pro, Team or Enterprise. The API refused it outright —
 #
 #   POST /repos/Type-B-Digital/Website-3.0/pages
 #   422 "Your current plan does not support GitHub Pages for this repository."
 #
-# So a push trigger only produces a red X on every commit. Three ways out, none
-# of them a code change: make the repo public, upgrade the org, or point
-# Netlify / Cloudflare Pages at it (both build from a private repo on their free
-# tier, and both can password-protect the preview).
+# The repository is PUBLIC now, at Eduardo's direction, which is what unblocked
+# it. Note what that means: a Pages site has no access control below Enterprise
+# Cloud, so this URL is readable by anyone who has it. It is not a private
+# preview and must not be treated as one.
 #
-# Once Pages is actually available, add back:
+# ── Which branch is live ─────────────────────────────────────────────────
 #
-#   push:
-#     branches: [main]
-#
-# and the staging link tracks `main` on its own.
+# `staging`, not `main`. Work lands on staging by default (see
+# docs/BUILD_LOG.md § Branches and where a push goes), so that is the branch
+# the client link should follow. `main` stays the release branch and does NOT
+# deploy — the `github-pages` environment allows both branches, so pointing
+# this at `main` later is a one-line change here.
+name: Deploy staging site
+
 on:
+  push:
+    branches: [staging]
   workflow_dispatch:
 
 # Let a newer push supersede an in-flight deploy, but never cancel a deploy
