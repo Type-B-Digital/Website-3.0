@@ -3149,3 +3149,122 @@ heading. Changing only the footer would have re-created exactly the
 footer/nav divergence the previous two passes were closing, so both moved
 together. Route name is `/publications` to match the section; `/blog` is a
 one-line change if that is what the pages end up being called.
+
+## Publications, and the article behind it — Figma 2887:9631 / 2894:10170 — 2026-09-06
+
+The dead link from this morning now has a page. Two of them: the index, and
+the one article the file actually contains.
+
+### What the artboards had, and what they did not
+
+`8. Blog` (node 2887:9631) draws a six-card grid against an eight-row filter
+rail. Five of the six headlines are the literal string "Article header goes
+here and will never exceed more than two lines". The categories are real, the
+filters are real, the photographs are real; the writing is not.
+
+`8.1 Blog Post` (node 2894:10170) is the opposite — finished copy. A title, a
+date, a lead, three section headings and their bodies, all of it written. So
+the Teams card has a destination and the other five do not.
+
+Reproduced as drawn on Eduardo's call: all six cards render, five carrying the
+placeholder, and a card with no article is not a link. Same treatment Our Work
+gives its unfinished thumbnails — the client can see which five slots need
+writing. Three further copy gaps are logged in `publications-content.ts`: the
+article's standfirst is the index page's blurb verbatim, The BOT Advantage's
+body is the second paragraph of The Race to the Bottom repeated word for word,
+and the whole article uses straight apostrophes where the rest of the file uses
+curly. All kept.
+
+### The layout is exact, and it is not columnar
+
+Both pages split the 1280 content width by hand rather than on the 12-column
+grid, because neither split lands on it:
+
+    index   323 rail + 99 gap + 858 grid   = 1280
+    article 323 rail + 112 gap + 845 body  = 1280
+
+The grid is two columns on a 24 gutter, so a card is 417x341. Measured on the
+rendered page: rail 323, grid 858, card 417x341.
+
+The card's inner column is written on the artboard as 257-287px of padding-top
+against a fixed-height 293 child, which overflows its own content box and
+resolves to a plain 24px inset on all four sides. Built as the 24, not the 257.
+
+### The card headlines were right and I read them as a bug
+
+The artboard draws two of the six headlines in ink and four in paper, and every
+category label in paper. The two-against-four split looks like drift, and the
+first pass "fixed" it — all six to paper, with `bg-scrim` under them.
+
+That was wrong, and measuring said so. These photographs are light across the
+top and dark across the bottom. The two ink headlines are exactly the two cards
+whose bottom strip is light:
+
+    ai-enablement    paper 1.70   ink 6.90
+    fractional-cto   paper 1.97   ink 7.24
+
+Every headline clears 4.5:1 on the colour the artboard gives it, MENA the
+tightest at 4.67. The scrim made it worse, not better — it drops those two ink
+headlines to 4.19 and 4.54. Removed; the headlines ship exactly as drawn.
+
+### The category label is the real defect, and no colour fixes it
+
+Paper fails on all six, 1.25:1 to 2.27:1 against the 4.5 that 16px regular
+needs. Ink fixes four of them and fails on the other two: Teams and Operational
+Rescue have a hard light-to-dark edge running through the label's own box, so
+neither colour reads on both sides of it (ink 1.39 and 1.12).
+
+So it is a scrim, but only over the label band — `scrim-strong` held through
+the label and gone by 55%, which is 40px clear of the highest headline. Paper
+labels then read 9.02 to 11.13 and the headline half of every card is
+untouched.
+
+### On measuring it
+
+The mean is what hid this. Averaged across the full card width the ink Teams
+label scores 10.76 and looks fine; the dark shape it actually sits on scores
+1.39. The numbers above are the worst 5x5 block inside each line's own
+rendered box, sampled from a screenshot of the page with the card text hidden —
+not from the source PNGs and not from a canvas reconstruction of the crop.
+Both of those agreed with each other and both were wrong, because
+`object-cover` and the 8px radius put different pixels under the text than the
+crop rectangle does.
+
+### Two things below 1280
+
+Figma has no artboard there, so both are interpretation and both are noted in
+the page files:
+
+- The article title is 56px, which is not a step on the scale. At 390 it ran
+  four lines and filled the first screen; it steps down to `h3` below `md`, the
+  same one-step move the pages with a real `h1` make.
+- The outline rail is hidden below `lg`. Stacked, it put a list of section
+  names above the headline of the article it outlines. Nothing is lost — every
+  row is a jump link to a heading still on the page.
+
+The rail is also `self-start`. It was `sticky` and doing nothing: a grid item
+stretches to its row height by default, so the rail filled the whole article
+column and had no room left to move inside it.
+
+### Authored, because the artboard draws no state for it
+
+The filter rail. A row toggles, clicking the active row clears it, and the
+active row takes the ink-and-underline treatment the nav panel already uses for
+the current page rather than a new one. Two of the eight filters — Fintech and
+Product Methodology — match no article, so there is an empty result to handle
+and it is handled rather than assumed away.
+
+### Verified
+
+All 20 routes at 1440 and at 390: no horizontal overflow, header and footer on
+every one. `/publications/does-not-exist` renders the 404, not an empty
+article. The filter toggles, untoggles and empties correctly under real
+clicks; all four outline anchors resolve to headings that exist.
+
+### Still blocked on design
+
+Unchanged, minus one. The three case studies (Class-fi, MatchDay Health, Mave
+AI) are still inert in the nav and the footer — `4.4 Casestudy` (node
+2887:7099) is the Ferry Pay artboard, and the other three have none. Five of
+the six publication cards need headlines. Node 3679:10413 has now been read:
+it is the Global by design city row, and it agrees with what is built.
