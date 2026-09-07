@@ -3635,3 +3635,65 @@ API refuses it for a private repo (the same limitation that blocks GitHub Pages
 there; see the deploy notes above). The redirect above is a local convention,
 not a server-side guard: a clone without this config still pushes to whatever
 its own upstream says.
+
+## Publications links get their destinations, and a Privacy Policy page — 2026-09-07
+
+### Industries leaves the What We Do panel
+
+It was a row inside What We Do *and* its own top-level section with its own
+panel, so one destination had two homes in the same bar. The footer never
+listed it there. Removed from the panel; the top-level item is untouched.
+
+### External links
+
+`NavLink` and `FooterLink` gain an `href` alongside `to`: `to` is an internal
+route and renders a `Link`, `href` leaves the site and renders a real anchor
+with `target="_blank"` and `rel="noopener noreferrer"` — without `noopener`,
+`target="_blank"` hands the new tab a reference back to this one. A row with
+neither is still inert, which is the rule this file has followed throughout.
+
+    Linkedin       https://www.linkedin.com/company/typeb-digital/
+    Clutch (4.9)   https://clutch.co/profile/type-b
+    Privacy Policy /privacy-policy
+
+Set in both `NAV_ITEMS` and `FOOTER_COLUMNS`, which list the same four rows and
+have to stay in step. ⚠ Substack still has no URL and stays inert.
+
+### The Privacy Policy page
+
+Copy taken verbatim from https://www.typeb.digital/privacy-policy and set in
+this site's type scale. ⚠ NOT IN FIGMA — there is no legal-page artboard, the
+same gap the 404 records, so the layout is authored from the system.
+
+Three decisions worth naming:
+
+- **Cream, not a gradient.** Every other page carries one, but this is a
+  document to read rather than a page to sell from, and `bg-surface` is the
+  site's own light reading ground — the bodies of Our Work, What We Do and
+  Culture's tail all sit on it. Nothing invented.
+- **A 720px measure, not the article template's 845.** That column was built
+  for 20px copy; this is 16px, the default body step, and at 845 a 16px line
+  runs past 110 characters.
+- **The contents list is the source's own.** "What this privacy policy
+  discloses" is already a table of contents in the copy, so its seven rows
+  became jump links rather than a navigation device invented for the page.
+
+The copy carries an email address and two URLs as bare prose. Rewriting the
+sentences around them would be editing the client's legal text, so the text
+stays exactly as written and only the spans that ARE addresses become links —
+`hello@typeb.digital` as `mailto:`, the two URLs as external anchors.
+
+⚠ Two inconsistencies in the source, reproduced as written: the contents row
+reads "GDPR Data Protection Rights" while the section it points at is headed
+"GDPR - General Data Protection Regulation", and that section says "includes 7
+regulations" then lists six.
+
+### Verified
+
+Under a real pointer: the What We Do panel lists Advisory, Product & AI
+Development and Teams and nothing else; Industries still lists all five; the
+Publications panel and the footer column both carry the two external links with
+`target="_blank"` and the route to /privacy-policy, with Substack inert. On the
+page itself, all seven contents rows resolve to a heading that exists (zero
+dead anchors), three h3 subsections render, and the mailto and both external
+links are live. 21 routes clean at 1440 and 390.

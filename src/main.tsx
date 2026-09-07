@@ -15,6 +15,7 @@ import RealEstatePage from '@/pages/real-estate'
 import ProductDevelopmentPage from '@/pages/product-development'
 import PublicationsPage from '@/pages/publications'
 import PublicationPostPage from '@/pages/publication-post'
+import PrivacyPolicyPage from '@/pages/privacy-policy'
 import IndustriesPage from '@/pages/industries'
 import FerryPayPage from '@/pages/ferry-pay'
 import OurWorkPage from '@/pages/our-work'
@@ -61,6 +62,7 @@ createRoot(container).render(
         <Route path="/publications" element={<PublicationsPage />} />
         {/* One artboard, one template — an unknown slug falls through to the 404. */}
         <Route path="/publications/:slug" element={<PublicationPostPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         {/*
           Catch-all. Without it an unknown path matched nothing and `<Routes>`
           rendered an empty document — no header, no footer, no text. This also

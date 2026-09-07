@@ -75,7 +75,12 @@ import { layout, motion as motionTokens } from '@/tokens'
  * 0.2-0.4 and the whole footer update carry Title Case — so this follows the
  * majority and the footer, the one place both appear side by side.
  */
-type NavLink = { label: string; to?: string }
+/**
+ * `to` is an internal route; `href` is an external destination and opens in a
+ * new tab. A row with neither is inert — the rule this file has followed all
+ * along, that an honest dead label beats a link that goes nowhere.
+ */
+type NavLink = { label: string; to?: string; href?: string }
 
 type NavItem = {
   label: string
@@ -94,7 +99,9 @@ const NAV_ITEMS: NavItem[] = [
       { label: 'Advisory', to: '/advisory' },
       { label: 'Product & AI Development', to: '/product-development' },
       { label: 'Teams', to: '/teams' },
-      { label: 'Industries', to: '/industries' },
+      /* Industries was here and is not any more: it is its own top-level
+         section with its own panel, and listing it inside What We Do gave one
+         destination two homes in the same bar. The footer never had it. */
     ],
   },
   {
@@ -142,10 +149,11 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Publications',
     to: '/publications',
     links: [
+      /* ⚠ Substack has no URL yet, so it stays inert. */
       { label: 'Substack' },
-      { label: 'Linkedin' },
-      { label: 'Clutch (4.9)' },
-      { label: 'Privacy Policy' },
+      { label: 'Linkedin', href: 'https://www.linkedin.com/company/typeb-digital/' },
+      { label: 'Clutch (4.9)', href: 'https://clutch.co/profile/type-b' },
+      { label: 'Privacy Policy', to: '/privacy-policy' },
     ],
   },
 ]
@@ -217,6 +225,13 @@ function NavPanelContent({
                 <Link to={link.to} className={classes} aria-current={current ? 'page' : undefined}>
                   {link.label}
                 </Link>
+              ) : link.href ? (
+                /* Leaves the site, so a real anchor — and `noopener` because
+                   `target="_blank"` otherwise hands the new tab a reference
+                   back to this one. */
+                <a href={link.href} target="_blank" rel="noopener noreferrer" className={classes}>
+                  {link.label}
+                </a>
               ) : (
                 <span className={cn(classes, 'cursor-default')}>{link.label}</span>
               )}

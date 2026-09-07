@@ -30,7 +30,11 @@ import { asset } from '@/lib/asset'
  * lists Legal and the nav panel does not, and the nav's Who We Are omits the
  * "About Us" wording the footer had been using.
  */
-type FooterLink = { label: string; to?: string }
+/**
+ * `to` is an internal route; `href` is an external destination and opens in a
+ * new tab. Neither means the row is inert — see the note above.
+ */
+type FooterLink = { label: string; to?: string; href?: string }
 
 const FOOTER_COLUMNS: { heading: string; to?: string; links: FooterLink[] }[] = [
   {
@@ -83,15 +87,17 @@ const FOOTER_COLUMNS: { heading: string; to?: string; links: FooterLink[] }[] = 
     heading: 'Publications',
     to: '/publications',
     links: [
+      /* ⚠ Substack has no URL yet, so it stays inert. Kept in step with
+         NAV_ITEMS in SiteHeader, which lists the same four. */
       { label: 'Substack' },
-      { label: 'Linkedin' },
-      { label: 'Clutch (4.9)' },
-      { label: 'Privacy Policy' },
+      { label: 'Linkedin', href: 'https://www.linkedin.com/company/typeb-digital/' },
+      { label: 'Clutch (4.9)', href: 'https://clutch.co/profile/type-b' },
+      { label: 'Privacy Policy', to: '/privacy-policy' },
     ],
   },
 ]
 
-/** A footer leaf: a link where the page exists, plain text where it does not. */
+/** A footer leaf: a route, an external link, or plain text where neither exists. */
 function FooterItem({ link }: { link: FooterLink }) {
   const classes =
     'text-copy-medium text-paper transition-opacity duration-fast ease-out hover:opacity-muted'
@@ -99,6 +105,12 @@ function FooterItem({ link }: { link: FooterLink }) {
     <Link to={link.to} className={classes}>
       {link.label}
     </Link>
+  ) : link.href ? (
+    /* Leaves the site, so a real anchor — and `noopener` because
+       `target="_blank"` otherwise hands the new tab a reference back. */
+    <a href={link.href} target="_blank" rel="noopener noreferrer" className={classes}>
+      {link.label}
+    </a>
   ) : (
     <span className={classes}>{link.label}</span>
   )
