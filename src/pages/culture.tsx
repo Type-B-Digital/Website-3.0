@@ -328,8 +328,17 @@ function OurApproach() {
             </Reveal>
           ))}
         </div>
-        {/* Clears the offset column so the section does not close too tight. */}
-        <div aria-hidden className="hidden lg:block lg:h-[243px]" />
+        {/*
+          ⚠ There was a 243px spacer here, on the reasoning that the offset
+          column needed clearing. It did not: cards 2 and 4 carry `mt-[243px]`
+          INSIDE the grid, so the grid row already measures tall enough to
+          contain them — the lowest card bottom and the grid bottom are the
+          same line. The spacer was 243 plus the column's own 48 gap of pure
+          surplus below it, which put 531px between the cards and "Design
+          thinking" where the rhythm elsewhere is 240. Removed; the gap now
+          measures exactly 240 (120 closing this section, 120 opening the next)
+          and everything below it moved up by 291.
+        */}
       </div>
     </Section>
   )
@@ -381,7 +390,13 @@ function Talent() {
 
   const panel = (
     <>
-      <Container className="flex flex-col gap-4xl pt-4xl">
+      {/*
+        `flex-1`, so the copy block sits at the top, the globe stays pinned to
+        the bottom, and the cities take the space left between them. On a taller
+        viewport that space grows and the chips stay centred in it rather than
+        staying welded under the paragraph with a widening gap below.
+      */}
+      <Container className="flex flex-1 flex-col pt-4xl">
         <Reveal>
           <div className="mx-auto flex max-w-[800px] flex-col items-center gap-md text-center">
             <Eyebrow tone="white">Talent</Eyebrow>
@@ -395,8 +410,16 @@ function Talent() {
           </div>
         </Reveal>
 
-        <Reveal index={1}>
-          <ul className="flex flex-wrap items-start justify-center gap-x-2xl gap-y-lg">
+        {/*
+          No column `gap` above this — the chips are centred in the space
+          between the copy and the globe, and an 80px gap on the container
+          would be added on top of that centring rather than being part of it,
+          which left them sitting exactly 80 low at every viewport height.
+          `py-4xl` restores that 80 as a symmetric floor, so the spacing is
+          still there when the space is tight but does not bias the centre.
+        */}
+        <Reveal index={1} className="flex flex-1 items-center py-4xl">
+          <ul className="flex w-full flex-wrap items-start justify-center gap-x-2xl gap-y-lg">
             {LOCATIONS.map((location, i) => {
               const isActive = i === active
               return (
@@ -504,11 +527,22 @@ export function CulturePage() {
       <HowWeShowUp />
       <OurApproach />
       <DesignToTalent />
-      {/* Takes its own cream ground — the Talent crossfade above ends on deep
-          turquoise and nothing below paints one. See Testimonial. */}
-      <Testimonial quote={QUOTE} name="Fauad Sheriff" role="CEO, Class.fi" spacing="loose" />
-      <Hiring />
-      <ValuesMarquee className="bg-surface" />
+      {/*
+        The tail's ground, painted once here rather than by each block inside
+        it. The Talent crossfade above ends on deep turquoise and nothing below
+        paints anything, so this is the page that has to say what the ink type
+        underneath sits on — Testimonial, Hiring and the marquee were each
+        carrying their own cream band to work around that. See Testimonial.
+      */}
+      <div className="bg-surface">
+        {/* 204 from the globe to the quote (node 3679:10598): Testimonial's
+            own `loose` rhythm supplies 120 of it, this the remaining 84. */}
+        <div className="pt-[84px]">
+          <Testimonial quote={QUOTE} name="Fauad Sheriff" role="CEO, Class.fi" spacing="loose" />
+        </div>
+        <Hiring />
+        <ValuesMarquee />
+      </div>
     </PageShell>
   )
 }

@@ -58,7 +58,9 @@ import {
   gradients as gradientTokens,
   motion as motionTokens,
 } from '@/tokens'
+import { Link } from 'react-router-dom'
 import { asset } from '@/lib/asset'
+import { HOMEPAGE_WORK, ROW_TAGS } from './work-content'
 
 /* ================================================================== *
  * CONTENT
@@ -197,17 +199,16 @@ const STAGES = [
  * come from `download_assets` at scale 4 instead, which renders the node as
  * composed — see docs/BUILD_LOG.md.
  */
-const CASE_STUDIES = [
-  { name: 'Medtronic', description: 'Daily payout on autopilot mode.' },
-  { name: 'Ferry', description: 'Project description and details here.' },
-  { name: 'Project Name', description: 'Project description and details here.' },
-  { name: 'Project Name', description: 'Project description and details here.' },
-  { name: 'Project Name', description: 'Project description and details here.' },
-  { name: 'Project Name', description: 'Project description and details here.' },
-].map((c, i) => ({
-  ...c,
-  tags: ['Tag 1', 'Tag 2', 'Tag 3'],
-  thumb: asset(`/images/work/case-${i + 1}.png`),
+/**
+ * ⚠ Was six placeholder rows — "Medtronic", "Ferry", then "Project Name" four
+ * times, all sharing "Project description and details here." and tags reading
+ * "Tag 1"/"Tag 2"/"Tag 3" — while Our Work carried the nine real ones. The two
+ * pages showed a different body of work. Both now read `work-content.ts`.
+ */
+const CASE_STUDIES = HOMEPAGE_WORK.map((work) => ({
+  ...work,
+  tags: ROW_TAGS,
+  thumb: asset(work.thumb ?? ''),
 }))
 
 /**
@@ -480,7 +481,7 @@ function StackImage({
       src={image.src}
       alt=""
       aria-hidden="true"
-      className="absolute max-w-none will-change-transform"
+      className="absolute max-w-none rounded-md will-change-transform"
       style={{
         left: image.left,
         top: image.top,
@@ -534,7 +535,7 @@ function Manifesto() {
             src={image.src}
             alt=""
             aria-hidden="true"
-            className="absolute max-w-none"
+            className="absolute max-w-none rounded-md"
             style={{
               left: image.left,
               top: image.top,
@@ -908,8 +909,8 @@ function Work() {
                 <br />
                 real problems
               </Typography>
-              <Button as="a" href="#" variant="secondary" tone="onLight">
-                View our work
+              <Button as={Link} to="/our-work" variant="secondary" tone="onLight">
+                View all work
               </Button>
             </div>
           </Reveal>

@@ -200,11 +200,10 @@ function IndustryRow({ industry }: { industry: (typeof INDUSTRIES)[number] }) {
         <Reveal className="lg:col-span-4 lg:col-start-1">
           <div className="flex flex-col items-start gap-2xl">
             <div className="flex flex-col gap-md">
-              {/* As on What We Do: the heading links, not only the CTA. */}
+              {/* As on What We Do: plain text, with "Learn more" beside it
+                  carrying the link. Five headings, five duplicate targets. */}
               <Typography variant="h2" className="text-h3 md:text-h2">
-                <Link to={industry.to} className="hover:underline">
-                  {industry.title}
-                </Link>
+                {industry.title}
               </Typography>
               <Typography variant="copyMedium" muted>
                 {industry.result}

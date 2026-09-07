@@ -1,8 +1,9 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { FaqSection, Testimonial, ValuesMarquee } from '@/components'
 import { PageShell } from '@/components/layout'
+import type { PageShellProps } from '@/components/layout'
 import { palette } from '@/tokens'
-import type { AccordionItem } from '@/components'
+import type { AccordionItem, ValuesMarqueeTone } from '@/components'
 import type { TestimonialQuote } from '@/components/Testimonial'
 
 /**
@@ -42,6 +43,15 @@ export type ContentPageProps = {
    * carries the colour instead.
    */
   ground?: CSSProperties
+  /**
+   * Which ground the header's links are drawn for. Every page here runs the
+   * ink-on-light nav except Real Estate, whose hero band is the one that
+   * mirrors `b4` and puts the ink end top-left — dark artwork under a dark
+   * nav. Figma: node 3776:608.
+   */
+  headerTone?: PageShellProps['headerTone']
+  /** The values band's accent. Teams runs `ember`; see ValuesMarquee. */
+  marqueeTone?: ValuesMarqueeTone
 }
 
 export function ContentPage({
@@ -49,14 +59,16 @@ export function ContentPage({
   faq,
   testimonial,
   ground = { backgroundImage: SERVICE_GRADIENT },
+  headerTone = 'onLight',
+  marqueeTone = 'deep',
 }: ContentPageProps) {
   return (
-    <PageShell headerTone="onLight">
+    <PageShell headerTone={headerTone}>
       <div style={ground}>
         {children}
         <FaqSection items={faq} />
         {testimonial && <Testimonial {...testimonial} />}
-        <ValuesMarquee />
+        <ValuesMarquee tone={marqueeTone} />
       </div>
     </PageShell>
   )

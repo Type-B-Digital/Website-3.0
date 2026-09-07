@@ -13,6 +13,7 @@ import {
 import { PageShell } from '@/components/layout'
 import { asset } from '@/lib/asset'
 import { cn } from '@/lib/cn'
+import { FEATURED, ROW_TAGS, WORK } from './work-content'
 
 /**
  * Our Work — Figma node 2865:5797
@@ -25,75 +26,6 @@ import { cn } from '@/lib/cn'
  * ⚠ The nine row thumbnails are grey placeholder blocks — the artboard's are
  * unfinished exports. The hero photograph is real (node 3707:10655).
  */
-
-/* ================================================================== *
- * CONTENT — copy verbatim from the artboard
- * ================================================================== */
-
-/** Figma: node 3707:10695. Four tags here against three on every row below. */
-const FEATURED = {
-  name: 'Ferry Pay',
-  body: 'A payroll and tipping platform for hospitality workers, rebuilt while it kept processing $16M+ in payments every month.',
-  tags: ['Platform Expansion', 'UX/UI Design', 'Fractional CTO', 'Agentic Engine'],
-}
-
-/** Every row carries the same three tags on the artboard. */
-const ROW_TAGS = ['Platform Expansion', 'UX/UI Design', 'Fractional CTO'] as const
-
-/**
- * Figma: nodes 3707:10710 / 10736 / 10750 / 10792 / 10723 / 10764 / 10806 /
- * 10778 / 10820, in the order they appear down the page.
- *
- * ⚠ Two copy gaps reproduced as drawn: Class.fi's body is MatchDay Health's
- * paragraph verbatim, and the `stat` on the last four rows repeats "500K users
- * supported." / "~45% faster delivery." from rows three and four. Both read as
- * unfinished copy rather than layout decisions.
- */
-const WORK = [
-  {
-    name: 'MatchDay Health',
-    body: 'Healthcare career platform for doctors, nurses, and pharmacists; conversational agents took over onboarding and sales.',
-  },
-  {
-    name: 'Class.fi',
-    body: 'Healthcare career platform for doctors, nurses, and pharmacists; conversational agents took over onboarding and sales.',
-    stat: '70% lower compliance cost.',
-  },
-  {
-    name: 'Sensor Bio',
-    body: 'Medical-grade wearable platform re-architected off a decade of legacy technology.',
-    stat: '500K users supported.',
-  },
-  {
-    name: 'Mave AI',
-    body: 'AI marketing automation for real-estate agents, with the delivery operation rebuilt around it.',
-    stat: '~45% faster delivery.',
-  },
-  {
-    name: 'Ande AI',
-    body: 'A dedicated pod embedded in one week to unblock an AI platform after a stalled vendor.',
-  },
-  {
-    name: 'RFL Wealth',
-    body: 'Wealth advisory for physicians: new brand, new site, and a custom CRM in ten weeks.',
-    stat: '500K users supported.',
-  },
-  {
-    name: 'Dome',
-    body: 'Fractional real-estate investing across web, iOS, and Android, rescued from a stalled build.',
-    stat: '~45% faster delivery.',
-  },
-  {
-    name: 'Eezee Assist',
-    body: 'AI-augmented franchise support platform, designed so non-technical staff can train the agent.',
-    stat: '500K users supported.',
-  },
-  {
-    name: 'UDM',
-    body: 'Steel-drum manufacturing moved off paper cards onto a purpose-built ERP.',
-    stat: '~45% faster delivery.',
-  },
-]
 
 /**
  * Figma: node 3707:10847. Six cards, two rows of three.
@@ -182,7 +114,7 @@ function Hero() {
             {/* 40 between the paragraph and the tag row, as on every row below. */}
             <div className="flex flex-col items-start gap-2xl">
               <Typography variant="copyLarge" muted>
-                {FEATURED.body}
+                {FEATURED.description}
               </Typography>
               <ul className="flex flex-wrap gap-sm">
                 {FEATURED.tags.map((tag) => (
@@ -223,7 +155,7 @@ function WorkRow({ work }: { work: (typeof WORK)[number] }) {
           </Typography>
           <div className="flex flex-col items-start gap-2xl">
             <Typography variant="copyLarge" muted>
-              {work.body}
+              {work.description}
             </Typography>
             <ul className="flex flex-wrap gap-sm">
               {ROW_TAGS.map((tag) => (
@@ -242,8 +174,18 @@ function WorkRow({ work }: { work: (typeof WORK)[number] }) {
       </Reveal>
 
       <Reveal index={1} className="lg:col-span-7">
-        {/* 737 x 441 on the artboard. */}
-        <Placeholder className="aspect-[737/441] w-full" />
+        {/* 737 x 441 on the artboard. Six of the nine rows have art; the rest
+            keep the flat block so the empty slots stay obvious. */}
+        {work.thumb ? (
+          <img
+            src={asset(work.thumb)}
+            alt=""
+            aria-hidden="true"
+            className="aspect-[737/441] w-full rounded-md object-cover"
+          />
+        ) : (
+          <Placeholder className="aspect-[737/441] w-full" />
+        )}
       </Reveal>
     </div>
   )

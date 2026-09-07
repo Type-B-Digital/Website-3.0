@@ -265,12 +265,16 @@ function ServiceBlock({ service }: { service: (typeof SERVICES)[number] }) {
         <Reveal>
           <div className="flex flex-col items-start gap-lg lg:flex-row lg:items-end lg:justify-between">
             <div className="flex max-w-[640px] flex-col gap-md">
-              {/* The heading is the section's own link, not just the CTA
-                  beside it — it is by far the larger target. */}
+              {/*
+                Plain text, not a link. The heading was linked on the argument
+                that it is the larger target, but "Learn more" sits directly
+                beside it pointing at the same page, so the row offered two
+                controls for one destination and the heading's hover underline
+                was the only thing announcing it — it read as an accident on a
+                40px headline. The CTA is the affordance; this is the label.
+              */}
               <Typography variant="h2" className="text-h3 md:text-h2">
-                <Link to={service.to} className="hover:underline">
-                  {service.title}
-                </Link>
+                {service.title}
               </Typography>
               <Typography variant="copyMedium" muted>
                 {service.body}
@@ -435,22 +439,28 @@ function ManagedEndToEnd() {
   return (
     <Section tone="light" spacing="loose">
       <div className="mx-auto flex max-w-[1080px] flex-col items-center gap-4xl text-center">
+        {/*
+          Eyebrow, heading and subcopy are ONE block on a 16 rhythm, which is
+          what every other centred header on the site does — Our Approach and
+          Design thinking on Culture, and the Packaging header here. The
+          subcopy was a separate `Reveal` and picked up the column's 80px gap
+          instead, so this heading sat five times further from its own copy
+          than the same arrangement does anywhere else.
+        */}
         <Reveal>
           <div className="flex flex-col items-center gap-md">
             <Eyebrow tone="onLight">Senior teams</Eyebrow>
             <Typography variant="h2" className="text-h3 md:text-h2">
               We manage end-to-end
             </Typography>
+            <Typography variant="copyMedium" muted className="max-w-[720px]">
+              We source senior talent who ship with agents day to day. Every engineer clears a
+              technical assessment, a lead-led interview, and communication screening before they
+              touch a client’s code, and then comes the step most vendors skip: we onboard them,
+              manage their performance, and stay accountable for their output for the life of the
+              engagement.
+            </Typography>
           </div>
-        </Reveal>
-        <Reveal index={1}>
-          <Typography variant="copyMedium" muted className="max-w-[720px]">
-            We source senior talent who ship with agents day to day. Every engineer clears a
-            technical assessment, a lead-led interview, and communication screening before they
-            touch a client’s code, and then comes the step most vendors skip: we onboard them,
-            manage their performance, and stay accountable for their output for the life of the
-            engagement.
-          </Typography>
         </Reveal>
         <ol className="flex w-full flex-wrap items-start justify-between gap-lg">
           {PROCESS.map((step, i) => (
@@ -483,12 +493,23 @@ export function WhatWeDoPage() {
   return (
     <PageShell headerTone="onLight">
       <Hero />
-      {SERVICES.map((service) => (
-        <ServiceBlock key={service.title} service={service} />
-      ))}
-      <WhyWeExist />
-      <Packaging tiers={PACKAGES} spacing="loose" />
-      <ManagedEndToEnd />
+      {/*
+        One ground for the whole body, as Our Work and Industries do.
+        `Packaging` paints nothing of its own — correct on the service pages,
+        where it sits over their gradient — and this page was the only one that
+        gave it nothing to sit on, so "How we package it" was rendering ink
+        type on the body's ink canvas and reading as a gap in the page. The
+        sections around it each painted their own cream, which is why the fault
+        showed on that one band and nowhere else.
+      */}
+      <div className="bg-surface">
+        {SERVICES.map((service) => (
+          <ServiceBlock key={service.title} service={service} />
+        ))}
+        <WhyWeExist />
+        <Packaging tiers={PACKAGES} spacing="loose" />
+        <ManagedEndToEnd />
+      </div>
     </PageShell>
   )
 }

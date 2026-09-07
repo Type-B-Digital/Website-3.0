@@ -25,15 +25,21 @@ export const HIRING_TRAITS = [
 ] as const
 
 /**
- * `tone="light"`, not `none`. This block's type is ink, and with `none` it took
- * whatever an ancestor painted — which on both of its call sites, Culture and
- * Contact, was nothing, so it fell through to the body's ink canvas and
- * rendered "We're Hiring!" at `rgb(4, 14, 25)` on `rgb(4, 14, 25)`. The same
- * defect `Testimonial` had, found while fixing that one.
+ * The ground is the page's, not this block's — see the table in `Testimonial`,
+ * which had the identical history. Painting flat cream here fixed Culture (an
+ * ink tail) and put a white band across Contact, whose body is a gradient.
+ * Contact now shows its gradient through; Culture wraps its tail in
+ * `bg-surface`.
  */
-export function Hiring({ className }: { className?: string }) {
+export function Hiring({
+  className,
+  tone = 'none',
+}: {
+  className?: string
+  tone?: 'none' | 'light'
+}) {
   return (
-    <Section tone="light" spacing="none" className={cn('text-on-light', className ?? 'py-5xl')}>
+    <Section tone={tone} spacing="none" className={cn('text-on-light', className ?? 'py-5xl')}>
       <div className="grid items-start gap-lg lg:grid-cols-12">
         <Reveal className="lg:col-span-6">
           <img

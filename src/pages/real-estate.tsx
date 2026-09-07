@@ -128,7 +128,13 @@ const FAQ = [
 
 export function RealEstatePage() {
   return (
-    <ContentPage faq={FAQ} ground={{ backgroundColor: colorTokens.background.surface }}>
+    <ContentPage
+      faq={FAQ}
+      ground={{ backgroundColor: colorTokens.background.surface }}
+      /* The one industry hero with a dark band, so the one with a light nav
+         over it — Figma node 3776:608. Every other page here runs ink links. */
+      headerTone="onDark"
+    >
       <IndustryHero
         tone="onDark"
         heading="AI for Real Estate & PropTech"

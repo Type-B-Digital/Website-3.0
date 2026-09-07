@@ -3319,3 +3319,156 @@ buttons and one link; hovering Industries opens its panel; focusing it opens
 its panel; clicking it lands on `/industries` with the "Where we go deepest"
 hero. The mobile drawer, which shares `NavPanelContent`, picked Legal up for
 free. All 20 routes still clean at 1440 and 390.
+
+## A pass of global corrections — 2026-09-06
+
+Eighteen items from Eduardo in one review. Grouped here by what they turned out
+to be, because several were the same underlying fault reported from different
+pages.
+
+### The white band, and the invisible section, were one bug seen from both ends
+
+Reported twice: the Testimonial on Advisory, Product & AI Development and Teams
+had "a white background" and no glow; "How we package it" was "non-visible
+since the background is dark".
+
+Both come from the fix logged on 2026-09-06 above. `Testimonial` and `Hiring`
+were given `tone="light"` so they would stop rendering ink on ink. That painted
+a flat `#F6F2EC` band — and on the four pages whose body is a GRADIENT, the
+band is what you see. `Packaging` never got that treatment, so on the one page
+that paints no ground behind it (What We Do) it stayed invisible. Same fault,
+opposite symptom.
+
+Measured behind every call site before changing anything:
+
+    /our-work             rgb(246, 242, 236)      flat cream, band was a no-op
+    /our-work/ferry-pay   rgb(246, 242, 236)      flat cream, band was a no-op
+    /advisory             linear-gradient(…)      BAND
+    /product-development  linear-gradient(…)      BAND
+    /teams                linear-gradient(…)      BAND
+    /contact              linear-gradient(…)      BAND
+    /culture              rgb(4, 14, 25)          ink — the original bug
+    /what-we-do           rgb(4, 14, 25)          ink — Packaging
+
+So the ground is the PAGE's job, not the block's. `Testimonial` and `Hiring`
+default to `tone="none"` again and `Packaging` is unchanged; the two pages that
+painted nothing now do:
+
+- Culture wraps its tail (quote, hiring, marquee) in one `bg-surface`, which
+  also retires the `className="bg-surface"` the marquee was carrying.
+- What We Do wraps its body in one `bg-surface`, as Our Work and Industries
+  already did.
+
+Re-measured after: every one of the three blocks paints nothing of its own and
+every one has a real ancestor ground. No ink fall-through, no bands.
+
+The glow is now on by default rather than per call site — passing it by hand is
+how Advisory, Product, Teams and Culture ended up without it.
+
+### Two things that were already right
+
+- **Eyebrows.** `Eyebrow` has carried `rounded-sm` (4px) and a solid fill on all
+  five tones from the start. The exception was two labels this file added
+  yesterday — Publications' "Filter" and the article page's "Outline" — drawn
+  as bare 48%-opacity text because that is what the artboard draws. Both are
+  chips now, which is the site-wide treatment.
+- **Careers.** Reported as needing the Testimonial fixed and a white background
+  removed from "We're hiring". Careers has neither section. Both live on
+  Culture and Contact, and both are fixed there; every Careers band is
+  `tone="none"` over its own gradient, with no white anywhere. Flagged rather
+  than guessed at.
+
+### Images
+
+Audited in the browser rather than by grep: every `<img>` over 40px on fifteen
+routes, checking its own radius and any clipping parent. The inline
+photographs that were square are the three manifesto-stack images on the
+homepage; they are 8px now.
+
+What is left square is deliberate and is not a thumbnail: the six client logos
+(rounding a brand mark clips it), the "Bold. Brilliant. Beautiful." wordmark,
+the values arc, the Careers outline numeral, and the genuinely full-bleed
+case-study bands, which meet the viewport edge.
+
+### The homepage and Our Work were two different bodies of work
+
+The homepage listed six placeholders — "Medtronic", "Ferry", then "Project
+Name" four times, all sharing "Project description and details here." and tags
+reading "Tag 1", "Tag 2", "Tag 3" — while Our Work listed the nine real ones
+with grey placeholder thumbnails.
+
+One dataset now, `src/pages/work-content.ts`: the homepage takes the first six,
+Our Work takes all nine, and the featured Ferry Pay block reads from it too.
+The six artboard thumbnails (`case-1` to `case-6`) belong to the first six
+entries, so those rows on Our Work gained real art; the last three have none
+and keep the flat placeholder block, which is honest about the gap.
+
+"View our work" now reads **View all work** and points at `/our-work`. It was
+an `href="#"`.
+
+### ⚠ Case-study links, pending
+
+Once the remaining case studies exist, the per-row links get their
+destinations. Right now Ferry Pay is the only one with a page and it is the Our
+Work hero rather than a row, so **no row on either page links anywhere** — on
+the homepage, on Our Work, or in the nav and footer "Case Studies" columns
+(Class-fi, MatchDay Health, Mave AI are inert there for the same reason). This
+is the one place to change when the pages land: `WORK` in `work-content.ts`
+gains a `to` per entry, and both pages already render from it.
+
+### Headings that were links twice over
+
+What We Do's three service headings and Industries' five each linked to the
+same page as the "Learn more" button beside them. Two controls, one
+destination, and the heading's only affordance was a hover underline on a 40px
+headline. All eight are plain text now; the CTA carries the link.
+
+### Spacing
+
+- **"We manage end-to-end"** had its subcopy in a separate `Reveal`, so it
+  picked up the column's 80px gap instead of the 16 that every other centred
+  header on the site uses. One block now, on the 16 rhythm.
+- **Culture, Our Approach → Design thinking.** There was a 243px spacer below
+  the offset card column, added on the reasoning that the column needed
+  clearing. It did not: cards 2 and 4 carry `mt-[243px]` *inside* the grid, so
+  the row already measures tall enough — the lowest card bottom and the grid
+  bottom are the same line. The spacer plus its own 48px gap was 291px of
+  surplus, putting 531px where the rhythm is 240. Removed; measured 240 exactly
+  after a real scroll with every reveal settled, and the rest of the page moved
+  up with it.
+- **Culture, Talent → Testimonial** is 204px: `loose` supplies 120, a wrapper
+  the remaining 84. Measured 204.
+
+### The Talent cities
+
+Asked to centre vertically and adapt to viewport height. `flex-1` on the
+container with the chips in a `flex-1 items-center` row does that — but the
+container's own 80px `gap` sits above the centred box and biased it, so the
+chips landed exactly 80px low at every height. Measured: 136 above / 57 below
+at 900px, 286 / 207 at 1200px, a constant 79px error.
+
+Dropping the gap and giving the chips a symmetric `py-4xl` keeps the 80 as a
+floor without moving the centre. Re-measured: 96/97 at 900px, 246/247 at
+1200px. One pixel of rounding, and it tracks the viewport.
+
+### Real Estate takes the light nav
+
+Figma node 3776:608. `ContentPage` hard-coded `headerTone="onLight"`; it is a
+prop now, defaulting to the same value. Real Estate is the one industry hero
+that mirrors `b4` and puts the ink end top-left, so it was the one page running
+a dark nav over dark artwork.
+
+### Publications: a way out of a filter
+
+Clicking the active row already cleared it, but nothing on screen said so,
+which left the grid filtered with no visible way back. An X now appears beside
+the selected row. It is a sibling of the row's button, not a child — a button
+cannot nest inside a button.
+
+### Culture hero stats count up
+
+They did on the homepage and did not here, which read as two components rather
+than one treatment. `HeroStats` parses its display strings ("30+", "25%",
+"100") into the prefix/number/suffix `CountUp` wants, rather than every call
+site being restated — six on Culture, three on each case study. A value with no
+digits renders as plain text and cannot animate from zero to nothing.
