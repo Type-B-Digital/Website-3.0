@@ -80,7 +80,22 @@ import { layout, motion as motionTokens } from '@/tokens'
  * new tab. A row with neither is inert — the rule this file has followed all
  * along, that an honest dead label beats a link that goes nowhere.
  */
-type NavLink = { label: string; to?: string; href?: string }
+type NavLink = {
+  label: string
+  to?: string
+  href?: string
+  /**
+   * Skip the you-are-here treatment on this row.
+   *
+   * Every other row takes an ink-and-underline when its own page is the one
+   * being read — the artboard's own hover state (node 3729:3602), reused as
+   * the current-page indicator. Brand System opts out: it is a reference the
+   * team opens from inside the site rather than a destination in the reading
+   * path, and the underline sitting permanently under one row read as an
+   * artefact rather than as a state.
+   */
+  noCurrentState?: boolean
+}
 
 type NavItem = {
   label: string
@@ -145,7 +160,7 @@ const NAV_ITEMS: NavItem[] = [
          third, added 2026-09-09. The brand system is a real page about who the
          company is, so it belongs in this section rather than under
          Publications — but nothing in the design asked for it. */
-      { label: 'Brand System', to: '/brand-guidelines' },
+      { label: 'Brand System', to: '/brand-guidelines', noCurrentState: true },
     ],
   },
   {
@@ -217,17 +232,29 @@ function NavPanelContent({
 
       <ul className="mt-lg flex flex-col gap-sm">
         {item.links.map((link) => {
-          const current = link.to === currentPath
+          /*
+            Two separate things. `isCurrent` is a fact about the route and
+            drives `aria-current`, so a screen reader is still told which row
+            is the page being read. `showCurrent` is the visual treatment and
+            is what `noCurrentState` opts out of — suppressing the underline
+            should not also suppress the announcement.
+          */
+          const isCurrent = link.to === currentPath
+          const showCurrent = isCurrent && !link.noCurrentState
           const classes = cn(
             'w-max text-nav-panel-link transition-colors duration-fast ease-out',
-            current
+            showCurrent
               ? 'text-on-light underline decoration-from-font'
               : 'text-neutral-800 hover:text-on-light hover:underline hover:decoration-from-font',
           )
           return (
             <li key={link.label}>
               {link.to ? (
-                <Link to={link.to} className={classes} aria-current={current ? 'page' : undefined}>
+                <Link
+                  to={link.to}
+                  className={classes}
+                  aria-current={isCurrent ? 'page' : undefined}
+                >
                   {link.label}
                 </Link>
               ) : link.href ? (
