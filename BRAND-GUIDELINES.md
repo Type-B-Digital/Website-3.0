@@ -7,6 +7,22 @@ here was read out of the code, not restated from a spec.
 > renders the swatches, type specimens, spacing bars and component gallery from
 > `@/tokens` and the real components at runtime, so it cannot drift. Read this
 > file for the rules and the reasoning; open the page to see the system itself.
+>
+> The page is organised as a **waterfall of five tiers**, each derived from the
+> one above it, with governance running back up the chain:
+>
+> | Tier | | This document |
+> | --- | --- | --- |
+> | 1 · Identity Root | Brand Foundations — strategy, voice, vision | §1 |
+> | 2 · Decisions | Design Tokens — typography, colour, spacing | §2 |
+> | 3 · Atoms | Core UI Components — buttons, inputs, badges | §3.1–3.2 |
+> | 4 · Compositions | Pattern Library — navbars, heroes, modals | §3.3–3.4 |
+> | 5 · Delivery | Design System — documentation, code library, governance | §5 |
+>
+> Two things exist only on the page so far: the **pattern catalogue** (what each
+> pattern composes, where it is used, and that Modal/dialog is undesigned) and
+> the **governance rules**. Fold them in here if this file ever needs to stand
+> alone.
 
 **Sources of truth, in order.** `src/tokens/index.ts` is authoritative.
 `src/styles/globals.css` mirrors it as CSS custom properties for
