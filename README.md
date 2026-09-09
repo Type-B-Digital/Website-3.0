@@ -35,8 +35,7 @@ docs/                      see below
 
 | | |
 |---|---|
-| [DESIGN_TOKENS.md](docs/DESIGN_TOKENS.md) | Every token, its Figma node, and what uses it |
-| [COMPONENT_LIBRARY.md](docs/COMPONENT_LIBRARY.md) | Props, tokens, usage |
+| [BRAND-GUIDELINES.md](BRAND-GUIDELINES.md) | **The design system.** Brand foundations, every token, the component inventory, layout patterns |
 | [BUILD_LOG.md](docs/BUILD_LOG.md) | Design→code decisions, deviations, open questions |
 | [SCALING_GUIDE.md](docs/SCALING_GUIDE.md) | **Read before building page two** |
 

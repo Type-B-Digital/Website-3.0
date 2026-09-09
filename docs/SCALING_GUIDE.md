@@ -94,7 +94,7 @@ Only when a pattern appears **twice**. One-offs belong in the page.
 2. Header comment with the Figma node
 3. Props typed and exported
 4. Export from `src/components/index.ts` (component *and* its types)
-5. Document it in [COMPONENT_LIBRARY.md](./COMPONENT_LIBRARY.md)
+5. Document it in [BRAND-GUIDELINES.md](../BRAND-GUIDELINES.md) § Component Inventory
 
 **No raw values.** If you need one that has no token, that is a finding, not a
 workaround — add it to `src/tokens/index.ts` with a comment saying it is
@@ -113,7 +113,7 @@ Three files, in order — they are not auto-synced:
    module), but check that the utility name is what you expect; camelCase keys
    are kebab-cased for class names
 
-Then document it in [DESIGN_TOKENS.md](./DESIGN_TOKENS.md).
+Then document it in [BRAND-GUIDELINES.md](../BRAND-GUIDELINES.md) § Design Tokens.
 
 ---
 

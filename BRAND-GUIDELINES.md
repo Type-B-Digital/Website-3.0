@@ -80,6 +80,39 @@ unfinished the site says so rather than filling the space.
 
 ## 2. Design Tokens
 
+### 2.0 Provenance
+
+Extracted from Figma —
+[TypeB Creative Exploration](https://www.figma.com/design/LASrWn0jXyj5nBaphi2jgI/TypeB-Creative-Exploration),
+board **"design tokens"**, [node 3366:23051](https://www.figma.com/design/LASrWn0jXyj5nBaphi2jgI/TypeB-Creative-Exploration?node-id=3366-23051).
+
+> **The file does not use Figma Variables.** `get_variable_defs` returns `{}`.
+> Tokens are drawn on the board as swatches with hex labels, measured spacing
+> bars and text samples. Every value was read off those samples, so **there is
+> no automated sync** — a change in Figma has to be re-entered in
+> `src/tokens/index.ts` by hand.
+
+Board sub-nodes, for re-extraction:
+
+| Group | Figma node |
+| --- | --- |
+| Colour ramps | `3369:24675` turquoise · `3369:24676` orange · `3369:24677` amber · `3369:24678` neutral |
+| Type samples | `3369:24533` h1 · `3370:24754` h2 · `3386:25398` h3 · `3386:25396` subHeaderLarge · `3373:24762` subHeaderSmall · `3373:24758` copyLarge · `3370:24749` copyMedium · `3373:24764` copySmall · `3373:24760` copyXSmall · `3383:25390` eyebrow · `3383:25393` tag |
+| Spacing bars | `3386:25418` |
+| Radius | `3386:25427` |
+| 12-column grid | `3386:25446` |
+| Gradients | `3430:26778`–`3430:27213` (BG 1–8) |
+
+**Per-component and per-page provenance lives in the code, not here.** Every
+component and page carries its Figma node in a comment beside the value it
+justifies — around 300 references across 58 files. That is deliberate: a node
+table in markdown drifts from the code the moment either changes, which is
+exactly what happened to the two documents this file replaced. To list them:
+
+```bash
+grep -rnoE '\b[0-9]{3,4}:[0-9]{2,6}\b' src/ | sort -u
+```
+
 ### 2.1 Colour ramps
 
 Four ramps. Three are chromatic and **are the three mood directions**; the
@@ -352,6 +385,7 @@ whole scale is authored.
 --ease-out:    cubic-bezier(0.16, 1, 0.30, 1);    /* entrances */
 --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);    /* reversible state changes */
 --ease-scroll: cubic-bezier(0.42, 0, 0.58, 1);    /* moving the page itself */
+--ease-linear: cubic-bezier(0, 0, 1, 1);          /* marquees — constant rate */
 ```
 
 Reveal behaviour: `distance: 32px`, `stagger: 0.14s`, `lag: 0.12s`,
@@ -391,12 +425,58 @@ Eight page grounds (`b1`–`b8`) from the token board, plus per-page families.
 Every stop is a ramp value; stops beyond 100% are intentional, as Figma extends
 the ramp past the box.
 
-- `gradients.b1` … `b8` → `bg-gradient-b1` … `bg-gradient-b8`
-- `gradients.b1Stops`, `b2Stops`, `b4Stops`, `b5Stops`, `b6Stops`, `b7Stops`,
-  `b8Stops` — the stop lists without a direction, for animating the **angle**
-- `gradients.industry.*` → `bg-gradient-industry-*` (five industry pages)
-- `gradients.service.{advisory,product,teams}` — each service page has its own
-  diagonal; they are **not** interchangeable
+**The eight page grounds** — Figma styles "Type B BG 1"–"Type B BG 8", added
+to the board 2026-08-30. Exposed as `bg-gradient-b1` … `bg-gradient-b8` and
+`--gradient-b1` … `--gradient-b8`.
+
+| Token | Angle | Stops |
+| --- | --- | --- |
+| `b1` | 230.52° | neutral.900 3.19% → turquoise.400 54.91% → amber.300 85.88% → orange.200 110.67% |
+| `b2` | 230.49° | neutral.50 16.18% → amber.300 53.93% → orange.400 80.90% → neutral.800 107.86% |
+| `b3` | 50.55° | neutral.900 0% → turquoise.500 63.82% → neutral.50 127.63% |
+| `b4` | 230.54° | neutral.900 0% → orange.400 75.52% → amber.300 115.50% |
+| `b5` | 50.55° | turquoise.500 0% → turquoise.100 63.82% → neutral.50 127.63% |
+| `b6` | 230.53° | neutral.50 0% → orange.300 53.37% → amber.400 100% |
+| `b7` | 50.60° | amber.700 0% → amber.500 53.34% → neutral.50 106.67% |
+| `b8` | 230.53° | neutral.50 0% → amber.200 30.73% → neutral.200 63.94% → turquoise.300 100% |
+
+> Several end **beyond 100%** (b1 at 110.67, b3 and b5 at 127.63). That is
+> intentional: Figma extends the ramp past the box so the final colour is
+> approached but never reached. Normalising them to 100% changes the rendered
+> colour.
+
+`b1Stops`, `b2Stops`, `b4Stops`–`b8Stops` are the same stop lists **without a
+direction**, so a scene can animate the gradient's *angle*. Sliding a
+fixed-angle strip cannot do this — it moves the bands but leaves the diagonal
+alone, so one end state always comes out mirrored.
+
+**The five industry row fills** — `bg-gradient-industry-*`. Composed from
+palette values rather than shipped as images.
+
+| Token | Angle | Stops |
+| --- | --- | --- |
+| `industry.healthcare` | 122.8° | neutral.50 15% → amber.500 50% → orange.500 75% → turquoise.500 100% |
+| `industry.financial` | 302.8° | neutral.900 → turquoise.500 50% → neutral.50 |
+| `industry.realEstate` | 122.8° | neutral.900 → orange.400 65.38% → amber.300 |
+| `industry.manufacturing` | 302.8° | turquoise.500 → turquoise.100 50% → neutral.50 |
+| `industry.legal` | 122.8° | neutral.50 → orange.300 53.37% → amber.400 |
+
+The two angles are **mirror-corrected**: the SVG export is flipped
+horizontally, so its own coordinates give the wrong direction.
+
+**The three service-page grounds** — each page has its own; they are **not**
+interchangeable.
+
+| Token | Angle | Stops |
+| --- | --- | --- |
+| `service.advisory` | −53° | turquoise.100 → neutral.50 55% → orange.100 |
+| `service.product` | −49° | amber.100 → neutral.50 55% → turquoise.100 |
+| `service.teams` | −49° | orange.100 → neutral.50 55% → amber.100 |
+
+> **Direction is a visible fact, not a rounding detail.** `linear-gradient(-53deg, …)`
+> puts the **100%** stop at the top-left, which is the opposite of what reading
+> the stop list in source order suggests. Where a ground has a cool end and a
+> warm end, verify against a render of the artboard before shipping.
 
 | Do | Don't |
 | --- | --- |
