@@ -141,6 +141,11 @@ const NAV_ITEMS: NavItem[] = [
     links: [
       { label: 'We’re Hiring!', to: '/careers' },
       { label: 'Contact', to: '/contact' },
+      /* ⚠ NOT IN FIGMA. The artboard's Who We Are lists two rows; this is a
+         third, added 2026-09-09. The brand system is a real page about who the
+         company is, so it belongs in this section rather than under
+         Publications — but nothing in the design asked for it. */
+      { label: 'Brand System', to: '/brand-guidelines' },
     ],
   },
   {

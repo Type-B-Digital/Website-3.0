@@ -54,9 +54,11 @@ import {
  * `HIRING_TRAITS`, and the positioning line is the footer's. Nothing here is
  * transcribed, so the page cannot drift the way `docs/DESIGN_TOKENS.md` did.
  *
- * Deliberately unlinked from the nav and the footer — a working reference, not
- * part of the site's information architecture. The repository and the deployed
- * site are both public, so the URL is unlisted rather than private.
+ * Linked from Who We Are in both the nav panel and the footer as of
+ * 2026-09-09. It was unlisted before that, on the reasoning that it is a
+ * working reference rather than part of the site's information architecture;
+ * it is now discoverable from every page. The repository and the deployed site
+ * are both public, so treat this as a public page, not an internal one.
  */
 
 /* ================================================================== *
