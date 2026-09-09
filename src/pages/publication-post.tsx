@@ -10,7 +10,7 @@ import {
 } from '@/components'
 import { PageShell } from '@/components/layout'
 import { asset } from '@/lib/asset'
-import { palette } from '@/tokens'
+import { gradients } from '@/tokens'
 import NotFoundPage from './not-found'
 import {
   ARTICLE_FIGURE,
@@ -32,7 +32,7 @@ import {
  */
 
 /** Node 2894:10170's own fill. Peach -> amber -> paper, warm end top-right. */
-const PAGE_GRADIENT = `linear-gradient(-53deg, ${palette.orange[100]} 0%, ${palette.amber[100]} 55%, #F5F6F6 100%)`
+const PAGE_GRADIENT = gradients.page.publicationPost
 
 /**
  * The title is 56px on 1.2 — between `h2` (48) and `h1` (72) and not a step on

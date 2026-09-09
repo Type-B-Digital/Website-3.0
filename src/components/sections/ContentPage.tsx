@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from 'react'
 import { FaqSection, Testimonial, ValuesMarquee } from '@/components'
 import { PageShell } from '@/components/layout'
 import type { PageShellProps } from '@/components/layout'
-import { palette } from '@/tokens'
+import { gradients } from '@/tokens'
 import type { AccordionItem, ValuesMarqueeTone } from '@/components'
 import type { TestimonialQuote } from '@/components/Testimonial'
 
@@ -27,9 +27,7 @@ import type { TestimonialQuote } from '@/components/Testimonial'
  * Cool at the top, through the brand cream, into warm — the reverse of the
  * Contact page's run.
  */
-export const SERVICE_GRADIENT =
-  `linear-gradient(180deg, ${palette.turquoise[100]} 0%, ${palette.neutral[50]} 42.7%, ` +
-  `${palette.amber[100]} 98.1%)`
+export const SERVICE_GRADIENT = gradients.page.service
 
 export type ContentPageProps = {
   /** Everything above the FAQ. */

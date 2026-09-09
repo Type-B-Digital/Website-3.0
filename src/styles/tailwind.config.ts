@@ -91,7 +91,6 @@ export default {
           900: 'var(--color-accent-900)',
         },
         paper: unmapped.paper,
-        'footer-ground': unmapped.footerGround,
         'ink-soft': unmapped.inkSoft,
         canvas: colors.background.canvas,
         surface: colors.background.surface,
@@ -99,7 +98,6 @@ export default {
         'scrim-strong': colors.background.scrimStrong,
         'tag-bg': colors.background.tag,
         'chip-light': colors.background.chipLight,
-        white: unmapped.white,
         danger: colors.feedback.danger,
       },
       textColor: {

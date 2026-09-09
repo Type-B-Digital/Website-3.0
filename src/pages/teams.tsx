@@ -163,7 +163,7 @@ export function TeamsPage() {
         levels={LEVELS}
       />
 
-      <Packaging tiers={TIERS} eyebrowTone="white" />
+      <Packaging tiers={TIERS} eyebrowTone="cream" />
 
       <RelatedServices
         services={related(

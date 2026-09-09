@@ -96,7 +96,7 @@ export function Tabs({
                 : 'focus-visible:outline-accent-500',
               // A selected tab inverts; an unselected one is outlined, except
               // the plain variant which carries no box at all.
-              selected && !plain && tone === 'onDark' && 'bg-white text-on-light',
+              selected && !plain && tone === 'onDark' && 'bg-neutral-50 text-on-light',
               selected && !plain && tone === 'onLight' && 'bg-canvas text-on-dark',
               !selected && !plain && tone === 'onDark' && 'border border-on-dark-subtle text-on-dark',
               !selected && !plain && tone === 'onLight' && 'border border-on-light text-on-light',

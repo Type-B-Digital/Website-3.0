@@ -27,7 +27,7 @@ import { INDUSTRY_STEPS, MANDATE_BODY, MANDATE_POINTS, SOVEREIGN_FAQ } from './i
  */
 
 /** b4 mirrored — node 3614:7091, style "Type B BG 4" inside a horizontal flip. */
-const HERO_GRADIENT = `linear-gradient(129.37deg, ${gradients.b4Stops})`
+const HERO_GRADIENT = gradients.hero.realEstate
 
 const PROFILES = [
   {

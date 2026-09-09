@@ -125,7 +125,7 @@ export function CapabilityGrid({
       <div className="flex flex-col gap-4xl">
         <Reveal>
           <div className="mx-auto flex max-w-[800px] flex-col items-center gap-lg text-center">
-            <Eyebrow tone="white">{eyebrow}</Eyebrow>
+            <Eyebrow tone="cream">{eyebrow}</Eyebrow>
             <Typography variant="h2" className="text-h3 md:text-h2">
               {heading}
             </Typography>
@@ -139,7 +139,7 @@ export function CapabilityGrid({
               <div className="flex flex-col gap-lg">
                 <span
                   aria-hidden
-                  className="flex size-3xl shrink-0 items-center justify-center rounded-full bg-white"
+                  className="flex size-3xl shrink-0 items-center justify-center rounded-full bg-neutral-50"
                 >
                   <span className="size-sm rounded-[2px] border border-on-light" />
                 </span>
@@ -234,7 +234,7 @@ export function EngagementSteps({
               <Reveal index={i} className="flex-1">
                 <div className="flex flex-col gap-sm p-lg">
                   <div className="flex flex-col gap-lg">
-                    <span className="flex size-3xl items-center justify-center rounded-sm bg-white">
+                    <span className="flex size-3xl items-center justify-center rounded-sm bg-neutral-50">
                       <Typography variant="copyLarge" as="span">
                         {step.number}
                       </Typography>
@@ -341,7 +341,7 @@ export function LevelsList({
                   Estate's labels fit on one line where the artboard wraps them.
                 */}
                 <div className="flex max-w-[472px] items-center gap-lg py-lg">
-                  <span className="flex size-3xl shrink-0 items-center justify-center rounded-sm bg-white">
+                  <span className="flex size-3xl shrink-0 items-center justify-center rounded-sm bg-neutral-50">
                     <Typography variant="copyLarge" as="span">
                       {level.number}
                     </Typography>

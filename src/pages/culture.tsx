@@ -18,7 +18,7 @@ import {
   ValuesMarquee,
 } from '@/components'
 import { PageShell } from '@/components/layout'
-import { colors as colorTokens, motion as motionTokens, palette } from '@/tokens'
+import { colors as colorTokens, gradients, motion as motionTokens, palette } from '@/tokens'
 import { asset } from '@/lib/asset'
 import { cn } from '@/lib/cn'
 
@@ -167,9 +167,7 @@ const LOCATIONS: GlobeLocation[] = [
  * artboard's #7C989A. Rescaled by 2133/1671, the stops are 0 / 63.8 / 127.6,
  * which is why the last one runs past 100% exactly as `gradients.b3` does.
  */
-const HERO_GRADIENT =
-  `linear-gradient(309.36deg, ${palette.neutral[900]} 0%, ${palette.turquoise[500]} 63.8%, ` +
-  `${palette.neutral[50]} 127.6%)`
+const HERO_GRADIENT = gradients.hero.culture
 
 /**
  * Figma: node 3679:10553 and the three stat groups (3679:10558 / 10565 /
@@ -312,7 +310,7 @@ function OurApproach() {
         <div className="grid gap-lg md:grid-cols-2 lg:grid-cols-4">
           {STAGES.map((stage, i) => (
             <Reveal key={stage.number} index={i} className={cn(i % 2 === 1 && 'lg:mt-[243px]')}>
-              <div className="flex aspect-square flex-col justify-between rounded-md bg-white p-lg">
+              <div className="flex aspect-square flex-col justify-between rounded-md bg-neutral-50 p-lg">
                 <div className="flex items-baseline gap-sm">
                   <Typography variant="copyLarge" as="span" className="opacity-subtle">
                     {stage.number}
@@ -399,7 +397,7 @@ function Talent() {
       <Container className="flex flex-1 flex-col pt-4xl">
         <Reveal>
           <div className="mx-auto flex max-w-[800px] flex-col items-center gap-md text-center">
-            <Eyebrow tone="white">Talent</Eyebrow>
+            <Eyebrow tone="cream">Talent</Eyebrow>
             <Typography variant="h2" className="text-h3 md:text-h2">
               Global by design
             </Typography>

@@ -207,7 +207,7 @@ export function ProductDevelopmentPage() {
 
       <StaggeredCards
         eyebrow="Sovereign AI"
-        eyebrowTone="white"
+        eyebrowTone="cream"
         heading="Our specialty for data ownership & control"
         intro="Sovereign AI runs inside your organization: your jurisdiction, your cloud or data center, your controls, with a full audit trail and no dependency on someone else’s black box."
         cards={SOVEREIGN}

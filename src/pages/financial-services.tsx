@@ -41,7 +41,7 @@ import {
  * b7 mirrored. See `gradients.b7Stops`: the artboard's rect is the named style
  * "Type B BG 7" inside a horizontal flip, so the angle is 360 - 50.68.
  */
-const HERO_GRADIENT = `linear-gradient(309.32deg, ${gradients.b7Stops})`
+const HERO_GRADIENT = gradients.hero.financialServices
 
 const PROFILES = [
   {

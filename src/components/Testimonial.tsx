@@ -96,7 +96,7 @@ export function Testimonial({
       )}
       <Reveal className="relative z-10">
         <div className="mx-auto flex max-w-[800px] flex-col items-center gap-lg text-center">
-          <Eyebrow tone="white">Testimonial</Eyebrow>
+          <Eyebrow tone="cream">Testimonial</Eyebrow>
           <div className="flex flex-col items-center gap-2xl">
             {/* 32px Medium, not the Regular that subHeaderLarge carries. */}
             <Typography variant="subHeaderLarge" as="p" className="font-medium">

@@ -10,7 +10,7 @@ import {
   ValuesMarquee,
 } from '@/components'
 import { PageShell } from '@/components/layout'
-import { gradients, palette } from '@/tokens'
+import { gradients } from '@/tokens'
 import { cn } from '@/lib/cn'
 
 /**
@@ -45,9 +45,7 @@ import { cn } from '@/lib/cn'
  * It stops at 96% because the artboard reaches turquoise.100 at y=3700 and
  * holds it flat into the closing CTA at y=3847.
  */
-const PAGE_GRADIENT =
-  `linear-gradient(180deg, ${palette.neutral[50]} 0%, ${palette.amber[100]} 44%, ` +
-  `${palette.turquoise[100]} 96%)`
+const PAGE_GRADIENT = gradients.page.industries
 
 /**
  * Column start as literal classes: Tailwind scans source text, so a computed

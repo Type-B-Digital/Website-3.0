@@ -39,7 +39,7 @@ import {
  */
 
 /** b8 mirrored — node 3614:5645, style "Type B BG 8" inside a horizontal flip. */
-const HERO_GRADIENT = `linear-gradient(129.39deg, ${gradients.b8Stops})`
+const HERO_GRADIENT = gradients.hero.healthcare
 
 const PROFILES = [
   {

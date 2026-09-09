@@ -24,7 +24,7 @@ import { INDUSTRY_STEPS, MANDATE_BODY, MANDATE_POINTS, SOVEREIGN_FAQ } from './i
  */
 
 /** b6 mirrored — node 3614:8588, style "Type B BG 6" inside a horizontal flip. */
-const HERO_GRADIENT = `linear-gradient(129.39deg, ${gradients.b6Stops})`
+const HERO_GRADIENT = gradients.hero.legal
 
 /** ⚠ "General Council" is the artboard's spelling of General Counsel. */
 const ROLES = ['Managing Partner', 'COO', 'General Counsel', 'IT & Security Lead']

@@ -14,7 +14,7 @@ import {
   ValuesMarquee,
 } from '@/components'
 import { PageShell } from '@/components/layout'
-import { palette } from '@/tokens'
+import { gradients } from '@/tokens'
 import { useBotGuard } from '@/lib/useBotGuard'
 
 /**
@@ -43,9 +43,7 @@ import { useBotGuard } from '@/lib/useBotGuard'
  * own variance. It is the Industries gradient run in reverse — cool in the
  * middle here, warm in the middle there.
  */
-const PAGE_GRADIENT =
-  `linear-gradient(180deg, ${palette.neutral[50]} 0%, ${palette.turquoise[100]} 47%, ` +
-  `${palette.amber[100]} 100%)`
+const PAGE_GRADIENT = gradients.page.contact
 
 /* ================================================================== *
  * FORM

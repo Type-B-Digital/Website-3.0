@@ -152,7 +152,7 @@ export function StaggeredCards({
   glow = false,
 }: {
   eyebrow?: string
-  eyebrowTone?: 'onLight' | 'onAccent' | 'ink' | 'white'
+  eyebrowTone?: 'onLight' | 'onAccent' | 'ink' | 'cream'
   heading: ReactNode
   intro?: string
   cards: readonly StaggeredCard[]
@@ -200,7 +200,7 @@ export function StaggeredCards({
         <div className="grid gap-lg md:grid-cols-2 lg:grid-cols-4">
           {cards.map((card, i) => (
             <Reveal key={card.title} index={i} className={cn(i % 2 === 1 && 'lg:mt-[243px]')}>
-              <div className="flex aspect-square flex-col justify-between rounded-md bg-white p-lg">
+              <div className="flex aspect-square flex-col justify-between rounded-md bg-neutral-50 p-lg">
                 <div className="flex items-baseline gap-sm">
                   {card.number && (
                     <Typography variant="copyLarge" as="span" className="opacity-subtle">

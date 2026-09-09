@@ -128,12 +128,26 @@ const TIERS: readonly Tier[] = [
   },
 ]
 
+/**
+ * Outlines are ramp steps, not the border tokens.
+ *
+ * `divider` is ink at 12% and `on-light` at 24% — both right for a rule between
+ * rows of text, both almost invisible as the outline of a box on cream, which
+ * is what this diagram is made of. `neutral.400` and `neutral.900` are solid
+ * ramp values and read at a glance.
+ *
+ * ⚠ The filled pill is solid, not a tint. `bg-accent-500/10` renders SOLID: the
+ * accent scale resolves through `var(--color-accent-500)`, and a Tailwind
+ * opacity modifier cannot apply alpha to a bare `var()` — it needs an
+ * `<alpha-value>` placeholder the mood variables do not carry. So the pill is
+ * filled and takes cream type, which is what the reference draws anyway.
+ */
 const BAND_STYLES: Record<Band, { pill: string; dot: string }> = {
-  Foundation: { pill: 'border-on-dark bg-paper/[0.06]', dot: 'border-on-dark' },
-  'Building Blocks': { pill: 'border-on-dark-subtle', dot: 'border-on-dark-subtle' },
+  Foundation: { pill: 'border-neutral-900', dot: 'border-neutral-900' },
+  'Building Blocks': { pill: 'border-neutral-400', dot: 'border-neutral-400' },
   'Unified System': {
-    pill: 'border-accent-400 bg-accent-600',
-    dot: 'border-accent-400 bg-accent-600',
+    pill: 'border-accent-500 bg-accent-500 text-on-dark-muted',
+    dot: 'border-accent-500 bg-accent-500',
   },
 }
 
@@ -146,7 +160,10 @@ const BAND_STYLES: Record<Band, { pill: string; dot: string }> = {
  */
 function Waterfall({ active }: { active: string | null }) {
   return (
-    <div className="rounded-md bg-canvas p-lg text-on-dark md:p-4xl">
+    /* Light ground, ink copy, ink outlines — it is a diagram OF the system, and
+       drawing it on the page's own cream keeps it part of the document rather
+       than a panel dropped into it. */
+    <div className="rounded-md border border-divider bg-surface p-lg text-on-light md:p-4xl">
       <div className="relative mx-auto max-w-[560px]">
         <ol className="flex flex-col items-stretch">
           {TIERS.map((tier, i) => (
@@ -156,8 +173,8 @@ function Waterfall({ active }: { active: string | null }) {
                 className={cn(
                   'group w-full rounded-pill border px-lg py-md text-center transition-colors duration-fast ease-out',
                   BAND_STYLES[tier.band].pill,
-                  active === tier.id && 'border-accent-300 bg-paper/10',
-                  'hover:border-accent-300',
+                  active === tier.id && 'border-accent-500',
+                  'hover:border-accent-500',
                 )}
               >
                 <Typography variant="copyMedium" as="span" className="block font-semibold">
@@ -171,8 +188,8 @@ function Waterfall({ active }: { active: string | null }) {
                 /* Dotted connector. Decorative — the links above carry the
                    structure for anyone not looking at it. */
                 <span aria-hidden className="flex h-2xl flex-col items-center">
-                  <span className="w-px flex-1 border-l border-dashed border-on-dark-subtle" />
-                  <CaretDown className="-mt-[10px] size-lg shrink-0 text-on-dark-subtle" />
+                  <span className="w-px flex-1 border-l border-dashed border-neutral-400" />
+                  <CaretDown className="-mt-[10px] size-lg shrink-0 text-neutral-600" />
                 </span>
               )}
             </li>
@@ -187,21 +204,21 @@ function Waterfall({ active }: { active: string | null }) {
         */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-4xl bottom-[6%] top-[6%] hidden w-4xl rounded-r-md border-y border-r border-dashed border-on-dark-subtle lg:block"
+          className="pointer-events-none absolute -right-4xl bottom-[6%] top-[6%] hidden w-4xl rounded-r-md border-y border-r border-dashed border-neutral-400 lg:block"
         >
           {/* Centred on the line so it reads as a label ON the path, and
               painted with the panel's own ground so it knocks the dashes out. */}
-          <span className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 rounded-sm bg-canvas px-sm py-xs">
+          <span className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 rounded-sm bg-surface px-sm py-xs">
             <Typography variant="copyXSmall" as="span" className="whitespace-nowrap font-mono">
               Governance
             </Typography>
           </span>
           {/* Points back into Design System: the return path has a direction. */}
-          <CaretDown className="absolute -left-[11px] bottom-0 size-lg translate-y-1/2 rotate-90 text-on-dark-subtle" />
+          <CaretDown className="absolute -left-[11px] bottom-0 size-lg translate-y-1/2 rotate-90 text-neutral-600" />
         </div>
       </div>
 
-      <ul className="mt-4xl flex flex-wrap items-center justify-center gap-x-2xl gap-y-md border-t border-on-dark-subtle pt-lg">
+      <ul className="mt-4xl flex flex-wrap items-center justify-center gap-x-2xl gap-y-md border-t border-divider pt-lg">
         {(Object.keys(BAND_STYLES) as Band[]).map((band) => (
           <li key={band} className="flex items-center gap-sm">
             <span className={cn('size-md shrink-0 rounded-sm border', BAND_STYLES[band].dot)} />
@@ -470,27 +487,31 @@ const EYEBROW_TONES: readonly EyebrowTone[] = [
   'onAccent',
   'ink',
   'slate',
-  'white',
+  'cream',
   'solar',
   'ember',
 ]
 
-const TYPE_ORDER: readonly TypographyVariant[] = [
-  'h1',
-  'display',
-  'h2',
-  'h3',
-  'subHeaderLarge',
-  'navPanelLink',
-  'subHeaderSmall',
-  'copyLarge',
-  'copyMedium',
-  'button',
-  'navLink',
-  'copySmall',
-  'eyebrow',
-  'copyXSmall',
-  'tag',
+/**
+ * One row per unique SIZE, not per token.
+ *
+ * The scale has sixteen tokens but only eleven sizes: three share 16px, two
+ * share 32, two share 14 and two share 12. Listing all sixteen made the scale
+ * look twice as large as it is and buried the actual steps, so each row is a
+ * size — rendered by its primary token, naming the others that sit on it.
+ * Weight is not what separates them; see the Weights block.
+ */
+const SIZE_STEPS: readonly { render: TypographyVariant; also?: string }[] = [
+  { render: 'h1' },
+  { render: 'display' },
+  { render: 'h2' },
+  { render: 'h3' },
+  { render: 'subHeaderLarge', also: 'navPanelLink' },
+  { render: 'subHeaderSmall' },
+  { render: 'copyLarge' },
+  { render: 'copyMedium', also: 'button, navLink' },
+  { render: 'copySmall', also: 'eyebrow' },
+  { render: 'copyXSmall', also: 'tag' },
 ]
 
 export function BrandGuidelinesPage() {
@@ -628,27 +649,70 @@ export function BrandGuidelinesPage() {
                 ))}
               </div>
             </Spec>
-            <Spec
-              name="gradients"
-              meta="every stop is a ramp value; stops past 100% are intentional"
-            >
+            <Spec name="gradients.b1 – b8" meta="the eight page grounds from the token board">
               <div className="grid gap-lg sm:grid-cols-2 lg:grid-cols-4">
-                {(['b1', 'b3', 'b5', 'b8'] as const).map((k) => (
+                {(['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8'] as const).map((k) => (
                   <div key={k} className="flex flex-col gap-sm">
                     <div
-                      className="h-[112px] w-full rounded-md"
+                      className="h-[104px] w-full rounded-md"
                       style={{ backgroundImage: gradients[k] }}
                     />
                     <Typography variant="copyXSmall" as="code" muted>
-                      gradients.{k}
+                      {k}
                     </Typography>
                   </div>
                 ))}
+              </div>
+            </Spec>
+            <Spec
+              name="gradients.hero"
+              meta="hero bands — six are a b* stop list re-angled for its own artboard"
+            >
+              <div className="grid gap-lg sm:grid-cols-2 lg:grid-cols-4">
+                {Object.entries(gradients.hero).map(([k, v]) => (
+                  <div key={k} className="flex flex-col gap-sm">
+                    <div className="h-[104px] w-full rounded-md" style={{ backgroundImage: v }} />
+                    <Typography variant="copyXSmall" as="code" muted>
+                      hero.{k}
+                    </Typography>
+                  </div>
+                ))}
+              </div>
+            </Spec>
+            <Spec
+              name="gradients.page"
+              meta="full-page body grounds, as distinct from the hero bands"
+            >
+              <div className="grid gap-lg sm:grid-cols-2 lg:grid-cols-4">
+                {Object.entries(gradients.page).map(([k, v]) => (
+                  <div key={k} className="flex flex-col gap-sm">
+                    <div className="h-[104px] w-full rounded-md" style={{ backgroundImage: v }} />
+                    <Typography variant="copyXSmall" as="code" muted>
+                      page.{k}
+                    </Typography>
+                  </div>
+                ))}
+              </div>
+            </Spec>
+            <Spec name="gradients.service" meta="the three service pages — each its own diagonal">
+              <div className="grid gap-lg sm:grid-cols-3">
                 {Object.entries(gradients.service).map(([k, v]) => (
                   <div key={k} className="flex flex-col gap-sm">
-                    <div className="h-[112px] w-full rounded-md" style={{ backgroundImage: v }} />
+                    <div className="h-[104px] w-full rounded-md" style={{ backgroundImage: v }} />
                     <Typography variant="copyXSmall" as="code" muted>
                       service.{k}
+                    </Typography>
+                  </div>
+                ))}
+              </div>
+            </Spec>
+            <Spec name="gradients.industry" meta="the five industry row fills">
+              <div className="grid gap-lg sm:grid-cols-3 lg:grid-cols-5">
+                {Object.entries(gradients.industry).map(([k, v]) => (
+                  <div key={k} className="flex flex-col gap-sm">
+                    <div className="h-[104px] w-full rounded-md" style={{ backgroundImage: v }} />
+                    <Typography variant="copyXSmall" as="code" muted>
+                      industry.{k}
                     </Typography>
                   </div>
                 ))}
@@ -661,29 +725,24 @@ export function BrandGuidelinesPage() {
             note={`${fontFamily.sans.split(',')[0].replace(/'/g, '')} — sixteen steps, no literals in any component`}
           >
             <div className="flex flex-col gap-lg">
-              {TYPE_ORDER.map((variant) => {
-                const t = typography[variant] as {
-                  fontSize: string
-                  lineHeight: number
-                  fontWeight: number
-                  letterSpacing?: string
-                }
+              {SIZE_STEPS.map(({ render, also }) => {
+                const t = typography[render] as { fontSize: string; lineHeight: number }
                 return (
                   <div
-                    key={variant}
-                    className="grid gap-sm border-t border-divider pt-md lg:grid-cols-[180px_1fr]"
+                    key={render}
+                    className="grid gap-sm border-t border-divider pt-md lg:grid-cols-[200px_1fr]"
                   >
                     <div className="flex flex-col gap-xs">
                       <Typography variant="copySmall" as="code" className="font-semibold">
-                        {variant}
+                        {t.fontSize}
                       </Typography>
                       <Typography variant="copyXSmall" as="span" muted>
-                        {t.fontSize} / {t.lineHeight} / {t.fontWeight}
-                        {t.letterSpacing ? ` / ${t.letterSpacing}` : ''}
+                        {render}
+                        {also ? `, ${also}` : ''} · {t.lineHeight} leading
                       </Typography>
                     </div>
                     <div className="min-w-0 overflow-hidden">
-                      <Typography variant={variant} as="p">
+                      <Typography variant={render} as="p">
                         Most partners do one slice.
                       </Typography>
                     </div>
@@ -700,6 +759,34 @@ export function BrandGuidelinesPage() {
                   at size.
                 </Typography>
               </div>
+            </div>
+          </Sub>
+
+          <Sub title="Weights" note="Four, and they are what separates tokens that share a size">
+            <div className="flex flex-col">
+              {(
+                [
+                  ['regular', 400, 'Body copy, sub-headers, nav links — the default.'],
+                  ['medium', 500, 'The testimonial quote, and nothing else.'],
+                  ['semibold', 600, 'Every heading, the eyebrow, the button label.'],
+                  ['bold', 700, 'The Careers numeral only — a graphic, not reading text.'],
+                ] as const
+              ).map(([name, weight, use]) => (
+                <div
+                  key={name}
+                  className="grid gap-sm border-t border-divider py-lg lg:grid-cols-[200px_1fr_1fr]"
+                >
+                  <Typography variant="copySmall" as="code" className="font-semibold">
+                    {weight} · {name}
+                  </Typography>
+                  <Typography variant="subHeaderSmall" as="p" style={{ fontWeight: weight }}>
+                    Whole stack
+                  </Typography>
+                  <Typography variant="copySmall" as="p" muted>
+                    {use}
+                  </Typography>
+                </div>
+              ))}
             </div>
           </Sub>
 
@@ -793,15 +880,35 @@ export function BrandGuidelinesPage() {
 
           <Sub
             title="Layout & grid"
-            note={`${layout.columns} columns · ${layout.frameWidth} frame · ${layout.margin} margin · ${layout.gutter} gutter`}
+            note={`${layout.frameWidth} frame · ${layout.margin} margin · ${layout.gutter} gutter`}
           >
-            <div className="w-full overflow-hidden rounded-md border border-divider">
-              <div className="grid grid-cols-12 gap-lg p-md">
-                {Array.from({ length: layout.columns }).map((_, i) => (
-                  <div key={i} className="h-[72px] rounded-sm bg-canvas/10" />
-                ))}
-              </div>
-            </div>
+            {(
+              [
+                ['desktop', 'xl and up — 1280+', layout.grid.desktop.columns],
+                ['largeTablet', 'lg to xl — 1024 to 1279', layout.grid.largeTablet.columns],
+                ['compact', 'below lg — small tablet and mobile', layout.grid.compact.columns],
+              ] as const
+            ).map(([name, range, columns]) => (
+              <Spec key={name} name={`layout.grid.${name}`} meta={`${columns} columns · ${range}`}>
+                <div className="w-full overflow-hidden rounded-md border border-divider">
+                  <div
+                    className="grid gap-lg p-md"
+                    /* The count is a token, so an arbitrary Tailwind class would never
+                       be generated for it — set it as a style instead. */
+                    style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+                  >
+                    {Array.from({ length: columns }).map((_, i) => (
+                      <div key={i} className="h-[64px] rounded-sm bg-canvas/10" />
+                    ))}
+                  </div>
+                </div>
+              </Spec>
+            ))}
+            <Typography variant="copySmall" as="p" muted>
+              ⚠ Only the desktop grid is in Figma. The two below it are an engineering decision,
+              chosen so the count halves cleanly — 12 → 8 → 4 — and every desktop span divides into
+              a tablet one.
+            </Typography>
             <Spec name="breakpoints" meta="⚠ not in Figma — the file is desktop-only at 1440">
               <div className="flex flex-wrap gap-md">
                 {Object.entries(breakpoints).map(([k, v]) => (
@@ -929,7 +1036,7 @@ export function BrandGuidelinesPage() {
 
           <Sub
             title="Card"
-            note="three aspect ratios; radius md; depth from the scrim, never a shadow"
+            note="three aspect ratios; radius md; depth from the scrim, never a shadow. ⚠ The two horizontal labels were swapped on 2026-09-09 — names only, every card on the site renders the box it always did."
           >
             <div className="grid gap-lg sm:grid-cols-3">
               <Card

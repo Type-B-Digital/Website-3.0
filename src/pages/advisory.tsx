@@ -205,7 +205,7 @@ export function AdvisoryPage() {
         footnote="The roadmap scores every use case across both architectures, what should ship as standard cloud AI (faster and cheaper, and most use cases land here) and what genuinely requires the sovereign treatment we specialize in. Telling those apart is itself a deliverable, and it is where most AI budgets are quietly wasted."
       />
 
-      <Packaging tiers={TIERS} eyebrowTone="white" />
+      <Packaging tiers={TIERS} eyebrowTone="cream" />
 
       <RelatedServices
         services={related(

@@ -13,8 +13,8 @@ import Typography from './Typography'
  * (node 3390:26567); and on the Industries hero it is solid ink with near-white
  * text (node 2894:14356).
  *
- * The Contact testimonial uses a fourth, pure-white chip (node 3617:9171) so it
- * holds against the warm glow behind it.
+ * The Contact testimonial uses a fourth chip (node 3617:9171), drawn white on
+ * the artboard and now the cream ramp end, so it holds against the warm glow.
  *
  * `ink` and `white` name the chip rather than its ground — they are further
  * variants that also sit on light, so the `onX` convention cannot separate
@@ -25,7 +25,7 @@ import Typography from './Typography'
  * The Industries hero (node 2894:14357) is SemiBold, agreeing with the token,
  * so the token stays. Logged in BUILD_LOG.
  */
-export type EyebrowTone = 'onLight' | 'onAccent' | 'ink' | 'white' | 'slate' | 'solar' | 'ember'
+export type EyebrowTone = 'onLight' | 'onAccent' | 'ink' | 'cream' | 'slate' | 'solar' | 'ember'
 
 const toneClasses: Record<EyebrowTone, string> = {
   onLight: 'bg-chip-light text-on-light',
@@ -33,7 +33,10 @@ const toneClasses: Record<EyebrowTone, string> = {
   ink: 'bg-canvas text-paper',
   /** One ramp step up from `ink` — the case study eyebrow (node 2887:7159). */
   slate: 'bg-neutral-800 text-paper',
-  white: 'bg-white text-on-light',
+  /* Was `white` (#FFFFFF) until that value was retired on 2026-09-09. Now
+     the cream ramp end, and renamed so the tone does not claim a colour the
+     system no longer has. */
+  cream: 'bg-neutral-50 text-on-light',
   /**
    * The two service-hero chips, each the 500 of a warm ramp with ink text.
    * Named for the MOODS those ramps are — `solar` is the amber ramp, `ember`

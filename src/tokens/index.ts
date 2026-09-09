@@ -84,11 +84,31 @@ export const unmapped = {
   paper: '#F6F6F6',
   /** "View our work" CTA border + label. Near-miss for neutral.900 (#040E19). Figma: 3390:26536 */
   inkSoft: '#071B27',
-  /** Eyebrow chip background on light sections. Figma: 3390:26431 */
-  white: '#FFFFFF',
-  /** Footer ground — a shade below the canvas. Figma: node 3483:27261 */
-  footerGround: '#030B15',
+  /*
+   * ⚠ `white` (#FFFFFF) and `footerGround` (#030B15) were retired on
+   * 2026-09-09. Both were near-misses for ramp ends that this file had been
+   * tracking as debt since the first build, and both are now the ramp end:
+   * white -> neutral.50, footerGround -> neutral.900. The footer therefore
+   * shares the canvas rather than sitting a shade below it.
+   */
 } as const
+
+/**
+ * Exact sRGB mix, so a value read off an artboard can stay derived from the two
+ * ramp ends it sits between rather than being pasted in as a literal.
+ */
+function mix(from: string, to: string, t: number) {
+  const ch = (hex: string, i: number) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16)
+  const v = (i: number) => Math.round(ch(from, i) + (ch(to, i) - ch(from, i)) * t)
+  return `#${[0, 1, 2].map((i) => v(i).toString(16).padStart(2, '0')).join('')}`
+}
+
+/**
+ * Where the warm half of the Careers page ends up. Sampled off the artboard at
+ * `#F6EADC` — 62% of the way from amber.100 to neutral.50, not neutral.50
+ * itself. Snapping it to the ramp end lightens the whole Bench section by ~5%.
+ */
+export const benchGround = mix(palette.amber[100], palette.neutral[50], 0.62)
 
 /* ------------------------------------------------------------------ *
  * GRADIENTS
@@ -102,6 +122,36 @@ export const unmapped = {
  * to 2dp. Stops beyond 100% are intentional — Figma extends the ramp past the
  * box so the final colour is approached but never fully reached.
  * ------------------------------------------------------------------ */
+/*
+ * Stop lists without a direction, hoisted so both `gradients` and the hero
+ * group below can reference them — a property cannot cite a sibling property
+ * of the object literal it is being defined in.
+ */
+const b1Stops =
+  `${palette.neutral[900]} 3.19%, ${palette.turquoise[400]} 54.91%, ` +
+  `${palette.amber[300]} 85.88%, ${palette.orange[200]} 110.67%`
+
+const b2Stops =
+  `${palette.neutral[50]} 16.13%, ${palette.amber[300]} 53.76%, ` +
+  `${palette.orange[400]} 80.65%, ${palette.neutral[800]} 107.53%`
+
+const b4Stops =
+  `${palette.neutral[900]} 0%, ${palette.orange[400]} 75.52%, ` + `${palette.amber[300]} 115.50%`
+
+const b5Stops =
+  `${palette.turquoise[500]} 0%, ${palette.turquoise[100]} 63.82%, ` +
+  `${palette.neutral[50]} 127.63%`
+
+const b6Stops =
+  `${palette.neutral[50]} 0%, ${palette.orange[300]} 53.37%, ` + `${palette.amber[400]} 100%`
+
+const b7Stops =
+  `${palette.amber[700]} 0%, ${palette.amber[500]} 53.34%, ` + `${palette.neutral[50]} 106.67%`
+
+const b8Stops =
+  `${palette.neutral[50]} 0%, ${palette.amber[200]} 30.73%, ` +
+  `${palette.neutral[200]} 63.94%, ${palette.turquoise[300]} 100%`
+
 export const gradients = {
   /**
    * b1's colour stops without a direction, so the hero can animate the ANGLE.
@@ -112,9 +162,7 @@ export const gradients = {
    * strip moves the bands but cannot change which diagonal they run along, so
    * one end state or the other always comes out mirrored.
    */
-  b1Stops:
-    `${palette.neutral[900]} 3.19%, ${palette.turquoise[400]} 54.91%, ` +
-    `${palette.amber[300]} 85.88%, ${palette.orange[200]} 110.67%`,
+  b1Stops,
   /** Ink -> turquoise -> amber -> peach. Hero background. */
   b1:
     `linear-gradient(230.52deg, ${palette.neutral[900]} 3.19%, ${palette.turquoise[400]} 54.91%, ` +
@@ -123,9 +171,7 @@ export const gradients = {
    * b2's stops without a direction. The What We Do hero uses the same ramp at
    * 116.67deg (Figma node 3604:1004) where the token board has it at 230.49deg.
    */
-  b2Stops:
-    `${palette.neutral[50]} 16.13%, ${palette.amber[300]} 53.76%, ` +
-    `${palette.orange[400]} 80.65%, ${palette.neutral[800]} 107.53%`,
+  b2Stops,
   /** Cream -> amber -> orange -> slate. */
   b2:
     `linear-gradient(230.49deg, ${palette.neutral[50]} 16.18%, ${palette.amber[300]} 53.93%, ` +
@@ -139,23 +185,19 @@ export const gradients = {
    * (Figma node 3614:7091, style "Type B BG 4" inside a horizontal flip), which
    * puts the ink end at the top left — the one industry hero with light type.
    */
-  b4Stops:
-    `${palette.neutral[900]} 0%, ${palette.orange[400]} 75.52%, ` + `${palette.amber[300]} 115.50%`,
+  b4Stops,
   /** Ink -> orange -> amber. */
   b4:
     `linear-gradient(230.54deg, ${palette.neutral[900]} 0%, ${palette.orange[400]} 75.52%, ` +
     `${palette.amber[300]} 115.50%)`,
   /** b5's stops without a direction. Manufacturing hero — node 3614:7569. */
-  b5Stops:
-    `${palette.turquoise[500]} 0%, ${palette.turquoise[100]} 63.82%, ` +
-    `${palette.neutral[50]} 127.63%`,
+  b5Stops,
   /** Deep turquoise -> pale turquoise -> cream. */
   b5:
     `linear-gradient(50.55deg, ${palette.turquoise[500]} 0%, ${palette.turquoise[100]} 63.82%, ` +
     `${palette.neutral[50]} 127.63%)`,
   /** b6's stops without a direction. Legal hero — node 3614:8588. */
-  b6Stops:
-    `${palette.neutral[50]} 0%, ${palette.orange[300]} 53.37%, ` + `${palette.amber[400]} 100%`,
+  b6Stops,
   /** Cream -> coral -> amber. */
   b6:
     `linear-gradient(230.53deg, ${palette.neutral[50]} 0%, ${palette.orange[300]} 53.37%, ` +
@@ -166,16 +208,13 @@ export const gradients = {
    * BG 7" inside a `rotate-180 -scale-y-100` wrapper, which is a horizontal
    * flip, so the built angle is the reflection, 309.32.
    */
-  b7Stops:
-    `${palette.amber[700]} 0%, ${palette.amber[500]} 53.34%, ` + `${palette.neutral[50]} 106.67%`,
+  b7Stops,
   /** Burnt amber -> bright amber -> cream. */
   b7:
     `linear-gradient(50.60deg, ${palette.amber[700]} 0%, ${palette.amber[500]} 53.34%, ` +
     `${palette.neutral[50]} 106.67%)`,
   /** b8's stops without a direction. Healthcare hero — node 3614:5645. */
-  b8Stops:
-    `${palette.neutral[50]} 0%, ${palette.amber[200]} 30.73%, ` +
-    `${palette.neutral[200]} 63.94%, ${palette.turquoise[300]} 100%`,
+  b8Stops,
   /** Cream -> sand -> warm grey -> turquoise. */
   b8:
     `linear-gradient(230.53deg, ${palette.neutral[50]} 0%, ${palette.amber[200]} 30.73%, ` +
@@ -188,7 +227,15 @@ export const gradients = {
    * that section: every other colour on those artboards is an existing ramp
    * step. Composed rather than restated as hex, like b1-b8 above.
    */
-  navPanel: `linear-gradient(219.09deg, ${unmapped.white} 0%, ${palette.neutral[50]} 100%)`,
+  /**
+   * ⚠ FLAT since white was retired. This was `#FFFFFF -> neutral.50`; with
+   * white gone both stops are neutral.50, so the curtain is a solid cream and
+   * the gradient is nominal. Kept as a gradient so `bg-gradient-nav-panel`
+   * still resolves, and flagged because it wants a design decision: either a
+   * second stop from the ramp, or the token retires and the panel takes
+   * `bg-surface`.
+   */
+  navPanel: `linear-gradient(219.09deg, ${palette.neutral[50]} 0%, ${palette.neutral[50]} 100%)`,
 
   /* ------------------------------------------------------------------ *
    * Industry row fills — Figma nodes 3276:21593 / 21597 / 21601 / 21605
@@ -240,6 +287,80 @@ export const gradients = {
     legal:
       `linear-gradient(122.8deg, ${palette.neutral[50]} 0%, ${palette.orange[300]} 53.37%, ` +
       `${palette.amber[400]} 100%)`,
+  },
+
+  /**
+   * Hero band grounds. Six of the seven are a `b*Stops` ramp re-angled for its
+   * own artboard — the stop list is shared, the direction is not — and they
+   * lived as a `HERO_GRADIENT` const in each page file until 2026-09-09.
+   *
+   * Culture is the exception: its own three-stop ramp, and the one hero here
+   * that carries light type.
+   */
+  hero: {
+    /** Node 3604:1004. */
+    whatWeDo: `linear-gradient(116.67deg, ${b2Stops})`,
+    /** Node 3614:5645. */
+    healthcare: `linear-gradient(129.39deg, ${b8Stops})`,
+    /** Node 3614:6736. */
+    financialServices: `linear-gradient(309.32deg, ${b7Stops})`,
+    /** Node 3614:7091 — b4 inside a horizontal flip, so the ink end lands top-left. */
+    realEstate: `linear-gradient(129.37deg, ${b4Stops})`,
+    /** Node 3614:7569. */
+    manufacturing: `linear-gradient(309.36deg, ${b5Stops})`,
+    /** Node 3614:8588. */
+    legal: `linear-gradient(129.39deg, ${b6Stops})`,
+    /**
+     * `culture-hero-background`, node 3678:10012. Neither the angle nor the
+     * offsets are the ones Figma states: the rect carries a horizontal mirror,
+     * so the built angle is the reflection, and Figma's 2133px axis has to be
+     * rescaled to the 1671px CSS gradient line — which is why the last stop
+     * runs past 100%.
+     */
+    culture:
+      `linear-gradient(309.36deg, ${palette.neutral[900]} 0%, ${palette.turquoise[500]} 63.8%, ` +
+      `${palette.neutral[50]} 127.6%)`,
+  },
+
+  /**
+   * Full-page body grounds, as distinct from the hero bands above. Each was a
+   * `PAGE_GRADIENT` const in its own page file until 2026-09-09; they are here
+   * so the set is inventoriable in one place and the brand page can render all
+   * of them.
+   *
+   * The vertical ones were sampled down the artboard's left gutter at 20px
+   * intervals and fitted; the diagonal ones are the frame fill read directly.
+   */
+  page: {
+    /** The shared service-page ground. Cool at the top, through cream, into warm. */
+    service:
+      `linear-gradient(180deg, ${palette.turquoise[100]} 0%, ${palette.neutral[50]} 42.7%, ` +
+      `${palette.amber[100]} 98.1%)`,
+    /** Node 2894:13976. Cream, through amber, to turquoise — and it holds flat from 96%. */
+    industries:
+      `linear-gradient(180deg, ${palette.neutral[50]} 0%, ${palette.amber[100]} 44%, ` +
+      `${palette.turquoise[100]} 96%)`,
+    /** Node 2894:10698. The reverse of the service run: cream, cool, warm. */
+    contact:
+      `linear-gradient(180deg, ${palette.neutral[50]} 0%, ${palette.turquoise[100]} 47%, ` +
+      `${palette.amber[100]} 100%)`,
+    /**
+     * Node 2767:1908 — the WARM HALF ONLY. Careers changes ground mid-scroll
+     * and the second half is a scroll-driven crossfade into ink, which is not
+     * a gradient and is not here. See `GroundCrossfade`.
+     */
+    careers: `linear-gradient(180deg, ${palette.amber[100]} 0%, ${benchGround} 100%)`,
+    /** Node 2887:9631. */
+    publications: `linear-gradient(107deg, ${palette.turquoise[100]} 0%, ${palette.amber[100]} 100%)`,
+    /**
+     * Node 2894:10170. ⚠ Ends on `#F5F6F6`, which is not a ramp value and not
+     * `paper` (#F6F6F6) either — a third near-white read off the artboard.
+     * Reproduced as drawn and logged as debt alongside the other off-board
+     * values.
+     */
+    publicationPost:
+      `linear-gradient(-53deg, ${palette.orange[100]} 0%, ${palette.amber[100]} 55%, ` +
+      `#F5F6F6 100%)`,
   },
 
   /**
@@ -539,11 +660,6 @@ export const spacing = {
    * Figma: node 3383:25392
    */
   tag: '12px',
-  /**
-   * Client logo strip gap. Also off-board — Figma measures 93px between marks.
-   * Figma: node 3390:26570
-   */
-  logoGap: '93px',
   md: '16px',
   lg: '24px',
   xl: '32px',
@@ -555,6 +671,14 @@ export const spacing = {
    * 80px) but 80 + 40, so it sits on the scale rather than beside it.
    */
   '5xl': '120px',
+  /**
+   * The two long-form rhythms the pages already measure in but had no token
+   * for: 160 is the doubled band rhythm `Section spacing="loose"` resolves to
+   * at `xl`, and 240 is the gap the Culture page holds between its Approach
+   * cards and Design thinking. Both were literals before.
+   */
+  '6xl': '160px',
+  '7xl': '240px',
 } as const
 
 export type SpacingToken = keyof typeof spacing
@@ -591,6 +715,22 @@ export const layout = {
    * 100px higher than the tallest.
    */
   navPanelHeight: '587px',
+  /**
+   * Column count per device class.
+   *
+   * ⚠ Only `desktop` is in Figma — the file is desktop-only at 1440, so the
+   * two below it are an engineering decision, chosen so the column count halves
+   * cleanly (12 -> 8 -> 4) and every desktop span divides into a tablet one.
+   *
+   *   desktop      12 columns   xl and up      (>= 1280)
+   *   largeTablet   8 columns   lg to xl       (1024 - 1279)
+   *   compact       4 columns   below lg       (< 1024, small tablet + mobile)
+   */
+  grid: {
+    desktop: { columns: 12, from: '1280px' },
+    largeTablet: { columns: 8, from: '1024px' },
+    compact: { columns: 4, from: '0px' },
+  },
 } as const
 
 /* ------------------------------------------------------------------ *

@@ -31,13 +31,13 @@ export default function NotFoundPage() {
           className="flex min-h-screen items-center bg-gradient-b1 py-5xl"
         >
           <div className="flex max-w-[800px] flex-col items-start gap-lg">
-            <Eyebrow tone="white">404</Eyebrow>
+            <Eyebrow tone="cream">404</Eyebrow>
             <Typography variant="h1" className="text-h2 md:text-h1">
               That page does not exist.
             </Typography>
             <Typography variant="copyLarge" muted className="max-w-[560px]">
-              The link may be old, or the page may not be built yet — this site is still
-              going up. Either way, the way back is short.
+              The link may be old, or the page may not be built yet — this site is still going up.
+              Either way, the way back is short.
             </Typography>
             <div className="mt-md flex flex-wrap items-center gap-md">
               <Button as={Link} to="/" variant="primary" tone="onDark">

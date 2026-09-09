@@ -190,7 +190,7 @@ function Hero() {
       {/* Fades up on load; see HeroIntro. */}
       <section
         className="relative flex h-[720px] items-center overflow-hidden"
-        style={{ backgroundImage: `linear-gradient(116.67deg, ${gradients.b2Stops})` }}
+        style={{ backgroundImage: gradients.hero.whatWeDo }}
       >
         <img
           src={asset('/vectors/hero-circles.svg')}

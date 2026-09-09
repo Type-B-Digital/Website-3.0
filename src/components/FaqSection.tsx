@@ -33,7 +33,7 @@ export function FaqSection({
     >
       <div className="flex flex-col gap-2xl">
         <Reveal>
-          <Typography variant="h2" className={cn('text-h3 md:text-h2', dark && 'text-white')}>
+          <Typography variant="h2" className={cn('text-h3 md:text-h2', dark && 'text-neutral-50')}>
             FAQ
           </Typography>
         </Reveal>

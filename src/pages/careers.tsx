@@ -20,7 +20,7 @@ import {
   ValuesMarquee,
 } from '@/components'
 import { PageShell } from '@/components/layout'
-import { colors as colorTokens, motion as motionTokens, palette } from '@/tokens'
+import { benchGround, colors as colorTokens, gradients, motion as motionTokens } from '@/tokens'
 import { asset } from '@/lib/asset'
 import { cn } from '@/lib/cn'
 
@@ -32,23 +32,8 @@ import { cn } from '@/lib/cn'
  * down. See `WARM_GRADIENT` and `BenchToRoles`.
  */
 
-/**
- * Exact sRGB mix, so a value read off the artboard can stay derived from the
- * two ramp ends it sits between rather than being pasted in as a literal.
- */
-function mix(from: string, to: string, t: number) {
-  const ch = (hex: string, i: number) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16)
-  const v = (i: number) => Math.round(ch(from, i) + (ch(to, i) - ch(from, i)) * t)
-  return `#${[0, 1, 2].map((i) => v(i).toString(16).padStart(2, '0')).join('')}`
-}
-
-/**
- * Where the warm half of the page ends up. Sampled off the artboard at
- * `#F6EADC` — which is 62% of the way from amber.100 to neutral.50, not
- * neutral.50 itself. Snapping it to the ramp end would lighten the whole Bench
- * section by about 5%.
- */
-const BENCH_GROUND = mix(palette.amber[100], palette.neutral[50], 0.62)
+/** Re-exported from tokens; see `benchGround` there for the derivation. */
+const BENCH_GROUND = benchGround
 
 /**
  * The warm half only: hero and carousel, amber.100 easing up to BENCH_GROUND.
@@ -60,7 +45,7 @@ const BENCH_GROUND = mix(palette.amber[100], palette.neutral[50], 0.62)
  * It is emphatically wrong for the change into ink, which is why that half is
  * not in this gradient. See `BenchToRoles`.
  */
-const WARM_GRADIENT = `linear-gradient(180deg, ${palette.amber[100]} 0%, ${BENCH_GROUND} 100%)`
+const WARM_GRADIENT = gradients.page.careers
 
 /**
  * The hero carousel. Copy is Eduardo's.
@@ -481,7 +466,7 @@ function OpenRoles() {
         <Reveal className="lg:col-span-5 lg:col-start-1">
           <div className="flex flex-col items-start gap-2xl">
             <div className="flex max-w-[519px] flex-col gap-md">
-              <Typography variant="h2" className="text-h3 text-white md:text-h2">
+              <Typography variant="h2" className="text-h3 text-neutral-50 md:text-h2">
                 Open Roles
               </Typography>
               <Typography variant="copyMedium" muted>

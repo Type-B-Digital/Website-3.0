@@ -186,11 +186,19 @@ neutral ramp is mood-independent.
 the artboards use anyway. They are tracked as debt, not blessed.
 
 ```css
---color-paper:         #F6F6F6;  /* hero + footer text; near-miss for neutral.50 */
---color-ink-soft:      #071B27;  /* secondary-light CTA label; near-miss for neutral.900 */
---color-white:         #FFFFFF;  /* eyebrow chip fill only */
---color-footer-ground: #030B15;  /* footer, one step below canvas */
+--color-paper:    #F6F6F6;  /* hero + footer text; near-miss for neutral.50 */
+--color-ink-soft: #071B27;  /* secondary-light CTA label; near-miss for neutral.900 */
 ```
+
+> Two more were retired on 2026-09-09 rather than kept as debt: `white`
+> (#FFFFFF) is now **neutral.50** and `footerGround` (#030B15) is now
+> **neutral.900**, applied site-wide. The footer therefore shares the canvas
+> instead of sitting a shade below it, and `Eyebrow`'s `white` tone is renamed
+> `cream` so no tone claims a colour the system no longer has.
+>
+> ⚠ One consequence: `gradients.navPanel` was `#FFFFFF → neutral.50` and is now
+> flat cream. It wants a design decision — a second stop from the ramp, or the
+> token retires and the panel takes `bg-surface`.
 
 > **Naming trap.** `orange` and `amber` are two different ramps. Figma calls
 > both "color-shades-orange". Never write a variable or prop value called
@@ -349,8 +357,13 @@ Derived from the Figma "spacing-vertical" board (8/16/24/32/40/48/80).
 --spacing-3xl:  48px;
 --spacing-4xl:  80px;
 --spacing-5xl:  120px;  /* 80 + 40; off-board but on the scale */
---spacing-logo-gap: 93px; /* client logo strip — OFF-BOARD, measured */
+--spacing-6xl:  160px;  /* the doubled band rhythm `loose` resolves to at xl */
+--spacing-7xl:  240px;  /* Culture: Approach cards to Design thinking */
 ```
+
+> `logoGap` (93px) was retired on 2026-09-09. It was one strip's measured gap,
+> not a step anyone else should reach for, and is now a composition literal at
+> its single call site.
 
 ### 2.7 Radius
 
@@ -484,6 +497,16 @@ palette values rather than shipped as images.
 
 The two angles are **mirror-corrected**: the SVG export is flipped
 horizontally, so its own coordinates give the wrong direction.
+
+**Hero bands** — `gradients.hero`. Six are a `b*Stops` list re-angled for their
+own artboard (`whatWeDo`, `healthcare`, `financialServices`, `realEstate`,
+`manufacturing`, `legal`); `culture` is its own three-stop ramp and the only
+hero carrying light type.
+
+**Full-page body grounds** — `gradients.page`: `service`, `industries`,
+`contact`, `careers`, `publications`, `publicationPost`. These lived as a
+`PAGE_GRADIENT` const in each page file until 2026-09-09; moving them here was
+verified as a pixel-identical no-op across all 19 routes.
 
 **The three service-page grounds** — each page has its own; they are **not**
 interchangeable.
@@ -620,10 +643,15 @@ A solid chip, `radius-sm`, `px-sm py-xs`, `text-eyebrow` at 80%.
 
 #### `Card`
 `src` · `alt` · `aspect`: `verticalMedium` *(410×560, default)* |
-`horizontalMedium` *(519×311)* | `horizontalSmall` *(410×287)* ·
+`horizontalMedium` *(410×287)* | `horizontalSmall` *(519×311)* ·
 `crop` · `scrim` · `children`
 
-Radius `md`. Depth comes from the scrim, never a shadow.
+Radius `md`. Depth comes from the scrim, never a shadow. `verticalMedium` sets
+its overlay copy bottom-centred; the horizontals keep top-left.
+
+⚠ The two horizontal labels were swapped on 2026-09-09 — **names only**. Every
+call site flipped in the same change, so every card on the site renders the box
+it always did. Compare the ratio, not the prop, against an older screenshot.
 
 #### `Container`
 `bleed` · `className`. Caps at **1440 (the frame)**, not 1280.
@@ -728,9 +756,20 @@ Rules that have already cost time:
 --layout-max-width:   1280px;  /* content width */
 --layout-margin:      80px;    /* page margin, inside the frame */
 --layout-gutter:      24px;
---layout-columns:     12;
 --layout-nav-panel-height: 587px;
 ```
+
+Column count per device class:
+
+| `layout.grid` | Columns | Range |
+| --- | --- | --- |
+| `desktop` | 12 | `xl` and up — 1280+ |
+| `largeTablet` | 8 | `lg` to `xl` — 1024–1279 |
+| `compact` | 4 | below `lg` — small tablet and mobile |
+
+⚠ Only `desktop` is in Figma. The two below it are an engineering decision,
+chosen so the count halves cleanly — 12 → 8 → 4 — and every desktop span
+divides into a tablet one.
 
 A column at the designed width is **88.67px**. `Container` caps at the
 **frame** and applies the margin as padding: `px-md` → `md:px-xl` →

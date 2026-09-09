@@ -7,8 +7,14 @@ import { cn } from '@/lib/cn'
  *
  * Figma samples on the token board:
  *   card-vertical-medium     410x560   node 3373:25078
- *   card-horizontal-medium   519x311   node 3389:26338
- *   card-horizontal-small    410x287   node 3373:25072
+ *   card-horizontal-medium   410x287   node 3373:25072
+ *   card-horizontal-small    519x311   node 3389:26338
+ *
+ * ⚠ The two horizontal labels were swapped on 2026-09-09: 519x311 is `small`
+ * now and 410x287 is `medium`. Only the NAMES moved — every call site was
+ * flipped in the same change, so every card on the site still renders the box
+ * it always did. If you are comparing against an older screenshot, compare the
+ * ratio, not the prop.
  * https://www.figma.com/design/LASrWn0jXyj5nBaphi2jgI/TypeB-Creative-Exploration?node-id=3373-25078
  *
  * The design has no shadows — depth comes from the scrim over the image
@@ -19,8 +25,8 @@ export type CardAspect = 'verticalMedium' | 'horizontalMedium' | 'horizontalSmal
 /** Ratios are the Figma frame dimensions, not rounded approximations. */
 const aspectClasses: Record<CardAspect, string> = {
   verticalMedium: 'aspect-[410/560]',
-  horizontalMedium: 'aspect-[519/311]',
-  horizontalSmall: 'aspect-[410/287]',
+  horizontalMedium: 'aspect-[410/287]',
+  horizontalSmall: 'aspect-[519/311]',
 }
 
 /**
@@ -81,7 +87,22 @@ export function Card({
         <img src={src} alt={alt} className="absolute inset-0 size-full object-cover" />
       )}
       {scrim && <div aria-hidden className="absolute inset-0 bg-scrim" />}
-      {children && <div className="absolute inset-0 p-xl">{children}</div>}
+      {children && (
+        /*
+          The vertical card sets its copy bottom-centred; the horizontals keep
+          the top-left placement. `p-xl` is the 32px inset on every side, so the
+          bottom margin the design asks for falls out of the padding rather than
+          being added on top of it.
+        */
+        <div
+          className={cn(
+            'absolute inset-0 p-xl',
+            aspect === 'verticalMedium' && 'flex flex-col items-center justify-end text-center',
+          )}
+        >
+          {children}
+        </div>
+      )}
     </div>
   )
 }

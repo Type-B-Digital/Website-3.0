@@ -382,7 +382,10 @@ function Hero() {
  */
 function ClientLogos() {
   return (
-    <Marquee speed="marqueeSlow" gapClassName="gap-logoGap" className="opacity-muted">
+    /* 93px between marks — measured off node 3390:26570. Held here as a
+       composition literal since `spacing.logoGap` was retired: it is one
+       strip's gap, not a step anyone else should reach for. */
+    <Marquee speed="marqueeSlow" gapClassName="gap-[93px]" className="opacity-muted">
       {CLIENT_LOGOS.map((logo) => (
         <div
           key={logo.src}
@@ -812,7 +815,7 @@ function Pillars() {
                   src={asset('/images/scene.png')}
                   alt=""
                   crop={pillar.crop}
-                  aspect="horizontalSmall"
+                  aspect="horizontalMedium"
                   scrim
                 >
                   <Typography variant="subHeaderSmall" as="h3" className="text-on-dark">

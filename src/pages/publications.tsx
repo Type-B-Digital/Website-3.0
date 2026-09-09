@@ -12,7 +12,7 @@ import {
 import { PageShell } from '@/components/layout'
 import { asset } from '@/lib/asset'
 import { cn } from '@/lib/cn'
-import { palette } from '@/tokens'
+import { gradients } from '@/tokens'
 import {
   CARDS,
   FILTERS,
@@ -43,7 +43,7 @@ import {
  * It runs to the values marquee and stops there: the CTA band below it paints
  * its own photograph and the footer its own ink.
  */
-const PAGE_GRADIENT = `linear-gradient(107deg, ${palette.turquoise[100]} 0%, ${palette.amber[100]} 100%)`
+const PAGE_GRADIENT = gradients.page.publications
 
 /* ================================================================== *
  * THE CARD

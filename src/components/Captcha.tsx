@@ -104,7 +104,7 @@ export function Captcha({ onVerify, error, className }: CaptchaProps) {
             aria-invalid={invalid || undefined}
             aria-describedby={invalid ? errorId : undefined}
             className={cn(
-              'h-xl w-[64px] rounded-sm border bg-white px-sm text-center text-copy-small text-on-light',
+              'h-xl w-[64px] rounded-sm border bg-neutral-50 px-sm text-center text-copy-small text-on-light',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1',
               invalid ? 'border-danger focus-visible:ring-danger' : 'border-neutral-200 focus-visible:ring-accent-500',
             )}

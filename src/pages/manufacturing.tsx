@@ -32,7 +32,7 @@ import {
  */
 
 /** b5 mirrored — node 3614:7569, style "Type B BG 5" inside a horizontal flip. */
-const HERO_GRADIENT = `linear-gradient(309.36deg, ${gradients.b5Stops})`
+const HERO_GRADIENT = gradients.hero.manufacturing
 
 const ROLES = ['CEO', 'COO', 'Plant Manager', 'Compliance Lead', 'IT Leads']
 

@@ -123,7 +123,7 @@ function FooterItem({ link }: { link: FooterLink }) {
 
 export function SiteFooter() {
   return (
-    <footer className="relative overflow-hidden bg-footer-ground pt-4xl text-on-dark">
+    <footer className="relative overflow-hidden bg-canvas pt-4xl text-on-dark">
       {/*
         Red glow behind the wordmark. Figma: node 3483:27261 — orange/amber
         ellipses at `mix-blend-hard-light`, which is what reads as crimson

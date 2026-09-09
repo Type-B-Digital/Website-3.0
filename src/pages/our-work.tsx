@@ -108,7 +108,7 @@ function Hero() {
         <Container className="relative z-10 flex min-h-[880px] flex-col justify-center">
           <div className="flex max-w-[628px] flex-col items-start gap-md">
             <Eyebrow tone="onAccent">Featured</Eyebrow>
-            <Typography variant="h1" className="text-h2 text-white md:text-h1">
+            <Typography variant="h1" className="text-h2 text-neutral-50 md:text-h1">
               {FEATURED.name}
             </Typography>
             {/* 40 between the paragraph and the tag row, as on every row below. */}
