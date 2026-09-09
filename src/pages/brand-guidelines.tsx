@@ -708,6 +708,25 @@ export function BrandGuidelinesPage() {
                 ))}
               </div>
             </Spec>
+            <Spec
+              name="gradients.footer / navPanel"
+              meta="the two chrome grounds — neither is a page or a hero"
+            >
+              <div className="grid gap-lg sm:grid-cols-2">
+                {(['footer', 'navPanel'] as const).map((k) => (
+                  <div key={k} className="flex flex-col gap-sm">
+                    <div
+                      className="h-[104px] w-full rounded-md border border-divider"
+                      style={{ backgroundImage: gradients[k] }}
+                    />
+                    <Typography variant="copyXSmall" as="code" muted>
+                      {k}
+                      {k === 'navPanel' ? ' — ⚠ flat since white was retired' : ''}
+                    </Typography>
+                  </div>
+                ))}
+              </div>
+            </Spec>
             <Spec name="gradients.industry" meta="the five industry row fills">
               <div className="grid gap-lg sm:grid-cols-3 lg:grid-cols-5">
                 {Object.entries(gradients.industry).map(([k, v]) => (

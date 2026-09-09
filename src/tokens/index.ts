@@ -237,6 +237,17 @@ export const gradients = {
    */
   navPanel: `linear-gradient(219.09deg, ${palette.neutral[50]} 0%, ${palette.neutral[50]} 100%)`,
 
+  /**
+   * The footer ground — Figma node 3729:3711 ("footer update"), 2026-09-09.
+   *
+   * Ink easing into turquoise.900 down the band. It was a flat colour before:
+   * first `#030B15` (a near-miss for the canvas, retired with the other
+   * off-board values), then `neutral.900` itself. The artboard now fills the
+   * frame with a gradient, so the footer has its own ground again — this time
+   * built from two ramp ends rather than a one-off hex.
+   */
+  footer: `linear-gradient(180deg, ${palette.neutral[900]} 0%, ${palette.turquoise[900]} 100%)`,
+
   /* ------------------------------------------------------------------ *
    * Industry row fills — Figma nodes 3276:21593 / 21597 / 21601 / 21605
    * / 21609 on the Industries page.

@@ -498,6 +498,11 @@ palette values rather than shipped as images.
 The two angles are **mirror-corrected**: the SVG export is flipped
 horizontally, so its own coordinates give the wrong direction.
 
+**Chrome grounds** — `gradients.footer` is the footer band, neutral.900 easing
+into turquoise.900 (Figma node 3729:3711, updated 2026-09-09; it was a flat
+colour before). `gradients.navPanel` is the dropdown curtain and is ⚠ flat since
+white was retired.
+
 **Hero bands** — `gradients.hero`. Six are a `b*Stops` list re-angled for their
 own artboard (`whatWeDo`, `healthcare`, `financialServices`, `realEstate`,
 `manufacturing`, `legal`); `culture` is its own three-stop ramp and the only
