@@ -3,6 +3,11 @@
 Audited from the source of `type-b-digital-staging` on 2026-09-08. Every value
 here was read out of the code, not restated from a spec.
 
+> **There is a live version of this document at `/brand-guidelines`.** It
+> renders the swatches, type specimens, spacing bars and component gallery from
+> `@/tokens` and the real components at runtime, so it cannot drift. Read this
+> file for the rules and the reasoning; open the page to see the system itself.
+
 **Sources of truth, in order.** `src/tokens/index.ts` is authoritative.
 `src/styles/globals.css` mirrors it as CSS custom properties for
 stylesheet-level use and the mood swap. `src/styles/tailwind.config.ts` derives
