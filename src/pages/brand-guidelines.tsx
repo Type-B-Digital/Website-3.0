@@ -14,6 +14,7 @@ import {
 } from '@/components'
 import type { EyebrowTone, TypographyVariant } from '@/components'
 import { PageShell } from '@/components/layout'
+import { asset } from '@/lib/asset'
 import { cn } from '@/lib/cn'
 import {
   breakpoints,
@@ -647,7 +648,7 @@ export function BrandGuidelinesPage() {
             >
               <div className="grid gap-lg sm:grid-cols-3">
                 <Card
-                  src="/images/publications/card-teams.png"
+                  src={asset('/images/publications/card-teams.png')}
                   alt=""
                   aspect="verticalMedium"
                   scrim
@@ -657,7 +658,7 @@ export function BrandGuidelinesPage() {
                   </Typography>
                 </Card>
                 <Card
-                  src="/images/publications/card-mena.png"
+                  src={asset('/images/publications/card-mena.png')}
                   alt=""
                   aspect="horizontalMedium"
                   scrim
@@ -667,7 +668,7 @@ export function BrandGuidelinesPage() {
                   </Typography>
                 </Card>
                 <Card
-                  src="/images/publications/card-ai-enablement.png"
+                  src={asset('/images/publications/card-ai-enablement.png')}
                   alt=""
                   aspect="horizontalSmall"
                   scrim

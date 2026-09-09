@@ -36,6 +36,13 @@ export type CardCrop = {
 }
 
 export type CardProps = {
+  /**
+   * Already resolved against the base path — pass `asset('/images/…')`, not a
+   * bare literal. `Card` emits this verbatim, so a raw `/images/x.png` 404s
+   * wherever the site is not served from the domain root. It cannot resolve
+   * the path itself: `asset` is not idempotent, so doing it here would
+   * double-prefix every caller that already does it correctly.
+   */
   src: string
   alt: string
   /** Reproduce a Figma crop rather than object-cover. */
@@ -59,11 +66,7 @@ export function Card({
 }: CardProps) {
   return (
     <div
-      className={cn(
-        'relative w-full overflow-hidden rounded-md',
-        aspectClasses[aspect],
-        className,
-      )}
+      className={cn('relative w-full overflow-hidden rounded-md', aspectClasses[aspect], className)}
     >
       {crop ? (
         <div className="absolute inset-0 overflow-hidden">
