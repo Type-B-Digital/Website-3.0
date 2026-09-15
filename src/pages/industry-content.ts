@@ -5,8 +5,10 @@ import type { EngagementStep } from '@/components/sections'
  *
  * Figma: nodes 3614:6771 (Financial Services), 3614:5941 (Healthcare),
  * 3614:7321 (Real Estate), 3614:7752 (Manufacturing), 3614:8798 (Legal) — the
- * four-stage row is byte-identical on all five artboards, and so are several
- * of the Ideal Customer Profile blocks.
+ * four-stage row is byte-identical on all five artboards.
+ *
+ * The artboards' Ideal Customer Profile blocks are largely identical too, and
+ * used to be shared from here. They are not any more — see the note below.
  */
 
 /** The four stages, identical on every industry artboard. */
@@ -34,78 +36,32 @@ export const INDUSTRY_STEPS: readonly EngagementStep[] = [
 ]
 
 /* ------------------------------------------------------------------ *
- * Ideal Customer Profile fragments
+ * ⚠ THE IDEAL CUSTOMER PROFILE FRAGMENTS ARE GONE — 2026-09-15
  *
- * The artboards reuse four capability lists and three situation paragraphs
- * across all five industries — the "AI mandate" block appears eleven times
- * between them. Named here so a page file carries only what is actually its
- * own, and so a copy edit lands everywhere at once.
+ * Six capability lists (MANDATE_POINTS, SOVEREIGN_POINTS, DILIGENCE_POINTS,
+ * POST_CLOSE_POINTS, AUDIT_POINTS, OPERATING_MODEL_POINTS) and six situation
+ * paragraphs used to live here, and all five industry pages composed their
+ * profiles out of them. That was faithful to the artboards — they genuinely do
+ * reuse the same blocks, the "AI mandate" one eleven times between them — and
+ * it is what Nabeel is describing on 2026-09-15: the Ideal Customer Profile
+ * sections "currently feel repetitive and in some cases unrelated".
+ *
+ * It was worse than repetitive. Legal and Real Estate rendered the SAME block
+ * six times, differing only in the title above it, so both pages told a reader
+ * that Type B does exactly one thing for six different kinds of client. Real
+ * Estate listed "Head of Claims" as a buyer on five of its six profiles, which
+ * is an insurance role that arrived by copy-paste from Financial Services.
+ *
+ * Sharing was the mechanism that produced it, so the sharing is what went.
+ * Each page now writes its own six profiles against its own regulators, its own
+ * document types, and its own buying committee. There is more prose in the five
+ * page files as a result, and that is the point: nothing is reusable here
+ * because nothing should be.
+ *
+ * INDUSTRY_STEPS below is still shared. The four-stage engagement process is
+ * byte-identical on all five artboards because it genuinely is the same
+ * process, and a reader comparing two industry pages is meant to see that.
  * ------------------------------------------------------------------ */
-
-export const MANDATE_POINTS = [
-  'AI strategy and roadmap',
-  'Use-case scoring',
-  'AI governance and policy',
-  'Transformation PMO',
-] as const
-
-export const SOVEREIGN_POINTS = [
-  'Sovereign readiness review',
-  'Data-estate and control gap assessment',
-  'Shadow-AI audit',
-  'Architecture triage',
-] as const
-
-export const DILIGENCE_POINTS = [
-  'Technology due diligence',
-  'Code and architecture review',
-  'Team and key-person risk',
-  'AI exposure assessment',
-] as const
-
-export const POST_CLOSE_POINTS = [
-  '90-day roadmap',
-  'Integration Planning',
-  'Modernization Sequencing',
-  'Fractional technology leadership',
-] as const
-
-export const AUDIT_POINTS = [
-  'Architecture audit',
-  'Modernization roadmap',
-  'Build-vs-buy analysis',
-  'Delivery maturity review',
-] as const
-
-export const OPERATING_MODEL_POINTS = [
-  'Transformation PMO',
-  'Change Management',
-  'Operating Model Design',
-  'Fractional Head of AI',
-] as const
-
-/** The situation paragraphs, each of which recurs verbatim. */
-export const MANDATE_BODY =
-  'The board or the regulator has asked for an AI plan and nobody internally owns it yet. You need a roadmap your compliance officer can sign, not a vendor demo.'
-
-/**
- * ⚠ Three artboards write this one without the second "the" ("The board or
- * regulator"). Normalised to the majority reading.
- */
-export const BLOCKED_REVIEW_BODY =
-  'The use case was obvious, the tool was ready, and your security team said no. They were right. We start with them in the room; not sell around them.'
-
-export const DILIGENCE_BODY =
-  'You need an independent read on the target’s technology, team, and cost before you sign, written by engineers who read the code, delivered in deal time.'
-
-export const POST_CLOSE_BODY =
-  'The deal closed and the diligence findings need to become a plan someone executes. Most providers hand you a report and leave.'
-
-export const AUDIT_BODY =
-  'The platform is slowing down, the architecture decisions are contested, or engineering leadership just left. You want a senior, neutral read before committing budget.'
-
-export const ADOPTION_BODY =
-  'Adoption is the gap. You need documented requirements, a decision log, weekly written status, and someone accountable for the change actually landing.'
 
 /**
  * The last FAQ row on every industry artboard. The answer is the same call the

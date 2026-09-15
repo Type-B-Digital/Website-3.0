@@ -19,14 +19,14 @@ import {
  * six photographs.
  */
 
-/** The first three of Culture's set — node 3707:10938. */
+/** The first three of Culture's set — node 3932:17065. */
 const STATS = [
   { value: '100', label: 'Cumulative years of experience' },
   { value: '30+', label: 'Global team members' },
   { value: '25+', label: 'Global customers served' },
 ]
 
-/** Node 2887:7176. */
+/** Node 3932:17077 ("The challenge"). */
 const CHALLENGE = [
   {
     title: 'High Issue Rate',
@@ -42,7 +42,7 @@ const CHALLENGE = [
   },
 ]
 
-/** Nodes 2887:7199 and 2887:7209 — two rows of three. */
+/** Node 3932:17095 ("The solution") — two rows of three. */
 const ROLES = [
   {
     title: 'Fractional CTO',
@@ -70,7 +70,7 @@ const ROLES = [
   },
 ]
 
-/** Node 2887:7219. Seven outcomes, in the artboard's reading order. */
+/** Node 3932:17122. Seven outcomes, in the artboard's reading order. */
 const IMPACT = [
   {
     claim: '43% Reduction in Infrastructure Costs',
@@ -116,6 +116,13 @@ export function FerryPayPage() {
         sector="Fintech"
         name="Ferry Pay"
         claim="Daily payout on autopilot mode."
+        /*
+          The board's own copy, verbatim — node 3932:17301. An earlier pass
+          authored a stand-in because the note asked for a description without
+          supplying one; the file was rebuilt the same afternoon and now carries
+          the real thing, so the stand-in is gone.
+        */
+        description="Ferry, a leading payroll platform for the hospitality industry, was facing critical roadblocks that threatened its growth. Their existing system was struggling with a fragmented and insecure legacy codebase that created technical bottlenecks. This instability was costly, driving infrastructure expenses to an average of $7,000/mo."
         stats={STATS}
         image="/images/case/hero.jpg"
         imageAlt="The Ferry Pay payroll app on a phone, held in one hand"

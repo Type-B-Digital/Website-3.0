@@ -12,16 +12,19 @@
  * design. See docs/BUILD_LOG.md § Open questions.
  */
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
 } from 'react'
 import {
   AnimatePresence,
-  animate,
+  cubicBezier,
   motion as fm,
+  useAnimationFrame,
   useMotionTemplate,
   useMotionValue,
   useMotionValueEvent,
@@ -29,9 +32,9 @@ import {
   useScroll,
   useSpring,
   useTransform,
-  type MotionValue,
 } from 'framer-motion'
 import {
+  ArrowRight,
   Button,
   Card,
   Container,
@@ -49,7 +52,6 @@ import {
   VALUES,
 } from '@/components'
 import type { CardCrop } from '@/components'
-import ScrollFillText from '@/components/ScrollFillText'
 import { PageShell } from '@/components/layout'
 import { cn } from '@/lib/cn'
 import useLaggedProgress from '@/lib/useLaggedProgress'
@@ -145,6 +147,14 @@ const BBB_ARTWORK = {
   aspect: 1006.72 / 622.344,
   widthRatio: 1006.72 / 1440,
   leftRatio: 121 / 1440,
+  /**
+   * ⚠ NOT IN FIGMA. The artboard centres the words vertically, because its
+   * stats are a column beside them. Ours are a row underneath, so the words
+   * clear it by 9% of the panel height — measured against the row at its
+   * tallest, which is a viewport narrow enough to wrap a stat label to two
+   * lines but still wide enough to keep the three side by side.
+   */
+  liftRatio: 0.09,
 }
 
 /**
@@ -152,6 +162,14 @@ const BBB_ARTWORK = {
  * Split into prefix/number/suffix so the numeral can count up while the
  * surrounding characters stay put.
  */
+/**
+ * ⚠ NOT IN FIGMA. The artboard's stat column has no heading — it did not need
+ * one, sitting as a labelled column beside the words. As a row along the foot
+ * of the panel it reads as three loose numbers without something naming them,
+ * so this is the "header (maybe)" from the 2026-09-15 note, taken as a yes.
+ */
+const STATS_EYEBROW = 'By the numbers'
+
 const STATS = [
   { to: 100, prefix: '~', suffix: '', label: 'Collective years building products & brands' },
   { to: 25, prefix: '', suffix: '+', label: 'Global customers served' },
@@ -182,11 +200,28 @@ const PILLARS: { title: string; crop: CardCrop }[] = [
   },
 ]
 
-/** Figma: nodes 3390:26543 / 26544 / 26545 */
-const STAGES = [
-  { title: 'Founders & Startups', src: asset('/images/stage-founders.png') },
-  { title: 'Scaleups', src: asset('/images/stage-scaleups.png') },
-  { title: 'Enterprise & Mid Market', src: asset('/images/stage-enterprise.png') },
+/**
+ * Figma: nodes 3390:26543 / 26544 / 26545
+ *
+ * ⚠ `to` is null on all three. Nabeel, 2026-09-15: these cards should be
+ * "clickable to their individual page (to be designed & built)" — so the pages
+ * are commissioned and do not exist yet.
+ *
+ * The site's standing rule is that a label with nowhere to go stays inert
+ * rather than 404ing, and that applies to a card as much as to a footer row.
+ * So the card is built as the control it is about to be — one focusable
+ * element, its own hover and press states, the arrow affordance that says it
+ * leads somewhere — and `to` is the single thing still missing. When the three
+ * pages land this is one string each and nothing else changes.
+ *
+ * The suggested routes are written down rather than left to be re-decided: they
+ * follow `/industries/*`, the one existing family of sibling pages hanging off
+ * a homepage card row.
+ */
+const STAGES: { title: string; src: string; to: string | null }[] = [
+  { title: 'Founders & Startups', src: asset('/images/stage-founders.png'), to: null },
+  { title: 'Scaleups', src: asset('/images/stage-scaleups.png'), to: null },
+  { title: 'Enterprise & Mid Market', src: asset('/images/stage-enterprise.png'), to: null },
 ]
 
 /**
@@ -251,8 +286,18 @@ const OFFERINGS = [
  *
  * Fills the viewport, full-bleed, so the hero is the whole first screen.
  *
- * The gradient sweeps once. The first downward gesture plays an 800ms sweep
- * instead of moving the page; the next one scrolls normally.
+ * ── Ambient, not scroll-armed (Nabeel, 2026-09-15) ───────────────────────
+ *
+ * The sweep used to be paid for with a scroll gesture: the first downward
+ * wheel or swipe at the top of the page was swallowed and played the sweep
+ * instead of moving the page. That worked, and it cost the visitor their first
+ * gesture to find out the hero did anything at all — "instead of having to
+ * scroll there could be something happening in the background".
+ *
+ * It now runs on its own clock from load: a very slow sweep left to right,
+ * a beat at the end, then the same sweep back, indefinitely. Nothing listens
+ * to the wheel any more, so the first gesture on the page scrolls the page.
+ * See `motion.heroSweep` for why it reverses rather than looping.
  *
  * The sweep ROTATES the gradient from 135deg to 225deg rather than sliding it.
  * The dark corner has to travel along the top from left to right while the warm
@@ -275,53 +320,86 @@ function Hero() {
   // which would make the value unassignable to the end angle.
   const angle = useMotionValue<number>(motionTokens.heroSweep.from)
   const backgroundImage = useMotionTemplate`linear-gradient(${angle}deg, ${gradientTokens.b1Stops})`
-  const played = useRef(false)
-  const sweeping = useRef(false)
+  const groundRef = useRef<HTMLDivElement>(null)
+  /*
+    Whether the gradient layer is on screen. A ref, not state: it is read inside
+    the frame callback and must never cause a render of its own.
+  */
+  const onScreen = useRef(true)
 
   useEffect(() => {
-    if (prefersReduced) {
-      angle.set(motionTokens.heroSweep.to)
-      played.current = true
-      return
-    }
+    const ground = groundRef.current
+    if (!ground) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) return
+        /*
+          A zero-area box has not been laid out yet. The browser reports it as
+          not intersecting, which is true and useless — believing it parks the
+          hero while it is plainly on screen.
+        */
+        const { width, height } = entry.boundingClientRect
+        if (width === 0 && height === 0) return
+        onScreen.current = entry.isIntersecting
+      },
+      /* Any sliver counts — the hero is taller than the viewport. */
+      { threshold: 0 },
+    )
+    observer.observe(ground)
+    return () => observer.disconnect()
+  }, [])
 
-    const play = (event: Event, goingDown: boolean) => {
-      if (played.current) return
-      // Only at the very top; if the visitor is already past the hero, retire it.
-      if (window.scrollY > 4) {
-        played.current = true
-        return
-      }
-      if (!goingDown) return
-      event.preventDefault()
-      if (sweeping.current) return
-      sweeping.current = true
-      animate(angle, motionTokens.heroSweep.to, {
-        duration: motionTokens.heroSweep.duration,
-        ease: [...motionTokens.easing.inOut],
-      }).then(() => {
-        played.current = true
-        sweeping.current = false
-      })
-    }
+  /*
+    The sweep, driven from the frame clock.
 
-    const onWheel = (event: WheelEvent) => play(event, event.deltaY > 0)
-    let touchY = 0
-    const onTouchStart = (event: TouchEvent) => {
-      touchY = event.touches[0]?.clientY ?? 0
-    }
-    const onTouchMove = (event: TouchEvent) => {
-      play(event, (event.touches[0]?.clientY ?? 0) < touchY)
-    }
+    `useAnimationFrame` rather than `animate(angle, to, { repeat: Infinity,
+    repeatType: 'mirror', repeatDelay: hold })`, which is the shorter way to
+    write it. Two reasons, neither of them that the tween does not work:
 
-    window.addEventListener('wheel', onWheel, { passive: false })
-    window.addEventListener('touchstart', onTouchStart, { passive: true })
-    window.addEventListener('touchmove', onTouchMove, { passive: false })
-    return () => {
-      window.removeEventListener('wheel', onWheel)
-      window.removeEventListener('touchstart', onTouchStart)
-      window.removeEventListener('touchmove', onTouchMove)
-    }
+    - The HOLD at each end is part of one explicit cycle here — out, hold, back,
+      hold — instead of a `repeatDelay` interacting with a mirrored repeat.
+    - Nothing is written at all while the hero is off screen. That matters more
+      than it looks: every write rebuilds the gradient STRING and repaints a
+      full-viewport four-stop gradient, because there is no transform that
+      rotates a gradient (see the note in the markup below). A sweep that never
+      stops would otherwise repaint the top of the page every frame for the life
+      of the tab, including while the visitor is reading the footer. Skipping
+      the write is a cheaper and less stateful way to get that than pausing and
+      resuming playback on the observer.
+
+    ⚠ The callback is memoised because it has to be: `useAnimationFrame`
+    re-subscribes whenever the function identity changes, so an inline arrow
+    would cancel and re-register on every render of this component.
+  */
+  const ease = useMemo(() => cubicBezier(...motionTokens.easing.inOut), [])
+
+  const sweep = useCallback(
+    (elapsed: number) => {
+      if (prefersReduced || !onScreen.current) return
+
+      const { from, to, duration, hold } = motionTokens.heroSweep
+      const travel = duration * 1000
+      const pause = hold * 1000
+      /* out, hold, back, hold */
+      const cycle = (travel + pause) * 2
+      const phase = elapsed % cycle
+
+      let progress: number
+      if (phase < travel) progress = ease(phase / travel)
+      else if (phase < travel + pause) progress = 1
+      else if (phase < travel * 2 + pause) progress = 1 - ease((phase - travel - pause) / travel)
+      else progress = 0
+
+      angle.set(from + (to - from) * progress)
+    },
+    [prefersReduced, angle, ease],
+  )
+
+  useAnimationFrame(sweep)
+
+  /* Reduced motion: parked at the end state, which is the one the artboard draws. */
+  useEffect(() => {
+    if (prefersReduced) angle.set(motionTokens.heroSweep.to)
   }, [prefersReduced, angle])
 
   return (
@@ -339,10 +417,16 @@ function Hero() {
           top of that background colour, which stays as the fallback.
 
           Rebuilding the gradient string each frame repaints, where a transform
-          would not — acceptable for a single 800ms one-shot, and the only way to
-          rotate a gradient's direction.
+          would not. That is the only way to rotate a gradient's direction, and
+          it is why the effect above pauses the sweep once this element leaves
+          the viewport.
         */}
-        <fm.div aria-hidden className="absolute inset-0" style={{ backgroundImage }} />
+        <fm.div
+          ref={groundRef}
+          aria-hidden
+          className="absolute inset-0"
+          style={{ backgroundImage }}
+        />
         <div className="relative mx-auto flex max-w-[880px] flex-col items-center gap-3xl text-center">
           <div className="flex flex-col items-center gap-md">
             <Reveal>
@@ -450,34 +534,28 @@ const STACK_BOX = { width: 421.806, height: 498.014 }
 
 /**
  * One image in the stack: enters from beyond the right edge and settles at its
- * artboard offset, over its own window of the scene's progress.
+ * artboard offset.
+ *
+ * ⚠ Was scroll-driven — each image had its own window of a pinned scene's
+ * progress and moved only while the wheel moved. It now plays itself, on a
+ * timer, the first time the stack comes into view (Nabeel, 2026-09-15).
+ *
+ * ⚠ The `whileInView` trigger is on the PARENT (see `Manifesto`), and these
+ * inherit it through variants rather than each declaring their own. That is
+ * not a style preference — it is the only arrangement that works here. An
+ * image starts 170% of its own width to the right of where it lands, which is
+ * outside the row's `overflow-hidden`, so an observer watching the image itself
+ * never sees it intersect, never fires, and the image stays parked off-stage
+ * forever. The parent is on screen, so the parent is what gets watched.
+ *
+ * The stagger is a per-image delay. Later images also take slightly longer, so
+ * the three do not arrive locked together — the same intent the old per-image
+ * spring damping had, expressed as duration now that there is no scroll value
+ * to spring against.
  */
-function StackImage({
-  image,
-  index,
-  progress,
-}: {
-  image: (typeof MANIFESTO_STACK)[number]
-  index: number
-  progress: MotionValue<number>
-}) {
-  const { scene } = motionTokens
-  const start = scene.images.start + index * scene.images.stagger
-  const end = start + scene.images.duration
-
-  const travel = useTransform(progress, [start, end], [scene.imageEnter, 0])
-  /*
-    A spring per image, on top of the scene's already-smoothed progress. The
-    scene lag makes the whole frame trail the scroll; this makes each card
-    settle on its own, so the three do not arrive locked together. Damping
-    rises slightly with index so later cards settle a touch softer.
-  */
-  const lagged = useSpring(travel, {
-    ...motionTokens.scrollLag,
-    damping: motionTokens.scrollLag.damping + index * 3,
-  })
-  const x = useTransform(lagged, (value) => `${value}%`)
-  const opacity = useTransform(progress, [start, start + 0.03], [0, 1])
+function StackImage({ image, index }: { image: (typeof MANIFESTO_STACK)[number]; index: number }) {
+  const { scene, easing } = motionTokens
+  const delay = scene.start + index * scene.stagger
 
   return (
     <fm.img
@@ -491,45 +569,67 @@ function StackImage({
         width: image.width,
         height: image.height,
         zIndex: index,
-        x,
-        opacity,
+      }}
+      variants={{
+        hidden: { x: `${scene.imageEnter}%`, opacity: 0 },
+        visible: {
+          x: '0%',
+          opacity: 1,
+          transition: {
+            duration: scene.duration + index * 0.08,
+            delay,
+            ease: [...easing.inOut],
+            opacity: { duration: motionTokens.duration.fast, delay },
+          },
+        },
       }}
     />
   )
 }
 
 /**
- * Manifesto — a scroll-pinned scene.
+ * Manifesto — the introduction band.
  *
  * Figma: "introduction-component" — node 3431:27216 (statement 3390:26579 at
- * 640px wide, image group 3431:27215). The artboard shows only the end state;
- * the behaviour comes from Eduardo's motion mockup.
+ * 640px wide, image group 3431:27215). The artboard shows the end state, which
+ * is now the only state the copy has.
  *
- * The scene occupies `scene.pinLength` viewport heights of scroll. A sticky
- * panel holds the frame still — logo row at the top, statement and image stack
- * below — while scroll drives two things on one clock: the statement filling
- * from 16% to full opacity a character at a time, and the three images entering
- * from the right one by one. Both land together at `scene.fill.end`, after
- * which the page continues normally.
+ * ── Unpinned (Nabeel, 2026-09-15) ────────────────────────────────────────
+ *
+ * This was a three-viewport scroll-pinned scene: a sticky panel held the frame
+ * still while scroll drove the statement filling in a character at a time from
+ * 16% opacity, and the three images sliding in from the right. "Instead of
+ * scrolling to fill in the copy and slide in images, the copy can be static
+ * (white) and the images can slide in automatically at a medium pace."
+ *
+ * Both halves of that follow:
+ *
+ * - The statement is plain cream type at full opacity. `ScrollFillText` is no
+ *   longer used here — it is still exported, and the brand system page still
+ *   documents it, but nothing on the homepage drives it any more.
+ * - The images play themselves when they come into view; see `StackImage`.
+ *
+ * With nothing left on the scroll clock the pin has no work to do, so the
+ * section is an ordinary band in normal flow — which also gives the page back
+ * two viewport heights of scroll it was spending on one frame. The layout is
+ * the one `prefers-reduced-motion` was already falling back to.
  *
  * The statement column is pinned to 640px because that is the artboard's text
- * width, and the line breaks depend on it.
+ * width, and the line breaks depend on it. It only holds that measure once
+ * there is room for it and the stack side by side.
  */
 function Manifesto() {
-  const sceneRef = useRef<HTMLDivElement>(null)
   const prefersReduced = useReducedMotion()
-  const { scrollYProgress: rawProgress } = useScroll({
-    target: sceneRef,
-    offset: ['start start', 'end end'],
-  })
-  // Smoothed so the fill and the stack trail the scroll and settle.
-  const scrollYProgress = useLaggedProgress(rawProgress)
 
   const stack = (
-    <div
+    <fm.div
       data-scene="manifesto-stack"
       className="relative shrink-0"
       style={{ width: STACK_BOX.width, height: STACK_BOX.height }}
+      /* The trigger for all three images — see the note on StackImage. */
+      initial={prefersReduced ? undefined : 'hidden'}
+      whileInView={prefersReduced ? undefined : 'visible'}
+      viewport={motionTokens.viewport}
     >
       {MANIFESTO_STACK.map((image, i) =>
         prefersReduced ? (
@@ -548,60 +648,42 @@ function Manifesto() {
             }}
           />
         ) : (
-          <StackImage key={image.src} image={image} index={i} progress={scrollYProgress} />
+          <StackImage key={image.src} image={image} index={i} />
         ),
       )}
-    </div>
+    </fm.div>
   )
 
   // 1240px is the artboard's introduction-component width: 640 text + 178 gap
   // + 422 stack. justify-between reproduces that gap at the designed width.
-  const row = (
-    <div className="mx-auto flex w-full max-w-[1240px] items-center justify-between gap-4xl">
-      {prefersReduced ? (
-        <Typography variant="h2" as="p" className="w-[640px] leading-[1.2]">
-          {MANIFESTO_TEXT}
-        </Typography>
-      ) : (
-        <ScrollFillText
-          text={MANIFESTO_TEXT}
-          progress={scrollYProgress}
-          className="w-[640px] text-h2 leading-[1.2] text-on-dark"
-        />
-      )}
-      {stack}
-    </div>
-  )
-
-  // Reduced motion: no pin, no sweep — the finished frame, in normal flow.
-  if (prefersReduced) {
-    return (
-      <Section tone="dark" spacing="loose" bare>
-        <div className="flex flex-col gap-4xl">
-          <ClientLogos />
-          <Container>{row}</Container>
-        </div>
-      </Section>
-    )
-  }
-
   return (
-    <div
-      ref={sceneRef}
-      className="relative bg-canvas text-on-dark"
-      style={{ height: `${motionTokens.scene.pinLength * 100}vh` }}
-    >
-      {/* overflow-hidden clips entering images at the viewport edge. */}
-      <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
-        {/* 40px from the top, per the artboard. */}
-        <div className="shrink-0 pt-2xl">
-          <ClientLogos />
-        </div>
-        <div className="flex flex-1 items-center">
-          <Container>{row}</Container>
-        </div>
+    <Section tone="dark" spacing="loose" bare>
+      <div className="flex flex-col gap-4xl">
+        <ClientLogos />
+        <Container>
+          {/*
+            `overflow-hidden` on the row, not on a pinned panel: the images start
+            170% of their own width to the right and have to be clipped by
+            something on the way in. It used to be the sticky frame.
+
+            ⚠ Which makes the row the one place on this page where content that
+            does not fit DISAPPEARS rather than wrapping. The statement column is
+            therefore `flex-1` with the artboard's 640 as a MAXIMUM, not as a
+            fixed width: 640 + 80 + the stack's 422 is 1142, and the fluid grid
+            only clears that above about 1300px. At 1266 the fixed version put
+            the stack 36px past the right edge, where the clip ate it whole.
+          */}
+          <div className="mx-auto flex w-full max-w-[1240px] flex-col items-center justify-between gap-4xl overflow-hidden lg:flex-row">
+            <Reveal className="w-full lg:max-w-[640px] lg:flex-1">
+              <Typography variant="h2" as="p" className="leading-[1.2]">
+                {MANIFESTO_TEXT}
+              </Typography>
+            </Reveal>
+            {stack}
+          </div>
+        </Container>
       </div>
-    </div>
+    </Section>
   )
 }
 
@@ -699,18 +781,58 @@ function BoldBrilliantBeautiful() {
     [1, 0],
   )
 
+  /*
+    ── Horizontal, along the foot of the panel (Nabeel, 2026-09-15) ──────────
+
+    Was a 309px column pinned to the right margin and vertically centred, which
+    is the artboard's arrangement (the frame runs x=1051..1360 in a 1440 frame).
+    "Explore a horizontal layout with a header (maybe). Keep the glows and
+    background effect but fill in the page better."
+
+    The column was the reason the panel read as empty: it used a fifth of the
+    width and none of the bottom third, so a wide display drew a large amount of
+    unlit ground under the words. Three equal columns on the page's own margins
+    reach both edges and close that gap, and the words lift by `liftRatio` to
+    make room rather than the row overlapping them.
+
+    `items-end` on the grid, so the three labels sit on one baseline whether or
+    not a label wraps to a second line — the numbers are all one line, the labels
+    are not.
+  */
   const stats = (
-    <div className="absolute right-4xl top-1/2 flex w-[309px] -translate-y-1/2 flex-col gap-4xl text-right">
-      {STATS.map((stat) => (
-        <div key={stat.label} className="flex flex-col gap-sm">
-          <Typography variant="h1" as="p" className="text-on-dark-muted">
-            <CountUp to={stat.to} prefix={stat.prefix} suffix={stat.suffix} start={revealed} />
-          </Typography>
-          <Typography variant="copyMedium" as="p" muted className="text-on-dark-muted">
-            {stat.label}
-          </Typography>
+    <div className="absolute inset-x-0 bottom-0 pb-4xl">
+      <Container>
+        <div className="flex flex-col items-start gap-xl">
+          <Eyebrow tone="slate">{STATS_EYEBROW}</Eyebrow>
+          <div className="grid w-full items-end gap-x-lg gap-y-xl sm:grid-cols-3">
+            {STATS.map((stat) => (
+              <div key={stat.label} className="flex flex-col gap-sm">
+                <Typography variant="h1" as="p" className="text-h2 text-on-dark-muted xl:text-h1">
+                  <CountUp
+                    to={stat.to}
+                    prefix={stat.prefix}
+                    suffix={stat.suffix}
+                    start={revealed}
+                  />
+                </Typography>
+                {/*
+                  Held to a measure so a label breaks where it reads rather than
+                  running the full third of a wide screen — the copy is a phrase,
+                  not a paragraph.
+                */}
+                <Typography
+                  variant="copyMedium"
+                  as="p"
+                  muted
+                  className="max-w-[309px] text-on-dark-muted"
+                >
+                  {stat.label}
+                </Typography>
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
+      </Container>
     </div>
   )
 
@@ -722,6 +844,8 @@ function BoldBrilliantBeautiful() {
       aspect={BBB_ARTWORK.aspect}
       widthRatio={BBB_ARTWORK.widthRatio}
       leftRatio={BBB_ARTWORK.leftRatio}
+      /* Off the centre line by roughly the height the stats row now occupies. */
+      liftRatio={BBB_ARTWORK.liftRatio}
       pointerX={pointerX}
       pointerY={pointerY}
     />
@@ -779,11 +903,16 @@ function Pillars() {
     // `bare` so the card row can run full-bleed past the content width; the
     // header keeps its own Container and normal 80px margins.
     /*
-      Bottom trimmed to 80px so that with the next section's 80px top the
-      boundary is 160px total, matching the artboard (cards end y=3416, the next
+      TOP trimmed to 80px so that with Stages' 80px bottom the boundary between
+      them is 160px total, matching the artboard (cards end y=3416, the next
       frame starts y=3569). Two `loose` sections would otherwise stack to 320.
+
+      ⚠ This was `pb` until the two sections swapped on 2026-09-15. The trim
+      belongs to the boundary the two share, so it followed the boundary rather
+      than staying on this section — leaving it on the bottom would have put 160
+      between Pillars and Work, and 320 between Stages and Pillars.
     */
-    <Section tone="light" spacing="loose" bare className="pb-4xl xl:pb-4xl">
+    <Section tone="light" spacing="loose" bare className="pt-4xl xl:pt-4xl">
       <div className="flex flex-col gap-3xl">
         <Container>
           <Reveal>
@@ -818,7 +947,17 @@ function Pillars() {
                   aspect="horizontalMedium"
                   scrim
                 >
-                  <Typography variant="subHeaderSmall" as="h3" className="text-on-dark">
+                  {/*
+                    Bolder than the artboard's regular weight — Nabeel,
+                    2026-09-15, "bolder headers inside the cards". The size and
+                    the ramp are unchanged; only the weight moves, so the four
+                    cards still sit in the same boxes as the three above them.
+                  */}
+                  <Typography
+                    variant="subHeaderSmall"
+                    as="h3"
+                    className="font-semibold text-on-dark"
+                  >
                     {pillar.title}
                   </Typography>
                 </Card>
@@ -831,10 +970,70 @@ function Pillars() {
   )
 }
 
-/** Figma: "Frame 1000003413" — node 3390:26435 */
+/**
+ * One "Built for all stages" card.
+ *
+ * Nabeel, 2026-09-15: these should be clickable through to their own page. The
+ * pages do not exist yet (see `STAGES`), so this builds the control and leaves
+ * the destination out:
+ *
+ * - it is ONE interactive element wrapping the whole card, not a link on the
+ *   title, so the target is the card the eye is already aiming at;
+ * - the image scales and the scrim deepens on hover and on focus, which is the
+ *   treatment the case-study rows in `Work` already use — the page has one idea
+ *   of what a hover on a piece of artwork does;
+ * - an arrow sits beside the title, so the card says it leads somewhere before
+ *   anyone puts a pointer on it.
+ *
+ * With no route it renders as a plain `div` — not a disabled button and not a
+ * link to `#`. A control that takes focus and then does nothing is worse than
+ * no control: it is in the tab order, it is announced as a button, and it lies.
+ * The hover treatment goes with it, for the same reason.
+ */
+function StageCard({ stage }: { stage: (typeof STAGES)[number] }) {
+  const card = (
+    <Card src={stage.src} alt={stage.title} aspect="verticalMedium" scrim>
+      <div className="flex size-full items-end justify-center">
+        <Typography
+          variant="subHeaderSmall"
+          as="h3"
+          className="flex items-center gap-sm text-on-dark"
+        >
+          {stage.title}
+          {stage.to && (
+            <ArrowRight className="size-lg shrink-0 transition-transform duration-fast ease-out group-hover:translate-x-1" />
+          )}
+        </Typography>
+      </div>
+    </Card>
+  )
+
+  if (!stage.to) return card
+
+  return (
+    <Link
+      to={stage.to}
+      className={cn(
+        'group block overflow-hidden rounded-md',
+        // The image lifts inside the card's own `overflow-hidden` box.
+        '[&_img]:transition-transform [&_img]:duration-slow [&_img]:ease-out',
+        'hover:[&_img]:scale-105 focus-visible:[&_img]:scale-105',
+      )}
+    >
+      {card}
+    </Link>
+  )
+}
+
+/**
+ * Figma: "Frame 1000003413" — node 3390:26435
+ *
+ * ⚠ Sits BEFORE Pillars since 2026-09-15, and the 80px trim moved from its top
+ * to its bottom with it — see the note in `HomePage`.
+ */
 function Stages() {
   return (
-    <Section tone="light" spacing="loose" className="pt-4xl xl:pt-4xl">
+    <Section tone="light" spacing="loose" className="pb-4xl xl:pb-4xl">
       <div className="flex flex-col items-center gap-3xl">
         <Reveal>
           <div className="flex flex-col items-center gap-md text-center">
@@ -859,13 +1058,7 @@ function Stages() {
             {STAGES.map((stage, i) => (
               <li key={stage.title}>
                 <Reveal index={i}>
-                  <Card src={stage.src} alt={stage.title} aspect="verticalMedium" scrim>
-                    <div className="flex size-full items-end justify-center">
-                      <Typography variant="subHeaderSmall" as="h3" className="text-on-dark">
-                        {stage.title}
-                      </Typography>
-                    </div>
-                  </Card>
+                  <StageCard stage={stage} />
                 </Reveal>
               </li>
             ))}
@@ -1030,11 +1223,17 @@ function Partner() {
   const { offeringScene } = motionTokens
   const [index, setIndex] = useState(0)
 
-  const { scrollYProgress: rawProgress } = useScroll({
-    target: sceneRef,
-    offset: ['start start', 'end end'],
-  })
-  const scrollYProgress = useLaggedProgress(rawProgress)
+  /*
+    ⚠ There is no `useScroll` over the scene's own range any more. It drove the
+    selected offering: `scrollYProgress` was mapped to an index, so scrolling
+    through the pinned panel stepped through the three offerings and clicking
+    one scrolled the page to the position that selected it. Nabeel, 2026-09-15:
+    "remove the scroll-through-tabs functionality and make them clickable only."
+
+    So selection is now ordinary component state and nothing about the offering
+    row is on the scroll clock. The one scroll value left is the entry fade
+    below, which is about the shared ground rather than about the offerings.
+  */
 
   // Entry progress, for fading the content in once the shared ground has
   // actually turned turquoise — cream type over a pale ground is unreadable.
@@ -1048,26 +1247,6 @@ function Partner() {
     [offeringScene.contentFade.start, offeringScene.contentFade.end],
     [0, 1],
   )
-
-  const { selectStart } = offeringScene
-  const fractionFor = (target: number) =>
-    selectStart + (1 - selectStart) * ((target + 0.5) / OFFERINGS.length)
-
-  useMotionValueEvent(scrollYProgress, 'change', (value) => {
-    const local = (value - selectStart) / (1 - selectStart)
-    const next = Math.floor(Math.max(0, Math.min(0.999, local)) * OFFERINGS.length)
-    setIndex(Math.max(0, Math.min(OFFERINGS.length - 1, next)))
-  })
-
-  const goTo = (target: number) => {
-    const scene = sceneRef.current
-    if (!scene || prefersReduced) {
-      setIndex(target)
-      return
-    }
-    const range = scene.offsetHeight - window.innerHeight
-    window.scrollTo({ top: scene.offsetTop + range * fractionFor(target), behavior: 'smooth' })
-  }
 
   const active = OFFERINGS[index]
   const swap = { duration: prefersReduced ? 0 : motionTokens.duration.fast }
@@ -1108,7 +1287,7 @@ function Partner() {
               <li key={offering.label}>
                 <button
                   type="button"
-                  onClick={() => goTo(i)}
+                  onClick={() => setIndex(i)}
                   aria-current={selected ? 'true' : undefined}
                   className={cn(
                     'text-h2 transition-colors duration-fast ease-out md:text-h1',
@@ -1122,8 +1301,22 @@ function Partner() {
           })}
         </ul>
 
-        {/* Figma: 302x302, node 3390:26553. */}
-        <div className="relative aspect-square w-full max-w-[302px] shrink-0">
+        {/*
+          Figma: 302x302, node 3390:26553 — the size at the designed 1440 width.
+
+          ⚠ Fluid since 2026-09-15: "make the right-side images size fluid so it
+          adjusts based on the browser width." 302px was a fixed box, which was
+          fine inside a 1440 frame and is not now that the page itself is fluid —
+          on a wide display the square stayed 302 while the row around it grew,
+          so it shrank against its own section.
+
+          `clamp` rather than breakpoint steps: the width it is balancing
+          against changes continuously, so the image should too. The floor keeps
+          it from collapsing at the bottom of `lg`, and the ceiling stops it
+          outgrowing the copy column on a very wide screen. Below `lg` the row
+          stacks and the square goes back to the artboard's 302.
+        */}
+        <div className="relative aspect-square w-full max-w-[302px] shrink-0 lg:w-[clamp(240px,24vw,420px)] lg:max-w-none">
           <AnimatePresence>
             <fm.img
               key={`image-${index}`}
@@ -1230,8 +1423,18 @@ export function HomePage() {
       <Hero />
       <Manifesto />
       <BoldBrilliantBeautiful />
-      <Pillars />
+      {/*
+        ⚠ Stages BEFORE Pillars — Nabeel, 2026-09-15: "switch the order of the
+        three vertical cards section with the four cards section so it shows
+        right after the Bold. Brilliant. Beautiful. section." The artboard has
+        them the other way round.
+
+        The 160px boundary the two sections share moved with them: Pillars used
+        to trim its bottom and Stages its top, and now it is the reverse. See
+        the note on each.
+      */}
       <Stages />
+      <Pillars />
       <WorkToOfferings />
     </PageShell>
   )

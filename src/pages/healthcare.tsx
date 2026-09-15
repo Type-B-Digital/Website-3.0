@@ -12,22 +12,7 @@ import {
 } from '@/components/sections'
 import { colors as colorTokens, gradients } from '@/tokens'
 import { TIERS, related } from './service-content'
-import {
-  ADOPTION_BODY,
-  AUDIT_BODY,
-  AUDIT_POINTS,
-  BLOCKED_REVIEW_BODY,
-  DILIGENCE_BODY,
-  DILIGENCE_POINTS,
-  INDUSTRY_STEPS,
-  MANDATE_BODY,
-  MANDATE_POINTS,
-  OPERATING_MODEL_POINTS,
-  POST_CLOSE_BODY,
-  POST_CLOSE_POINTS,
-  SOVEREIGN_FAQ,
-  SOVEREIGN_POINTS,
-} from './industry-content'
+import { INDUSTRY_STEPS, SOVEREIGN_FAQ } from './industry-content'
 
 /**
  * Healthcare & Life Sciences — Figma node 3149:12091
@@ -41,42 +26,98 @@ import {
 /** b8 mirrored — node 3614:5645, style "Type B BG 8" inside a horizontal flip. */
 const HERO_GRADIENT = gradients.hero.healthcare
 
+/**
+ * Ideal Customer Profiles — Figma node 3614:5941.
+ *
+ * ⚠ REWRITTEN 2026-09-15. These were six composites of the shared fragments in
+ * industry-content.ts: four of the six situation paragraphs were about PE
+ * diligence, portfolio integration, and contested architecture decisions, which
+ * are Advisory's profiles rather than healthcare's. A payer reading its own row
+ * was told about a deal team's problem.
+ *
+ * The rewrite is aimed at AEO/GEO as much as at a reader. Three things drive
+ * that, and they are the same three on all five industry pages:
+ *
+ * - **Name the regulation, not "compliance".** HIPAA, 42 CFR Part 2, HITRUST,
+ *   GxP. An answer engine matches a question about Part 2 to the page that says
+ *   "Part 2"; it cannot match it to "regulated data".
+ * - **One extractable claim per block.** Each body states a specific situation
+ *   that can be lifted whole and still be true and attributable, rather than
+ *   building to a claim across three sentences.
+ * - **Six genuinely different rows.** A page that says one thing six times
+ *   gives a model one thing to retrieve. These share no sentence and no
+ *   capability line.
+ *
+ * Roles are the actual buying committee per segment — a Chief Medical
+ * Information Officer signs for a provider group and has nothing to do with a
+ * device manufacturer, where it is Quality and Regulatory.
+ */
 const PROFILES = [
   {
     title: 'Mid-market providers and clinic groups',
-    points: MANDATE_POINTS,
-    body: MANDATE_BODY,
-    roles: ['CTO', 'COO', 'CISO', 'Privacy Officer', 'VP Operations'],
+    points: [
+      'HIPAA-ready AI roadmap',
+      'Use-case scoring against PHI exposure',
+      'AI governance and acceptable-use policy',
+      'Transformation PMO',
+    ],
+    body: 'The board has asked what you are doing about AI, and whatever you answer has to survive your privacy officer. We score the use cases against PHI exposure first, so the roadmap you present is one compliance has already signed.',
+    roles: ['CTO', 'COO', 'Chief Medical Information Officer', 'Privacy Officer'],
   },
   {
     title: 'Behavioral health and specialty networks',
-    points: SOVEREIGN_POINTS,
-    body: BLOCKED_REVIEW_BODY,
-    roles: ['CISO', 'COO', 'CTO', 'Privacy Officer', 'VP Operations'],
+    points: [
+      '42 CFR Part 2 and HIPAA data-flow mapping',
+      'Shadow-AI audit',
+      'Consent and minimum-necessary controls',
+      'Architecture triage',
+    ],
+    body: '42 CFR Part 2 is stricter than HIPAA and almost no AI tooling has heard of it. Meanwhile your clinicians are pasting notes into consumer chatbots to get through the day. We find where that is happening and give you something governed to replace it.',
+    roles: ['CISO', 'Privacy Officer', 'VP Clinical Operations', 'General Counsel'],
   },
   {
-    title: 'Payers & TPAs',
-    points: DILIGENCE_POINTS,
-    body: DILIGENCE_BODY,
-    roles: ['CTO', 'COO', 'CISO', 'Privacy Officer', 'VP Operations'],
+    title: 'Payers and TPAs',
+    points: [
+      'Claims and prior-authorization document AI',
+      'Exception routing',
+      'Human-in-the-loop review design',
+      'Analytics with lineage',
+    ],
+    body: 'Prior auth and claims intake run on volume, which is exactly why the error tolerance is low and the audit trail is not optional. We design the exception path before the happy path, because the exception path is the one a regulator reads.',
+    roles: ['VP Operations', 'Head of Claims', 'CTO', 'Compliance Officer'],
   },
   {
     title: 'Revenue-cycle vendors',
-    points: POST_CLOSE_POINTS,
-    body: POST_CLOSE_BODY,
-    roles: ['CTO', 'COO', 'CISO', 'Privacy Officer', 'VP Operations'],
+    points: [
+      'Denial-pattern analytics',
+      'Coding and documentation AI',
+      'Payer-rule change monitoring',
+      'Clearinghouse and EHR integration',
+    ],
+    body: 'Your margin is the gap between what you collect and what it costs to collect it, and both sides of that are now automatable. The constraint is proving to a health-system client that the automation is safe enough to point at their AR.',
+    roles: ['CEO', 'COO', 'VP Revenue Cycle', 'CTO'],
   },
   {
     title: 'Digital-health ISVs',
-    points: AUDIT_POINTS,
-    body: AUDIT_BODY,
-    roles: ['CTO', 'COO', 'CISO', 'Privacy Officer', 'VP Operations'],
+    points: [
+      'Architecture and scalability audit',
+      'SOC 2 and HITRUST readiness',
+      'Governed model gateway and guardrails',
+      'Build-vs-buy analysis',
+    ],
+    body: 'Enterprise health systems are asking security questions your architecture cannot answer yet, and a signed deal is waiting behind them. You want a senior, neutral read before you commit the quarter to rebuilding the wrong layer.',
+    roles: ['CTO', 'VP Engineering', 'Head of Security', 'Founder'],
   },
   {
     title: 'Life-sciences and device companies scaling a platform',
-    points: OPERATING_MODEL_POINTS,
-    body: ADOPTION_BODY,
-    roles: ['CTO', 'COO', 'CISO', 'Privacy Officer', 'VP Operations'],
+    points: [
+      'Validated-system delivery under GxP',
+      'Change management and SOP design',
+      'Operating model design',
+      'Fractional Head of AI',
+    ],
+    body: 'Regulated device and pharma software has to be validated, not merely tested, and your team has never run a change process that produces that evidence as a by-product. Adoption is the gap here, not the model.',
+    roles: ['CTO', 'VP Quality', 'Head of Regulatory Affairs', 'COO'],
   },
 ]
 

@@ -51,7 +51,7 @@ const PROFILES = [
   {
     title: 'Roles will not fill',
     points: ['Capacity bridge', 'Delivery pod', 'Staged handover as your hires land'],
-    body: 'Hiring for four senior engineer roles, takes two to three quarters; the roadmap does not wait. We stand down as your people arrive.',
+    body: 'Hiring four senior engineers takes two to three quarters and the roadmap does not wait. We cover the gap and stand down as your own people arrive, rather than becoming the reason you never finish hiring.',
     roles: ['VP Engineering', 'Head of Talent', 'Hiring Manager'],
   },
   {
@@ -73,8 +73,38 @@ const PROFILES = [
       'Evals and guardrails',
       'Embedded model',
     ],
-    body: 'You have the roadmap and the constraints; you need people who have shipped inside them before.',
-    roles: ['CTO', 'Head of data', 'Product lead'],
+    body: 'You have the roadmap and you have the constraints; what you need is people who have shipped inside constraints like them before, rather than people who will discover them in month two.',
+    roles: ['CTO', 'Head of Data', 'Product Lead'],
+  },
+  /*
+    ⚠ The two below are NOT on the artboard, which draws four profiles here
+    against six on Advisory and Product. Added 2026-09-15 as part of the ICP
+    audit: both are situations this page is routinely bought for and neither was
+    represented, so a reader in one of them found nothing addressed to them.
+    Flagged rather than folded in silently — they want the same sign-off as the
+    rewritten copy on the industry pages.
+  */
+  {
+    title: 'A team carrying more product than it can maintain',
+    points: [
+      'Sustaining-engineering pod',
+      'Test and CI/CD coverage',
+      'On-call and incident process',
+      'Documented handover',
+    ],
+    body: 'Your senior engineers are spending their week on a platform they shipped two years ago instead of the thing on the roadmap. Moving the maintenance, not the new work, is what gives you them back.',
+    roles: ['CTO', 'VP Engineering', 'Head of Platform'],
+  },
+  {
+    title: 'Post-acquisition teams that lost their engineers',
+    points: [
+      'Capacity backfill in weeks',
+      'Codebase discovery and documentation',
+      'Key-person risk removal',
+      'Fractional delivery lead',
+    ],
+    body: 'The deal closed, the founders and half the engineering team left on schedule, and the product still has customers on it. We learn the system and keep it shipping while you decide what it should become.',
+    roles: ['Operating Partner', 'Portfolio CTO', 'Newly Installed Executive'],
   },
 ]
 

@@ -1,6 +1,6 @@
 import { Fragment, useMemo } from 'react'
 import { motion as fm, useTransform, type MotionValue } from 'framer-motion'
-import { motion as motionTokens, opacity as opacityTokens } from '@/tokens'
+import { opacity as opacityTokens } from '@/tokens'
 import { cn } from '@/lib/cn'
 
 /**
@@ -18,7 +18,25 @@ import { cn } from '@/lib/cn'
  *
  * Words are kept whole (`inline-block` + `whitespace-nowrap`) so the line still
  * wraps on word boundaries; only the characters inside a word are split.
+ *
+ * ⚠ NOTHING USES THIS as of 2026-09-15. The homepage introduction was its only
+ * caller, and that section's copy is static now — Nabeel asked for the fill to
+ * go. Kept rather than deleted because it is a working, self-contained piece of
+ * the motion system and the decision to retire it is a design call, not a
+ * cleanup. Its schedule constants moved here from `motion.scene` at the same
+ * time: that token described the pinned scene, and the pinned scene is gone.
  */
+
+/**
+ * The default fill window, as fractions of whatever progress value is handed
+ * in. Was `motion.scene.fill` / `motion.scene.fillFeather`.
+ */
+const FILL = {
+  start: 0.06,
+  end: 0.9,
+  /** Per-character overlap; wider = softer sweep, narrower = sharper. */
+  feather: 0.06,
+} as const
 export type ScrollFillTextProps = {
   text: string
   /** Normalised scroll progress for the surrounding scene. */
@@ -48,15 +66,15 @@ function Char({
 export function ScrollFillText({
   text,
   progress,
-  start = motionTokens.scene.fill.start,
-  end = motionTokens.scene.fill.end,
+  start = FILL.start,
+  end = FILL.end,
   className,
 }: ScrollFillTextProps) {
   // Precompute each character's window once; the schedule depends only on the
   // string, not on scroll position.
   const words = useMemo(() => {
     const total = text.replace(/\s/g, '').length
-    const feather = motionTokens.scene.fillFeather
+    const feather = FILL.feather
     // Reserve the feather at the tail so the final character reaches full
     // brightness exactly at `end`, not `end + feather`. Without this the copy
     // finishes after the images and the scene stops feeling synchronised.

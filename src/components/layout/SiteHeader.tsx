@@ -17,26 +17,34 @@ import { layout, motion as motionTokens } from '@/tokens'
 
 /**
  * Site header — shared by every page. Figma ships two variants:
- *   navigation-main  node 3390:26593 (homepage)
- *   navigation-dark  node 3605:1436  (What We Do and every light-hero page)
+ *   navigation-light  node 3776:608    (homepage)
+ *   navigation-dark   node 3931:12698  (What We Do and every light-hero page)
+ *
+ * ⚠ IDs re-resolved 2026-09-15, after the file was rebuilt that afternoon. The
+ * old nodes (3390:26593 / 3605:1436) are gone, and the homepage variant has
+ * been RENAMED from "navigation-main" to "navigation-light". Nothing about the
+ * two variants changed — the table below still measures true against both.
  *
  * Figma's names describe the *elements*, not the ground: "navigation-dark" is
- * the ink-on-cream variant. `tone` here names the ground instead — `onLight`
- * renders navigation-dark — because that is what a caller actually knows about
- * its own hero.
+ * the ink-on-cream variant, and "navigation-light" the cream-on-ink one. `tone`
+ * here names the ground instead — `onLight` renders navigation-dark — because
+ * that is what a caller actually knows about its own hero.
  *
  * Every part of the mark inverts between the two, not just the links:
  *
- *   |         | onDark (navigation-main) | onLight (navigation-dark) |
- *   |---------|--------------------------|---------------------------|
- *   | logo    | cream                    | ink                       |
- *   | links   | cream @ 80%              | ink @ 80%   (3605:1458)   |
- *   | CTA     | cream pill, ink label    | ink pill, cream label     |
+ *   |         | onDark (navigation-light) | onLight (navigation-dark) |
+ *   |---------|---------------------------|---------------------------|
+ *   | logo    | cream                     | ink                       |
+ *   | links   | cream @ 80%               | ink @ 80%  (3931:12718)   |
+ *   | CTA     | cream pill, ink label     | ink pill, cream label     |
+ *
+ * The 80% is carried by the `nav-dropdowns` frame itself rather than by each
+ * label's fill, which is why it is one node id for the whole row.
  *
  * The CTA was the part that had been missed: a cream pill was carried over to
  * the light nav, where it reads as a hole punched in the page. The artboard
- * fills it `#040E19` with `#F6F2EC` text (node 3605:1472/1473) — which is
- * exactly `Button variant="primary" tone="onLight"`.
+ * fills it `#040E19` with `#F6F2EC` text (nodes 3931:12734 / 3931:12735) —
+ * which is exactly `Button variant="primary" tone="onLight"`.
  *
  * ── The dropdown panels ──────────────────────────────────────────────────
  *
@@ -165,14 +173,19 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     /* Same change the footer took, so the two stay in agreement: the heading
-       is the blog index, and "News" was a row standing in for it. */
+       is the blog index, and "News" was a row standing in for it.
+
+       ⚠ Substack and Clutch were rows here and are not any more — Nabeel,
+       2026-09-15, "remove Substack and Clutch elements under Publications",
+       extended site-wide for Substack by Eduardo the same day. Substack never
+       had a URL to point at; Clutch has moved to the footer as a rating element
+       beside the tagline. The footer's Publications column lost the same two
+       rows, so the two lists agree — see the longer note there for where that
+       leaves the artboards. */
     label: 'Publications',
     to: '/publications',
     links: [
-      /* ⚠ Substack has no URL yet, so it stays inert. */
-      { label: 'Substack' },
       { label: 'Linkedin', href: 'https://www.linkedin.com/company/typeb-digital/' },
-      { label: 'Clutch (4.9)', href: 'https://clutch.co/profile/type-b' },
       { label: 'Privacy Policy', to: '/privacy-policy' },
     ],
   },

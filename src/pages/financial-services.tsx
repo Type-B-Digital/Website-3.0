@@ -12,16 +12,7 @@ import {
 } from '@/components/sections'
 import { colors as colorTokens, gradients } from '@/tokens'
 import { TIERS, related } from './service-content'
-import {
-  ADOPTION_BODY,
-  BLOCKED_REVIEW_BODY,
-  INDUSTRY_STEPS,
-  MANDATE_BODY,
-  MANDATE_POINTS,
-  OPERATING_MODEL_POINTS,
-  SOVEREIGN_FAQ,
-  SOVEREIGN_POINTS,
-} from './industry-content'
+import { INDUSTRY_STEPS, SOVEREIGN_FAQ } from './industry-content'
 
 /**
  * Financial Services & Insurance — Figma node 3162:283
@@ -43,42 +34,92 @@ import {
  */
 const HERO_GRADIENT = gradients.hero.financialServices
 
+/**
+ * Ideal Customer Profiles — Figma node 3614:6771.
+ *
+ * ⚠ REWRITTEN 2026-09-15. Four of these six were the identical "AI mandate"
+ * block — same four capability lines, same paragraph — under four different
+ * titles, which told a reader that Type B does one thing for payments,
+ * insurance, claims, and regtech alike.
+ *
+ * Rewritten per segment, and aimed at AEO/GEO as well as at a reader: each row
+ * names the regulation that actually binds it (PCI DSS, SEC and FINRA
+ * recordkeeping, SR 11-7 model risk, fair lending) rather than saying
+ * "regulated", because an answer engine matches the question to the page that
+ * uses the term. See the longer note on healthcare.tsx for the three rules all
+ * five industry pages now follow.
+ *
+ * ⚠ One title changed. "Claims and revenue-cycle operators" was a healthcare
+ * segment sitting on the financial services page — revenue cycle is provider
+ * billing. It is "Banks and credit unions under a model risk mandate" now,
+ * which is a real financial-services buyer this page had no row for.
+ */
 const PROFILES = [
   {
     title: 'Payments and payroll platforms',
-    points: MANDATE_POINTS,
-    body: MANDATE_BODY,
-    roles: ['CTO', 'COO', 'CFO', 'CISO', 'Head of Claims', 'Compliance Officer'],
+    points: [
+      'PCI DSS scope reduction',
+      'Fraud and anomaly detection design',
+      'AI governance and acceptable-use policy',
+      'Transformation PMO',
+    ],
+    body: 'Every AI idea you have touches cardholder or bank data, so the first question is not what a model could do but what it is allowed to see. We answer that before anything gets built, because the alternative is widening your PCI scope by accident.',
+    roles: ['CTO', 'CISO', 'Head of Payments', 'Compliance Officer'],
   },
   {
     title: 'Wealth and advisory firms',
-    points: SOVEREIGN_POINTS,
-    body: BLOCKED_REVIEW_BODY,
-    roles: ['CTO', 'COO', 'CFO', 'CISO', 'Head of Claims', 'Compliance Officer'],
+    points: [
+      'SEC and FINRA recordkeeping review',
+      'Supervised-communications controls',
+      'Shadow-AI audit',
+      'Architecture triage',
+    ],
+    body: 'Your advisors are already drafting client communications with AI, and every one of those is a record you are required to supervise and retain. We start with your compliance team in the room rather than selling around them.',
+    roles: ['Chief Compliance Officer', 'CTO', 'Head of Advisory', 'General Counsel'],
   },
   {
     title: 'Mid-market insurers and MGAs',
-    points: MANDATE_POINTS,
-    body: MANDATE_BODY,
-    roles: ['CTO', 'COO', 'CFO', 'CISO', 'Head of Claims', 'Compliance Officer'],
+    points: [
+      'Submission and claims document AI',
+      'Underwriting triage and referral rules',
+      'Model documentation for rate filings',
+      'Human-in-the-loop review design',
+    ],
+    body: 'Submission and claims intake is the highest-volume document work in the business, and a regulator will eventually ask how a declined claim was decided. The audit trail is the product, not a feature of it.',
+    roles: ['COO', 'Head of Claims', 'Chief Underwriting Officer', 'Chief Actuary'],
   },
   {
-    title: 'Claims and revenue-cycle operators',
-    points: MANDATE_POINTS,
-    body: MANDATE_BODY,
-    roles: ['CTO', 'COO', 'CFO', 'CISO', 'Head of Claims', 'Compliance Officer'],
+    title: 'Banks and credit unions under a model risk mandate',
+    points: [
+      'SR 11-7 aligned model inventory',
+      'Validation and ongoing monitoring',
+      'Fair-lending and bias testing',
+      'Fractional Head of AI',
+    ],
+    body: 'Your examiner treats an AI model like any other model, and your model risk framework was written for credit scorecards. We extend the framework you already defend rather than standing up a second, parallel AI policy nobody owns.',
+    roles: ['Chief Risk Officer', 'Head of Model Risk', 'CTO', 'Chief Compliance Officer'],
   },
   {
     title: 'Regtech and compliance ISVs',
-    points: MANDATE_POINTS,
-    body: MANDATE_BODY,
-    roles: ['CTO', 'COO', 'CFO', 'CISO', 'Head of Claims', 'Compliance Officer'],
+    points: [
+      'Architecture and scalability audit',
+      'SOC 2 readiness',
+      'Governed model gateway',
+      'Independent AI assurance',
+    ],
+    body: 'You sell compliance software, so your own AI story has to be better than your customers’. Their security questionnaires are the bar, and right now answering them is the sales cycle.',
+    roles: ['CTO', 'VP Engineering', 'Head of Security', 'Founder'],
   },
   {
     title: 'Investment platforms with securities exposure',
-    points: OPERATING_MODEL_POINTS,
-    body: ADOPTION_BODY,
-    roles: ['CTO', 'COO', 'CFO', 'CISO', 'Head of Claims', 'Compliance Officer'],
+    points: [
+      'Books-and-records architecture review',
+      'Decision logs and change management',
+      'Operating model design',
+      'Transformation PMO',
+    ],
+    body: 'Adoption is the gap. You need documented requirements, a decision log, weekly written status, and one person accountable for the change landing inside an environment where every step is examinable.',
+    roles: ['COO', 'CTO', 'Chief Compliance Officer', 'Head of Operations'],
   },
 ]
 

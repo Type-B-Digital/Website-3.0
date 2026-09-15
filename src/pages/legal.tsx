@@ -12,7 +12,7 @@ import {
 } from '@/components/sections'
 import { colors as colorTokens, gradients } from '@/tokens'
 import { TIERS, related } from './service-content'
-import { INDUSTRY_STEPS, MANDATE_BODY, MANDATE_POINTS, SOVEREIGN_FAQ } from './industry-content'
+import { INDUSTRY_STEPS, SOVEREIGN_FAQ } from './industry-content'
 
 /**
  * Legal & Professional Services — Figma node 3245:17241
@@ -26,25 +26,95 @@ import { INDUSTRY_STEPS, MANDATE_BODY, MANDATE_POINTS, SOVEREIGN_FAQ } from './i
 /** b6 mirrored — node 3614:8588, style "Type B BG 6" inside a horizontal flip. */
 const HERO_GRADIENT = gradients.hero.legal
 
-/** ⚠ "General Council" is the artboard's spelling of General Counsel. */
-const ROLES = ['Managing Partner', 'COO', 'General Counsel', 'IT & Security Lead']
+/*
+  ⚠ A shared ROLES constant used to sit here — "Managing Partner, COO, General
+  Counsel, IT & Security Lead", the artboard's list, on all six profiles. (The
+  artboard spells it "General Council".) It is gone: a corporate legal
+  department has no managing partner, and a legal-tech ISV has no partners at
+  all, so one list across six segments was part of what made this section read
+  as the same row six times. Each profile names its own below.
+*/
 
+/**
+ * Ideal Customer Profiles — Figma node 3614:8798.
+ *
+ * ⚠ REWRITTEN 2026-09-15. Like Real Estate, all six of these rendered the
+ * identical "AI mandate" block under six different headings, with one shared
+ * roles list — so the section told a reader that a law firm, an audit practice,
+ * and a legal-tech vendor all arrive with the same problem and the same buyer.
+ *
+ * Each row now names what is specific to it: privilege and attorney
+ * supervision for a firm, independence rules for an audit practice, client-data
+ * segregation for a consultancy, defensibility for litigation support. Those
+ * are the terms this page should be found on. See healthcare.tsx for the three
+ * AEO/GEO rules the five industry pages follow.
+ */
 const PROFILES = [
-  { title: 'Mid-market law firms', points: MANDATE_POINTS, body: MANDATE_BODY, roles: ROLES },
-  { title: 'In-house legal departments', points: MANDATE_POINTS, body: MANDATE_BODY, roles: ROLES },
-  { title: 'Accounting and audit firms', points: MANDATE_POINTS, body: MANDATE_BODY, roles: ROLES },
+  {
+    title: 'Mid-market law firms',
+    points: [
+      'Privilege and confidentiality review',
+      'Matter-scoped document AI',
+      'AI use policy and attorney supervision rules',
+      'Use-case scoring',
+    ],
+    body: 'Your associates are already using AI and your partners do not know which tools, or on whose matters. Privilege does not survive a consumer chatbot’s terms of service, and that is a conversation to have before the malpractice carrier has it with you.',
+    roles: ['Managing Partner', 'General Counsel', 'CIO', 'Director of Practice Innovation'],
+  },
+  {
+    title: 'In-house legal departments',
+    points: [
+      'Contract review and abstraction',
+      'Playbook-driven redlining',
+      'Intake and triage automation',
+      'Vendor AI due diligence',
+    ],
+    body: 'You are the bottleneck on every commercial deal and the team has not grown in three years. First-pass review is the work that should never have needed a lawyer, and it is most of the queue.',
+    roles: ['General Counsel', 'Deputy General Counsel', 'Head of Legal Operations', 'CFO'],
+  },
+  {
+    title: 'Accounting and audit firms',
+    points: [
+      'Workpaper and source-document extraction',
+      'Independence and confidentiality controls',
+      'Engagement-quality analytics',
+      'AI governance and policy',
+    ],
+    body: 'Busy season is a staffing problem you solve by hiring people who are not there to hire. Independence rules mean the tool that fixes it has to be one you control, not one your client’s vendor runs.',
+    roles: ['Managing Partner', 'Chief Risk Officer', 'CIO', 'Director of Audit Quality'],
+  },
   {
     title: 'Consulting and advisory practices',
-    points: MANDATE_POINTS,
-    body: MANDATE_BODY,
-    roles: ROLES,
+    points: [
+      'Grounded search over your own IP',
+      'Proposal and deliverable drafting guardrails',
+      'Client-data segregation design',
+      'Operating model design',
+    ],
+    body: 'Your value is the firm’s accumulated judgement and it is sitting in ten thousand decks nobody can find. Making that searchable without one client’s material surfacing inside another client’s deliverable is the entire problem.',
+    roles: ['Managing Partner', 'COO', 'CIO', 'Head of Knowledge Management'],
   },
-  { title: 'Legal-tech ISVs', points: MANDATE_POINTS, body: MANDATE_BODY, roles: ROLES },
+  {
+    title: 'Legal-tech ISVs',
+    points: [
+      'Architecture and scalability audit',
+      'SOC 2 readiness',
+      'Governed model gateway',
+      'Independent AI assurance',
+    ],
+    body: 'Law firms are running security reviews on you that assume you are a bank, and every one of them asks where the model runs and what it was trained on. That answer has to be a document, not a call.',
+    roles: ['CTO', 'VP Engineering', 'Head of Security', 'Founder'],
+  },
   {
     title: 'Claims and litigation support operations',
-    points: MANDATE_POINTS,
-    body: MANDATE_BODY,
-    roles: ROLES,
+    points: [
+      'Discovery and records extraction at volume',
+      'Chain of custody and audit trail',
+      'Exception routing and QC sampling',
+      'Transformation PMO',
+    ],
+    body: 'Volume is the business and defensibility is the constraint: every automated step has to be explainable to opposing counsel two years after the person who ran it has left.',
+    roles: ['COO', 'VP Operations', 'General Counsel', 'Director of Discovery'],
   },
 ]
 

@@ -4,6 +4,7 @@ import { cn } from '@/lib/cn'
 import { Eyebrow, HeroIntro, Reveal, Section, Tag, Typography } from '@/components'
 import type { EyebrowTone } from '@/components'
 import ArrowRight from '@/components/icons/ArrowRight'
+import Glyph, { type GlyphName } from '@/components/icons/Glyph'
 import { asset } from '@/lib/asset'
 
 /**
@@ -101,16 +102,59 @@ export function IdealCustomerProfiles({
  * Capability grid — Figma node 3605:2110
  * ------------------------------------------------------------------ */
 
-export type Capability = { title: string; body: string }
+export type Capability = {
+  title: string
+  body: string
+  /**
+   * Icon inside the chip. Optional — a capability that does not name one falls
+   * back to `CAPABILITY_GLYPHS` by title, so the six that every service page
+   * shares get their icon from one place.
+   */
+  icon?: GlyphName
+}
+
+/**
+ * Which glyph each capability gets. Chosen against what the body actually
+ * describes, per Nabeel's 2026-09-15 note, not against the noun in the title:
+ *
+ *   Conversational & Voice   agents carrying a conversation   a speech bubble
+ *   Autonomous Agents        acting ACROSS your tools         one actor, three systems
+ *   Search & RAG             grounded answers over a corpus   the magnifier
+ *   Document & Vision AI     reading document queues          a page being scanned
+ *   Workflow Automation      multi-step processes end to end  one step handing to the next
+ *   Analytics & Forecast     predictions people would trust   a trend line
+ *
+ * A title missing from the map keeps the old outlined-square placeholder
+ * rather than falling back to some default glyph — the same call `TIER_GLYPHS`
+ * makes, and for the same reason. A wrong icon is worse than an obvious gap,
+ * and the gap is what tells the next person to come here and choose one.
+ */
+const CAPABILITY_GLYPHS: Record<string, GlyphName> = {
+  'Conversational & Voice': 'speech',
+  'Autonomous Agents': 'agent',
+  'Search & RAG': 'search',
+  'Document & Vision AI': 'scan',
+  'Workflow Automation': 'flow',
+  'Analytics & Forecast': 'chart',
+}
 
 /**
  * Three across, two down, each headed by a 48px chip.
  *
- * The chip holds a `Dummy_Square_Circle` instance on the artboard, so the mark
- * inside is a placeholder — but a visible one, which is the same call the What
- * We Do offering rows needed: a chip at low opacity on this ground renders as
- * nothing at all.
+ * ⚠ The chip holds a `Dummy_Square_Circle` instance on the artboard — a placed
+ * library default, not a choice — so the mark inside used to be a small
+ * outlined square. It is a real icon now; see `CAPABILITY_GLYPHS`.
+ *
+ * The chip itself is unchanged: 48px, cream, and fully opaque, which is what
+ * keeps it visible on this ground.
  */
+/** The chip's contents: the chosen glyph, or the placeholder if none is. */
+function CapabilityMark({ capability }: { capability: Capability }) {
+  const name = capability.icon ?? CAPABILITY_GLYPHS[capability.title]
+  if (!name) return <span className="size-sm rounded-[2px] border border-on-light" />
+  return <Glyph name={name} className="size-lg text-on-light" />
+}
+
 export function CapabilityGrid({
   eyebrow,
   heading,
@@ -141,7 +185,8 @@ export function CapabilityGrid({
                   aria-hidden
                   className="flex size-3xl shrink-0 items-center justify-center rounded-full bg-neutral-50"
                 >
-                  <span className="size-sm rounded-[2px] border border-on-light" />
+                  {/* 24px inside the 48px chip — the artboard's ratio. */}
+                  <CapabilityMark capability={capability} />
                 </span>
                 <div className="flex flex-col gap-md">
                   <Typography variant="copyLarge" as="h3">

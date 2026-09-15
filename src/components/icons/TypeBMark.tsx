@@ -1,7 +1,8 @@
 /**
  * type-b-mark — the B monogram alone, without the wordmark.
  *
- * Figma: "Union" — node 3729:3745, the footer update's statement column.
+ * Figma: "Union" — node 3928:625, the footer update's statement column.
+ * (Was 3729:3745; re-resolved 2026-09-15 after the file was rebuilt.)
  * The full lockup (`TypeBLogo`, 97x32) still runs in the header; the updated
  * footer opens with this 24x24 square instead.
  *

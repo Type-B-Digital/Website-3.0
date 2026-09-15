@@ -1,6 +1,7 @@
 /**
- * type-b-logo — Figma node 3390:26594 (navigation-main) / 3605:1437
- * (navigation-dark).
+ * type-b-logo — Figma node 3776:609 (navigation-light) / 3931:12699
+ * (navigation-dark). Re-resolved 2026-09-15; the homepage variant was called
+ * "navigation-main" before the file was rebuilt.
  *
  * The two artboards ship this mark as separate exports, but the geometry is
  * byte-identical once the fill is stripped — only the colour differs

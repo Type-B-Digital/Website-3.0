@@ -40,6 +40,13 @@ export type GlowTextProps = {
   widthRatio: number
   /** Words box left edge, as a fraction of the panel. */
   leftRatio: number
+  /**
+   * Raise the words off the panel's centre line, as a fraction of the panel
+   * height. Defaults to 0 — dead centre, which is where the artboard has them.
+   * The homepage passes a value because its stats moved out from beside the
+   * words into a row underneath them.
+   */
+  liftRatio?: number
   /** Pointer position in panel pixels. */
   pointerX: MotionValue<number>
   pointerY: MotionValue<number>
@@ -54,6 +61,7 @@ export function GlowText({
   aspect,
   widthRatio,
   leftRatio,
+  liftRatio = 0,
   pointerX,
   pointerY,
   label,
@@ -75,7 +83,15 @@ export function GlowText({
   const boxWidth = panel.width * widthRatio
   const boxHeight = boxWidth / aspect
   const boxLeft = panel.width * leftRatio
-  const boxTop = (panel.height - boxHeight) / 2
+  /*
+    Centred, then lifted by `liftRatio` of the panel height. The artboard has
+    the words on the panel's own centre line, with the stats in a column to
+    their right; the stats are a horizontal row along the bottom now, so on the
+    homepage the words move up by the height that row occupies. A ratio rather
+    than a pixel offset, so the lift scales with the panel instead of eating a
+    fixed 120px out of a short viewport.
+  */
+  const boxTop = (panel.height - boxHeight) / 2 - panel.height * liftRatio
 
   // The blob lives inside the masked box, so its coordinates are box-relative.
   const blobX = useTransform(pointerX, (v) => v - boxLeft)

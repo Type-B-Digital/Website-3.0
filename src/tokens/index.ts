@@ -238,7 +238,10 @@ export const gradients = {
   navPanel: `linear-gradient(219.09deg, ${palette.neutral[50]} 0%, ${palette.neutral[50]} 100%)`,
 
   /**
-   * The footer ground — Figma node 3729:3711 ("footer update"), 2026-09-09.
+   * The footer ground — Figma node 3928:606 ("footer update"). Added
+   * 2026-09-09 from node 3729:3711; re-resolved 2026-09-15 after the file was
+   * rebuilt, and the gradient is unchanged: the frame still fills with
+   * #040E19 -> #081F2A, which is exactly the two ramp ends below.
    *
    * Ink easing into turquoise.900 down the band. It was a flat colour before:
    * first `#030B15` (a near-miss for the canvas, retired with the other
@@ -977,12 +980,35 @@ export const motion = {
   },
 
   /**
-   * Hero gradient sweep. The first scroll gesture plays this instead of moving
-   * the page; the next one scrolls normally.
+   * Hero gradient sweep — ambient, on its own clock.
+   *
+   * ⚠ Was scroll-armed: the first downward gesture on the page played an
+   * 800ms (later 2.4s) sweep INSTEAD of scrolling, and the next one scrolled
+   * normally. Nabeel, 2026-09-15: "instead of having to scroll there could be
+   * something happening in the background — explore timing the hero so that it
+   * very slowly transitions the gradient from left to right."
+   *
+   * So the sweep now runs on load and never touches the scroll. Two things
+   * follow from that:
+   *
+   * - `duration` is an order of magnitude longer. At 2.4s a self-playing
+   *   sweep is an animation that happens at you and then stops; the note asks
+   *   for "very slowly", and at 28s the movement is below the threshold where
+   *   the eye tracks it as motion — you notice the hero has changed rather than
+   *   watching it change.
+   * - It reverses rather than looping. `from` and `to` are different
+   *   corners, so restarting at `from` would cut. Playing back down the same
+   *   range is seamless, and it keeps the background alive for as long as
+   *   anyone sits on the hero, which is what "something happening" asks for.
+   *
+   * `hold` is the pause at each end, so the sweep breathes instead of
+   * turning around the instant it arrives.
    */
   heroSweep: {
-    /** 3x the original 0.8s, at Eduardo's request. */
-    duration: 2.4,
+    /** One direction, in seconds. A full there-and-back is twice this plus the holds. */
+    duration: 28,
+    /** Beat spent parked at each end before reversing. */
+    hold: 1.5,
     /** 135deg: dark top-left, warm bottom-right. */
     from: 135,
     /** 225deg: dark top-right, warm bottom-left. */
@@ -1000,8 +1026,20 @@ export const motion = {
    * ⚠ Timings authored.
    */
   offeringScene: {
-    /** Viewport heights of scroll — roughly one per offering, plus dwell. */
-    pinLength: 2.5,
+    /**
+     * Viewport heights of scroll the panel holds for.
+     *
+     * ⚠ Was 2.5 — "roughly one per offering, plus dwell" — because scroll used
+     * to step through the three offerings. It does not any more (Nabeel,
+     * 2026-09-15: clickable only), so the scene has no schedule to fit and the
+     * length is now only a hold.
+     *
+     * 2 rather than 0, i.e. the panel still pins: the hold is what gives the
+     * visitor a stationary frame to click the offerings in, and it keeps the
+     * light-to-turquoise ground crossfade the arrival it was timed against.
+     * Same value, and the same reasoning, as `talentScene.pinLength`.
+     */
+    pinLength: 2,
     /**
      * White -> turquoise, measured across the viewport-height of scroll before
      * the offerings panel pins. Both the light band and the scene share one
@@ -1019,12 +1057,11 @@ export const motion = {
      * waits until the turquoise has largely arrived.
      */
     contentFade: { start: 0.72, end: 0.98 },
-    /**
-     * Offerings start stepping almost immediately now. The light-to-turquoise
-     * blend no longer happens inside this scene — see the bridge on the section
-     * above — so nothing has to finish before selection can begin.
-     */
-    selectStart: 0.1,
+    /*
+      ⚠ `selectStart` was here and is gone. It was the point in the scene's own
+      scroll range at which the offerings began stepping; with selection on
+      click there is no scroll range to place it in.
+    */
   },
 
   /**
@@ -1039,12 +1076,33 @@ export const motion = {
    * `fill.end`, which is what makes the scene feel finished before it releases.
    * The gap between that and 1.0 is a deliberate hold on the completed frame.
    */
+  /**
+   * The introduction scene.
+   *
+   * ⚠ Was a three-viewport pinned scene driven entirely by scroll: the
+   * statement filled in a character at a time from 16% opacity and the three
+   * images slid in from the right, both on the scroll clock. Nabeel,
+   * 2026-09-15: "instead of scrolling to fill in the copy and slide in images,
+   * the copy can be static (white) and the images can slide in automatically at
+   * a medium pace."
+   *
+   * So the pin is gone, `pinLength` and the character-fill window with it, and
+   * what is left is the image entrance on its own clock. The section is now an
+   * ordinary band in normal flow — one screen instead of three.
+   *
+   * `start` is a per-image delay rather than a position in a scroll range, and
+   * the stagger and duration are seconds rather than fractions of a pin. The
+   * pace is the note's "medium": slow enough to read as arriving, quick enough
+   * that the last of the three has landed before a reader who is scrolling at
+   * a normal rate has gone past it.
+   */
   scene: {
-    pinLength: 3,
-    fill: { start: 0.06, end: 0.9 },
-    /** Per-character overlap; wider = softer sweep, narrower = sharper. */
-    fillFeather: 0.06,
-    images: { start: 0.06, stagger: 0.28, duration: 0.28 },
+    /** Delay before the first image moves, seconds. */
+    start: 0.1,
+    /** Gap between one image starting and the next, seconds. */
+    stagger: 0.16,
+    /** How long one image takes to travel, seconds. */
+    duration: 0.9,
     /** Travel distance for an entering image, as % of its own width. */
     imageEnter: 170,
   },

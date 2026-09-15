@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { motion as fm, useReducedMotion, useScroll, useTransform } from 'framer-motion'
-import { spacing } from '@/tokens'
+import { breakpoints, spacing } from '@/tokens'
 import { cn } from '@/lib/cn'
 import useLaggedProgress from '@/lib/useLaggedProgress'
 
@@ -26,7 +26,9 @@ import useLaggedProgress from '@/lib/useLaggedProgress'
 export type ScrollTrackProps = {
   children: ReactNode
   /**
-   * Page margin the row starts at, in px. Defaults to the 80px layout margin.
+   * Page margin the row starts at, in px. Defaults to the CURRENT page margin,
+   * which is device-dependent since the grid went fluid — see `pageMargin`.
+   * Pass a number to pin it.
    */
   inset?: number
   /** Gap between items. */
@@ -36,9 +38,25 @@ export type ScrollTrackProps = {
   className?: string
 }
 
+/**
+ * The page margin in force at the current viewport width — the same three steps
+ * `Container` paints (16 / 24 / 80), read back as a number.
+ *
+ * The row starts flush with that margin, so the fixed 80 this used to default
+ * to left a 64px indent on a phone where the page itself only holds 16px off
+ * the edge. Resolved at measure time rather than at module scope: `measure`
+ * already re-runs on resize, so crossing a breakpoint re-reads it for free.
+ */
+function pageMargin() {
+  const width = window.innerWidth
+  if (width >= Number.parseFloat(breakpoints.xl)) return Number.parseFloat(spacing['4xl'])
+  if (width >= Number.parseFloat(breakpoints.lg)) return Number.parseFloat(spacing.lg)
+  return Number.parseFloat(spacing.md)
+}
+
 export function ScrollTrack({
   children,
-  inset = Number.parseFloat(spacing['4xl']),
+  inset,
   gapClassName = 'gap-lg',
   range = [0.2, 0.8],
   className,
@@ -52,7 +70,7 @@ export function ScrollTrack({
     const track = trackRef.current
     if (!track) return
     const measure = () => {
-      const needed = track.scrollWidth + inset - window.innerWidth
+      const needed = track.scrollWidth + (inset ?? pageMargin()) - window.innerWidth
       setTravel(Math.max(needed, 0))
     }
     measure()
@@ -79,7 +97,7 @@ export function ScrollTrack({
   // so everything stays reachable without a scrollbar or a transform.
   if (prefersReduced) {
     return (
-      <div className={cn('w-full px-md md:px-xl xl:px-4xl', className)}>
+      <div className={cn('w-full px-md lg:px-lg xl:px-4xl', className)}>
         <ul className={cn('flex flex-wrap', gapClassName)}>{children}</ul>
       </div>
     )
@@ -87,10 +105,21 @@ export function ScrollTrack({
 
   return (
     <div ref={wrapperRef} className={cn('w-full overflow-hidden', className)}>
+      {/*
+        The starting indent is painted by the same three utilities `Container`
+        uses, so it crosses a breakpoint with the rest of the page rather than
+        after a resize event has fired. `pageMargin()` above only has to agree
+        with these for the TRAVEL to be measured right; a pinned `inset` still
+        wins on both sides.
+      */}
       <fm.ul
         ref={trackRef}
-        className={cn('flex w-max will-change-transform', gapClassName)}
-        style={{ x, paddingLeft: inset }}
+        className={cn(
+          'flex w-max will-change-transform',
+          inset === undefined && 'pl-md lg:pl-lg xl:pl-4xl',
+          gapClassName,
+        )}
+        style={{ x, ...(inset === undefined ? null : { paddingLeft: inset }) }}
       >
         {children}
       </fm.ul>

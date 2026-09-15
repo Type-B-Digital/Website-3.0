@@ -19,6 +19,7 @@ import { Fragment } from 'react'
 import { Link } from 'react-router-dom'
 import { Button, Eyebrow, HeroIntro, Reveal, Section, Typography } from '@/components'
 import { Packaging } from '@/components/sections'
+import Glyph, { type GlyphName } from '@/components/icons/Glyph'
 import { PageShell } from '@/components/layout'
 import { gradients } from '@/tokens'
 import { cn } from '@/lib/cn'
@@ -199,7 +200,7 @@ function Hero() {
           className="pointer-events-none absolute left-1/2 top-1/2 h-[640px] w-[1440px] max-w-none -translate-x-1/2 -translate-y-1/2"
         />
         {/* 120px inset on the artboard, wider than the 80px page margin. */}
-        <div className="relative w-full px-md md:px-xl xl:pl-[120px] xl:pr-4xl">
+        <div className="relative w-full px-md lg:px-lg xl:pl-[120px] xl:pr-4xl">
           <Reveal>
             <div className="flex max-w-[720px] flex-col gap-md text-on-light">
               <Typography variant="h1" className="text-h2 md:text-h1">
@@ -218,33 +219,87 @@ function Hero() {
   )
 }
 
+/**
+ * Which glyph each offering row gets, read off the offering itself rather than
+ * the practice it sits under — Nabeel, 2026-09-15. The nine names are fixed in
+ * `SERVICES` above, so a map by name is the whole mechanism.
+ *
+ *   Architecture Audit & Roadmap   a route, because the deliverable is the plan
+ *   Diligence & 90-Day Roadmap     a shield — an independent read before signing
+ *   Fractional Leadership          one person, named and accountable
+ *   AI Assessment or Discovery     the magnifier: finding out what is there
+ *   Product Build or AI Safety Net a shield again, and deliberately: "safety
+ *                                  net" is the half of that row that needs a
+ *                                  picture, and a hammer would sell the wrong one
+ *   Sovereign AI Platform          a lock — the data stays where the contract says
+ *   Pod Starter / Delivery Pod /   people, in growing numbers
+ *   Managed Delivery Squad
+ *
+ * An unmapped name keeps the ring placeholder, the same call the packaging
+ * columns and the capability chips make.
+ */
+const OFFERING_GLYPHS: Record<string, GlyphName> = {
+  'Architecture Audit & Roadmap': 'route',
+  'Diligence & 90-Day Roadmap': 'shield',
+  'Fractional Leadership': 'person',
+  'AI Assessment or Discovery': 'search',
+  'Product Build or AI Safety Net': 'shield',
+  'Sovereign AI Platform': 'lock',
+  'Pod Starter': 'person',
+  'Delivery Pod': 'team',
+  'Managed Delivery Squad': 'team',
+}
+
 /** One offering row inside a service block. Figma: node 3604:1028 et al. */
 function OfferingRow({ name, audience }: { name: string; audience: string }) {
+  const glyph = OFFERING_GLYPHS[name]
   return (
     <li className="flex items-center justify-between gap-md border-t border-divider py-tag">
       <span className="flex min-w-0 items-center gap-md">
         {/*
-          icon-circle-grey, node 3604:1030. The icon inside is a
-          Dummy_Square_Circle instance on the artboard, so this is a placeholder
-          mark — but a visible one: at 8% on cream the previous fill was
-          invisible.
+          icon-circle-grey, node 3604:1030. The icon inside was a
+          Dummy_Square_Circle instance on the artboard — a placed library
+          default — so this drew an empty ring. It draws a real icon now; see
+          `OFFERING_GLYPHS`.
+
+          The chip is unchanged, including the ring: at 8% on cream the fill
+          alone was invisible, which is why it is 10% with a 15% inset ring.
         */}
         <span
           aria-hidden
           className="flex size-xl shrink-0 items-center justify-center rounded-full bg-neutral-900/10 ring-1 ring-inset ring-neutral-900/15"
         >
-          <span className="size-md rounded-full border border-neutral-900/40" />
+          {glyph ? (
+            /* 16px inside the 32px chip, matching the ring it replaces. */
+            <Glyph name={glyph} className="size-md text-on-light" />
+          ) : (
+            <span className="size-md rounded-full border border-neutral-900/40" />
+          )}
         </span>
         {/* One line, per the artboard — the name never wraps. */}
         <Typography variant="copyMedium" as="span" className="whitespace-nowrap">
           {name}
         </Typography>
       </span>
+      {/*
+        ⚠ The audience wraps; it used to be `shrink-0` alongside a `whitespace-nowrap`
+        name, so neither side would give and the two ran straight through each
+        other below about 1340px. "Fractional Leadership / Funded scale-ups &
+        regulated mid-market" is the pair that collides first.
+
+        The name keeps `nowrap` because the artboard has it on one line and it is
+        the row's subject; the audience is the qualifier, so it is the half that
+        breaks. `min-w-0` lets it actually take the wrap rather than establishing
+        a min-content floor at its longest word.
+
+        (Pre-existing at the designed 1440 too — it just never showed there,
+        because the column is wide enough.)
+      */}
       <Typography
         variant="copyXSmall"
         as="span"
         muted
-        className="shrink-0 text-right text-copy-x-small"
+        className="min-w-0 text-right text-copy-x-small"
       >
         {audience}
       </Typography>

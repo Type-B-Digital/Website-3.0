@@ -64,6 +64,14 @@ const PROFILES = [
     roles: ['CTO', 'VP Engineering', 'Platform Lead'],
   },
   {
+    /*
+      ⚠ The body and the roles here were Advisory's "Scale-ups needing a second
+      opinion" block, pasted whole — it described contested architecture and a
+      departed engineering lead, which is a reason to buy an audit, not a
+      guardrails layer. This is the ISV's own situation, and it is the one the
+      four capability lines above it actually answer. Nabeel, 2026-09-15: the
+      profiles are "in some cases unrelated".
+    */
     title: 'Digital-health and fintech ISVs',
     points: [
       'Guardrails layer',
@@ -71,8 +79,8 @@ const PROFILES = [
       'Independent AI assurance',
       'Compliance-grade evidence pack',
     ],
-    body: 'The platform is slowing down, the architecture decisions are contested, or engineering leadership just left. You want a senior, neutral read before committing budget.',
-    roles: ['CTO', 'VP Engineering', 'Founder'],
+    body: 'Your enterprise buyers run a security review before they will run a pilot, and every one of them now asks where the model runs, what it was trained on, and how you would prove either. The evidence pack is part of the product.',
+    roles: ['CTO', 'Head of Security', 'VP Engineering', 'Founder'],
   },
   {
     title: 'Operational businesses digitizing off spreadsheets',

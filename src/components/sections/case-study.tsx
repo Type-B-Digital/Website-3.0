@@ -56,21 +56,45 @@ export function CaseStudyPage({
 }
 
 /* ------------------------------------------------------------------ *
- * Hero — Figma nodes 2887:7158 (copy), 3707:10938 (stats), 2887:7169 (band)
+ * Hero — Figma nodes 3932:17303 (copy row), 3932:17065 (stats),
+ * 3932:17075 (band). Re-resolved 2026-09-15; the previous ids (2887:7158 /
+ * 3707:10938 / 2887:7169) were dropped when the board was rebuilt.
  * ------------------------------------------------------------------ */
 
 /**
- * Eyebrow, name, one-line claim, the proof numbers, then a full-bleed 1440x800
- * photograph. Dark type on cream — the band sits below the copy, not behind it.
+ * Eyebrow, name, one-line claim, a short description beside them, the proof
+ * numbers, then a full-bleed 1440x800 photograph. Dark type on cream — the band
+ * sits below the copy, not behind it.
  *
  * The stats are `HeroStats`, the same block Culture's hero uses, at the client's
  * request. See that file for why the alignment is the grid's and not the
  * artboard's.
+ *
+ * ── The description column and the 80px gap ──────────────────────────────
+ *
+ * Nabeel, 2026-09-15: "add a short description to the right of the header and
+ * sub-header and make the padding between that and the stats, 80p." The board
+ * was rebuilt the same afternoon and now draws it — node 3932:17303, the
+ * 1280x173 row at y=232:
+ *
+ *   left   640px column: eyebrow, name, claim          x=80,  y=232..405
+ *   right  411px description                           x=949, y=261..405
+ *   stats                                              x=512, y=485
+ *
+ * So all three of the note's asks are measurable: the description is a second
+ * column flush to the right margin (949 + 411 = 1360), the two columns end on
+ * the same line at y=405 (hence `items-end`, not `items-center` — the name is
+ * 86px tall and centring hangs the paragraph off its middle), and 485 - 405 is
+ * the 80.
+ *
+ * `description` is optional. A study that has not written one keeps the single
+ * column, and the row collapses to it — no empty half.
  */
 export function CaseHero({
   sector,
   name,
   claim,
+  description,
   stats,
   image,
   imageAlt,
@@ -79,6 +103,12 @@ export function CaseHero({
   sector: string
   name: string
   claim: string
+  /**
+   * A short paragraph beside the name: what the engagement was. Two or three
+   * sentences — it sits against the claim, which is one line, and a longer
+   * block leaves the two columns badly out of balance.
+   */
+  description?: string
   stats: readonly HeroStat[]
   image: string
   imageAlt: string
@@ -87,16 +117,32 @@ export function CaseHero({
     <HeroIntro>
       {/* Fades up on load; see HeroIntro. */}
       <Section tone="none" spacing="none" bare className="relative text-on-light">
-        <Container className="flex flex-col gap-2xl pt-[232px]">
+        {/* 80 between the copy row and the stats — see the note above. */}
+        <Container className="flex flex-col gap-4xl pt-[232px]">
           <Reveal>
-            <div className="flex max-w-[834px] flex-col items-start gap-md">
-              <Eyebrow tone="slate">{sector}</Eyebrow>
-              <Typography variant="h1" className="max-w-[800px] text-h2 md:text-h1">
-                {name}
-              </Typography>
-              <Typography variant="copyLarge" muted>
-                {claim}
-              </Typography>
+            {/*
+              Below `lg` the two stack and the description falls under the claim,
+              which is the order it reads in anyway.
+            */}
+            <div className="flex flex-col items-start gap-xl lg:flex-row lg:items-end lg:justify-between lg:gap-4xl">
+              <div className="flex max-w-[834px] flex-col items-start gap-md">
+                <Eyebrow tone="slate">{sector}</Eyebrow>
+                <Typography variant="h1" className="max-w-[800px] text-h2 md:text-h1">
+                  {name}
+                </Typography>
+                <Typography variant="copyLarge" muted>
+                  {claim}
+                </Typography>
+              </div>
+              {description && (
+                /* 411px is the board's own column (node 3932:17301), and it is a
+                   maximum rather than a width: the page is fluid, and a
+                   paragraph running the full right half of a wide display is
+                   unreadable. */
+                <Typography variant="copyMedium" muted className="max-w-[411px] lg:shrink-0">
+                  {description}
+                </Typography>
+              )}
             </div>
           </Reveal>
           <HeroStats stats={stats} />
@@ -116,7 +162,7 @@ export function CaseHero({
 }
 
 /* ------------------------------------------------------------------ *
- * Full-bleed band — Figma nodes 2887:7188, 2894:10909
+ * Full-bleed band — Figma nodes 3932:17094 / 3932:17163 / 3932:17162
  * ------------------------------------------------------------------ */
 
 /** A photograph the full width of the page, between two content sections. */
@@ -145,7 +191,7 @@ export function CaseBand({
 }
 
 /* ------------------------------------------------------------------ *
- * Two-up gallery — Figma node 3707:10934
+ * Two-up gallery — Figma node 3932:17164
  * ------------------------------------------------------------------ */
 
 /** Two 628x515 frames side by side inside the content column. */
@@ -168,7 +214,7 @@ export function CaseGallery({ images }: { images: readonly { src: string; alt: s
 }
 
 /* ------------------------------------------------------------------ *
- * Inset figure — Figma node 2887:7296
+ * Inset figure — Figma node 3932:17076
  * ------------------------------------------------------------------ */
 
 /** A 1280x711 frame in the content column rather than full-bleed. */
@@ -187,7 +233,7 @@ export function CaseFigure({ image, alt }: { image: string; alt: string }) {
 }
 
 /* ------------------------------------------------------------------ *
- * The challenge — Figma node 2887:7171
+ * The challenge — Figma node 3932:17077
  * ------------------------------------------------------------------ */
 
 export type CasePoint = { title: string; body: string }
@@ -239,7 +285,7 @@ export function CaseChallenge({
 }
 
 /* ------------------------------------------------------------------ *
- * The solution — Figma node 2887:7192
+ * The solution — Figma node 3932:17095
  * ------------------------------------------------------------------ */
 
 /**
@@ -307,7 +353,7 @@ export function CaseSolution({
 }
 
 /* ------------------------------------------------------------------ *
- * Our impact — Figma node 2887:7219
+ * Our impact — Figma node 3932:17122
  * ------------------------------------------------------------------ */
 
 export type CaseOutcome = { claim: string; body: string }

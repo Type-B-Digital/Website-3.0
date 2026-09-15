@@ -1,10 +1,12 @@
 /**
- * Arrow / Caret_Down — Figma node 3390:26616
+ * Arrow / Caret_Down — Figma instance 3776:631, inside the homepage nav.
+ * (Was 3390:26616; re-resolved 2026-09-15 after the file was rebuilt. The
+ * library component itself is not published into this file, so an instance is
+ * the only stable thing to cite.)
  *
  * Same treatment as ArrowRight: the exported asset bakes in
  * `stroke="#F6F2EC"`, which is correct on the dark nav but wrong on the
- * light nav variant (Figma node 3386:25455). Inheriting `currentColor` makes
- * one component serve both.
+ * light nav variant. Inheriting `currentColor` makes one component serve both.
  */
 export function CaretDown({ className }: { className?: string }) {
   return (

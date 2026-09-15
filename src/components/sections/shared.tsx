@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Eyebrow, Reveal, Section, Typography } from '@/components'
 import type { EyebrowTone } from '@/components'
 import { cn } from '@/lib/cn'
+import Glyph, { type GlyphName } from '@/components/icons/Glyph'
 
 /**
  * Two sections that already existed on other pages and are reused across the
@@ -9,7 +10,9 @@ import { cn } from '@/lib/cn'
  */
 
 /* ------------------------------------------------------------------ *
- * Packaging — Figma node 3604:1255 (What We Do), 3605:2277 (Product)
+ * Packaging — Figma node 3931:12654, the "three lines" redesign. (The
+ * per-page boards it used to cite, 3604:1255 and 3605:2277, were dropped when
+ * the file was rebuilt on 2026-09-15.)
  * ------------------------------------------------------------------ */
 
 export type PackageTier = {
@@ -18,25 +21,87 @@ export type PackageTier = {
   items: readonly string[]
   /** The dark lead card naming the practices. */
   lead?: boolean
+  /**
+   * Icon above the title. Optional — a tier that does not name one falls back
+   * to `TIER_GLYPHS` by title, so the three tier columns every page already
+   * ships get their icon without eight call sites having to be edited.
+   */
+  icon?: GlyphName
 }
 
 /**
- * Four columns: the first names the three practices on a dark card, the rest
- * are the Entry / Core / Expanded tiers, open with a rule above and below.
+ * Which glyph each tier column gets, chosen against the tier's own note rather
+ * than its name — Nabeel, 2026-09-15, "make a selection that works based on the
+ * copy". The three titles are fixed across every page that uses this section,
+ * so a map by title is the whole mechanism.
+ *
+ *   Entry     "Find out what is true…"       orientation before movement
+ *   Core      "The working engagement…"      the middle of the thing
+ *   Expanded  "A program we own with you."   the scope opening out
+ *
+ * ⚠ The redesign at node 3931:12654 still places library defaults here —
+ * House_02, Heart_01, Mobile_Button — which is precisely the placeholder
+ * Nabeel is describing. A house says nothing about Entry, so these are not
+ * adopted. The `lead` entry has no row: it renders as the practices bar.
+ *
+ * A title that is not in the map keeps the old placeholder square rather than
+ * falling back to a default glyph: a wrong icon is worse than an obvious gap,
+ * and the gap is what tells the next person to come here and choose one. It
+ * also holds the same 24px the glyph would, so an unmapped tier does not shift
+ * everything below it up.
+ */
+const TIER_GLYPHS: Record<string, GlyphName> = {
+  Entry: 'compass',
+  Core: 'target',
+  Expanded: 'expand',
+}
+
+/**
+ * ⚠ REDESIGNED 2026-09-15 — Figma node 3931:12654, the board Nabeel's note
+ * points at ("three lines sections across all relevant pages should follow the
+ * redesign in Figma"). Three things moved:
+ *
+ *   1. THREE columns, not four. Entry / Core / Expanded sit in a row of 280px
+ *      columns on a 1080 measure — 120px gutters — and "Type B Digital" is no
+ *      longer one of them.
+ *   2. Type B Digital is a full-width ink BAR underneath (node 3931:12695):
+ *      1080x62, `#040E19`, with the label centred in cream. It used to be a
+ *      dark rounded card in the first column slot.
+ *   3. The heading is "Entry, Core, & Expanded." — the old one opened "Three
+ *      lines." and the board has dropped that sentence.
+ *
+ * Also from the board, smaller: the columns have no rules above and below any
+ * more, and the note under each title is upright rather than italic.
  *
  * Each column is icon, title block, then items, with the items pushed to the
- * bottom so all four end on the same line whatever their copy length.
- *
- * Every gap inside a column is 24: icon to title (48 to 72 on the artboard),
- * title block to items (59 to 83), and item to item. A 48 here made the column
- * 347 against the artboard's 299.
+ * bottom so all three end on the same line whatever their copy length. Gaps
+ * inside a column come off the board: icon to title 16 (4782 -> 4822 less the
+ * 24px icon), title to note 8, title block to items 45, item to item 24.
  *
  * ⚠ The artboard uses icon-set instances (Chart_Line, House_02, Heart_01,
- * Mobile_Button) that are not exported; each column shows a placeholder mark.
+ * Mobile_Button) that are not exported, so each column used to show a grey
+ * placeholder square. They are real icons now — see `TIER_GLYPHS` for the
+ * selection. The names on the artboard were a placed library component's
+ * defaults, not a reading of this copy, so nothing was lost by not matching
+ * them: a house and a heart say nothing about Entry and Core.
  */
+/** A tier's icon: the chosen glyph, or the placeholder square if none is. */
+function TierMark({ tier }: { tier: PackageTier }) {
+  const name = tier.icon ?? TIER_GLYPHS[tier.title]
+  if (!name) {
+    return (
+      <span
+        aria-hidden
+        className={cn('size-lg rounded-sm', tier.lead ? 'bg-paper/25' : 'bg-neutral-900/15')}
+      />
+    )
+  }
+  return <Glyph name={name} className={cn('size-lg', tier.lead ? 'text-paper' : 'text-on-light')} />
+}
+
 export function Packaging({
   eyebrow = 'How we package it',
-  heading = 'Three lines. Entry, Core, or Expanded.',
+  heading = 'Entry, Core, & Expanded.',
   tiers,
   /** What We Do runs the doubled 160/160 rhythm; the service pages run 80/80. */
   spacing = 'service',
@@ -53,6 +118,14 @@ export function Packaging({
   spacing?: 'service' | 'loose'
   eyebrowTone?: EyebrowTone
 }) {
+  /*
+    The board splits what used to be one row of four: three tier columns, then
+    the practices bar underneath. `lead` is still how a caller marks which entry
+    is the bar, so no page's data had to change.
+  */
+  const lead = tiers.find((t) => t.lead)
+  const columns = tiers.filter((t) => !t.lead)
+
   return (
     <Section
       tone="none"
@@ -69,31 +142,26 @@ export function Packaging({
           </div>
         </Reveal>
 
-        <ul className="grid items-stretch gap-lg md:grid-cols-2 xl:grid-cols-4">
-          {tiers.map((tier, i) => (
+        {/*
+          The three tiers. 280px columns with 120px gutters is the board's
+          1080 measure; expressed as a fraction of the track rather than as
+          fixed widths, because the page is fluid and 1080 is only what it
+          happens to be at 1440.
+        */}
+        <ul className="grid items-stretch gap-x-[11.1%] gap-y-3xl md:grid-cols-3">
+          {columns.map((tier, i) => (
             <li key={tier.title}>
               <Reveal index={i} className="h-full">
-                <div
-                  className={cn(
-                    'flex h-full flex-col justify-between gap-lg',
-                    tier.lead
-                      ? 'rounded-md bg-canvas p-lg text-on-dark'
-                      : 'border-y border-divider py-lg',
-                  )}
-                >
-                  <div className="flex flex-col gap-lg">
-                    <span
-                      aria-hidden
-                      className={cn(
-                        'size-lg rounded-sm',
-                        tier.lead ? 'bg-paper/25' : 'bg-neutral-900/15',
-                      )}
-                    />
-                    <div className="flex flex-col gap-xs">
+                <div className="flex h-full flex-col justify-between gap-[45px]">
+                  <div className="flex flex-col gap-md">
+                    {/* 24px on the board — see `TierMark` for the selection. */}
+                    <TierMark tier={tier} />
+                    <div className="flex flex-col gap-sm">
                       <Typography variant="copyLarge" as="h3">
                         {tier.title}
                       </Typography>
-                      <Typography variant="copySmall" muted className="italic">
+                      {/* Upright since the redesign; it was italic before. */}
+                      <Typography variant="copySmall" className="text-ink-soft">
                         {tier.note}
                       </Typography>
                     </div>
@@ -112,6 +180,37 @@ export function Packaging({
             </li>
           ))}
         </ul>
+
+        {/*
+          The practices bar — node 3931:12695. A full-width ink strip with the
+          label centred, where this used to be a rounded dark card sitting in
+          the first column.
+
+          It lists the three practices on the board only as its own name, "Type
+          B Digital"; the three names the old card carried (Advisory, Product &
+          AI Development, Teams) are not drawn in the redesign. They are kept in
+          the data and rendered under the label, because dropping them would
+          lose the one thing the block is for — saying what the three lines are
+          made of — and the board gives no other home for them.
+        */}
+        {lead && (
+          <Reveal>
+            <div className="flex flex-col items-center gap-sm rounded-md bg-canvas px-lg py-md text-center text-on-dark">
+              <Typography variant="copyLarge" as="h3">
+                {lead.title}
+              </Typography>
+              <ul className="flex flex-wrap items-center justify-center gap-x-lg gap-y-xs">
+                {lead.items.map((item) => (
+                  <li key={item}>
+                    <Typography variant="copySmall" as="span" muted>
+                      {item}
+                    </Typography>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
+        )}
       </div>
     </Section>
   )

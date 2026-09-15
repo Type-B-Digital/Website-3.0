@@ -12,16 +12,7 @@ import {
 } from '@/components/sections'
 import { colors as colorTokens, gradients } from '@/tokens'
 import { TIERS, related } from './service-content'
-import {
-  ADOPTION_BODY,
-  BLOCKED_REVIEW_BODY,
-  INDUSTRY_STEPS,
-  MANDATE_BODY,
-  MANDATE_POINTS,
-  OPERATING_MODEL_POINTS,
-  SOVEREIGN_FAQ,
-  SOVEREIGN_POINTS,
-} from './industry-content'
+import { INDUSTRY_STEPS, SOVEREIGN_FAQ } from './industry-content'
 
 /**
  * Manufacturing, Trade & Logistics — Figma node 3275:19055
@@ -34,44 +25,95 @@ import {
 /** b5 mirrored — node 3614:7569, style "Type B BG 5" inside a horizontal flip. */
 const HERO_GRADIENT = gradients.hero.manufacturing
 
-const ROLES = ['CEO', 'COO', 'Plant Manager', 'Compliance Lead', 'IT Leads']
+/*
+  ⚠ A shared ROLES constant used to sit here and go on all six profiles. It is
+  gone: the buying committee is not the same for a plant and a customs broker,
+  and one list across six segments was part of what made this section read as
+  the same row six times. Each profile names its own below.
+*/
 
+/**
+ * Ideal Customer Profiles — Figma node 3614:7752.
+ *
+ * ⚠ REWRITTEN 2026-09-15. Four of the six were the identical "AI mandate"
+ * block, and the two that were not were about a blocked security review and an
+ * operating model — neither of which is what a plant, a customs broker, or a
+ * 3PL walks in with.
+ *
+ * Every row now names the system the work actually lands in (ERP, MES, HS
+ * classification, track-and-trace, dispatch) rather than "your data estate".
+ * See healthcare.tsx for the three AEO/GEO rules these five pages follow.
+ *
+ * ⚠ The roles were a single shared ROLES constant on all six. They are per
+ * segment now: a customs broker's buyer is a compliance director, a plant's is
+ * an operations manager, and the two do not overlap.
+ */
 const PROFILES = [
   {
     title: 'Discrete manufacturers',
-    points: MANDATE_POINTS,
-    body: MANDATE_BODY,
-    roles: ROLES,
+    points: [
+      'ERP and MES data-estate assessment',
+      'Predictive maintenance scoping',
+      'Vision AI for quality inspection',
+      'Use-case scoring and roadmap',
+    ],
+    body: 'The data that would make AI work is on the plant floor, in systems that were never designed to talk to each other. A pilot that ignores that succeeds on one line and fails on the second.',
+    roles: ['COO', 'VP Manufacturing', 'Plant Operations Manager', 'CIO'],
   },
   {
     title: 'Customs brokers and freight forwarders',
-    points: SOVEREIGN_POINTS,
-    body: BLOCKED_REVIEW_BODY,
-    roles: ROLES,
+    points: [
+      'HS classification and commercial-invoice AI',
+      'Entry-filing exception routing',
+      'Trade-compliance controls',
+      'Shadow-AI audit',
+    ],
+    body: 'Classification errors are penalties rather than tickets, and your brokers are already pasting commercial invoices into consumer chatbots to clear the queue. We find where that is happening and replace it with something governed.',
+    roles: ['COO', 'Director of Trade Compliance', 'Customs Manager', 'CTO'],
   },
   {
     title: 'Distributors and wholesalers',
-    points: MANDATE_POINTS,
-    body: MANDATE_BODY,
-    roles: ROLES,
+    points: [
+      'Demand forecasting and inventory analytics',
+      'Quote and order-entry automation',
+      'Product-data and catalogue enrichment',
+      'Build-vs-buy analysis',
+    ],
+    body: 'Margin lives in inventory turns and quote speed, and both are now automatable. So is your competitor’s, which is the part that makes the sequencing decision urgent rather than interesting.',
+    roles: ['CEO', 'COO', 'VP Supply Chain', 'CIO'],
   },
   {
     title: 'Logistics and 3PL operators',
-    points: MANDATE_POINTS,
-    body: MANDATE_BODY,
-    roles: ROLES,
+    points: [
+      'Track-and-trace data integration',
+      'Dwell-time and exception detection',
+      'Customer-facing status agents',
+      'Analytics with lineage',
+    ],
+    body: 'Your customers want a status answer in seconds and your team is assembling it by hand from four systems. The first half of that problem is integration, and only the second half is AI.',
+    roles: ['COO', 'VP Operations', 'Head of Customer Experience', 'CIO'],
   },
   {
     title: 'Industrial services businesses',
-    points: MANDATE_POINTS,
-    body: MANDATE_BODY,
-    roles: ROLES,
+    points: [
+      'Field-service workflow automation',
+      'Scheduling and dispatch optimization',
+      'Technician knowledge assistant',
+      'Process mapping',
+    ],
+    body: 'The schedule lives in one dispatcher’s head and the service history lives in paper job cards. That works until you open a second region, and then it does not work anywhere.',
+    roles: ['CEO', 'COO', 'VP Field Operations', 'Service Manager'],
   },
   {
     title: 'Cross-border e-commerce operations',
-    points: OPERATING_MODEL_POINTS,
-    body: ADOPTION_BODY,
-    roles: ROLES,
+    points: [
+      'Landed-cost and duty automation',
+      'Multilingual catalogue and support agents',
+      'Returns and fraud triage',
+      'Operating model design',
+    ],
+    body: 'Every new market adds a tax regime, a language, and a returns rule, and the team absorbing all three is the size it was two markets ago. Adoption is the constraint, not capability.',
+    roles: ['CEO', 'COO', 'Head of International', 'CTO'],
   },
 ]
 

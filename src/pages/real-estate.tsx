@@ -12,7 +12,7 @@ import {
 } from '@/components/sections'
 import { colors as colorTokens, gradients } from '@/tokens'
 import { TIERS, related } from './service-content'
-import { INDUSTRY_STEPS, MANDATE_BODY, MANDATE_POINTS, SOVEREIGN_FAQ } from './industry-content'
+import { INDUSTRY_STEPS, SOVEREIGN_FAQ } from './industry-content'
 
 /**
  * Real Estate & PropTech — Figma node 3239:15314
@@ -29,42 +29,89 @@ import { INDUSTRY_STEPS, MANDATE_BODY, MANDATE_POINTS, SOVEREIGN_FAQ } from './i
 /** b4 mirrored — node 3614:7091, style "Type B BG 4" inside a horizontal flip. */
 const HERO_GRADIENT = gradients.hero.realEstate
 
+/**
+ * Ideal Customer Profiles — Figma node 3614:7321.
+ *
+ * ⚠ REWRITTEN 2026-09-15, and this page was the worst of the five. All SIX
+ * profiles rendered the identical "AI mandate" block — same four capability
+ * lines, same paragraph about a board asking for an AI plan — so the section
+ * was one row repeated under six headings. Five of the six also listed "Head of
+ * Claims" as a buyer, an insurance role that arrived by copy-paste from
+ * Financial Services and has nothing to do with a brokerage or a marketplace.
+ * That is the "in some cases unrelated" in Nabeel's note.
+ *
+ * Each row now names the constraint that is actually specific to it: the MLS
+ * data licence, Reg A+ and Reg D disclosure, fair housing, ECOA adverse-action
+ * notices. Those are the terms someone asks an answer engine about, and they
+ * are what distinguishes this page from the other four. See healthcare.tsx for
+ * the three rules all five now follow.
+ */
 const PROFILES = [
   {
     title: 'PropTech platforms serving agents',
-    points: MANDATE_POINTS,
-    body: MANDATE_BODY,
-    roles: ['CEO', 'CTO', 'Head of Product', 'Head of Ops'],
+    points: [
+      'AI roadmap and use-case scoring',
+      'MLS and IDX data-rights review',
+      'Listing-content generation guardrails',
+      'Build-vs-buy analysis',
+    ],
+    body: 'Your agents want AI-written listing copy and your MLS agreement has rules about what may be done with that data. The licence is the design constraint here, not the model.',
+    roles: ['CEO', 'CTO', 'Head of Product', 'Head of Operations'],
   },
   {
     title: 'Brokerages scaling operations',
-    points: MANDATE_POINTS,
-    body: MANDATE_BODY,
-    roles: ['CTO', 'COO', 'CFO', 'CISO', 'Head of Claims', 'Compliance Officer'],
+    points: [
+      'Transaction-coordination automation',
+      'Document AI for contracts and disclosures',
+      'Agent onboarding and enablement tools',
+      'Process mapping',
+    ],
+    body: 'Every closed deal moves through a coordinator, a checklist, and forty PDFs. Adding agents means adding coordinators, and that ratio is the ceiling you are hitting.',
+    roles: ['CEO', 'COO', 'Director of Transaction Operations', 'Head of Compliance'],
   },
   {
     title: 'Fractional and syndicated investment platforms',
-    points: MANDATE_POINTS,
-    body: MANDATE_BODY,
-    roles: ['CTO', 'COO', 'CFO', 'CISO', 'Head of Claims', 'Compliance Officer'],
+    points: [
+      'Reg A+ and Reg D disclosure controls',
+      'Investor onboarding and KYC automation',
+      'Reporting and distribution automation',
+      'AI governance and policy',
+    ],
+    body: 'You are selling securities, so an AI that drafts investor communications is drafting regulated material. We build the review gate before we build the drafting tool.',
+    roles: ['CEO', 'Chief Compliance Officer', 'CFO', 'General Counsel'],
   },
   {
     title: 'Property management operators',
-    points: MANDATE_POINTS,
-    body: MANDATE_BODY,
-    roles: ['CTO', 'COO', 'CFO', 'CISO', 'Head of Claims', 'Compliance Officer'],
+    points: [
+      'Maintenance intake and triage agents',
+      'Lease abstraction and document AI',
+      'Resident-communication automation',
+      'Fair-housing guardrails',
+    ],
+    body: 'Resident communication is the highest-volume work you do and the most exposed: fair-housing rules apply to what a model writes exactly as they apply to a leasing agent.',
+    roles: ['COO', 'VP Property Management', 'Director of Operations', 'General Counsel'],
   },
   {
-    title: 'Mortgage and title adjacent platforms',
-    points: MANDATE_POINTS,
-    body: MANDATE_BODY,
-    roles: ['CTO', 'COO', 'CFO', 'CISO', 'Head of Claims', 'Compliance Officer'],
+    title: 'Mortgage and title-adjacent platforms',
+    points: [
+      'Loan-file document extraction',
+      'ECOA and adverse-action controls',
+      'Fraud and identity triage',
+      'Independent AI assurance',
+    ],
+    body: 'An automated decision that affects someone’s credit has to be explainable to the applicant and to a regulator, in writing, on request. Most AI vendors cannot produce that document at all.',
+    roles: ['CTO', 'Chief Risk Officer', 'Head of Underwriting', 'Compliance Officer'],
   },
   {
     title: 'Real-estate marketplaces',
-    points: MANDATE_POINTS,
-    body: MANDATE_BODY,
-    roles: ['CTO', 'COO', 'CFO', 'CISO', 'Head of Claims', 'Compliance Officer'],
+    points: [
+      'Search relevance and grounded answers',
+      'Listing-quality and fraud detection',
+      'Architecture and scalability audit',
+      'Analytics with lineage',
+    ],
+    body: 'Search is the product. A general-purpose model on top of a dirty listing corpus makes the product measurably worse, in a way your users will report as broken rather than as wrong.',
+    roles: ['CEO', 'CTO', 'Head of Product', 'VP Engineering'],
   },
 ]
 

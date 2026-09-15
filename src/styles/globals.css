@@ -345,20 +345,70 @@
 
 
 /**
- * Footer glow — Figma node 3483:27261.
+ * Footer glow — Figma node 3928:607 ("background glow"), inside the footer
+ * update frame 3928:606.
  *
- * Two blurred ellipses in orange.500 / amber.500 under `hard-light`, which is
- * what turns them crimson against the near-black footer ground rather than
- * orange. Built from gradients rather than the exported SVG: that file is a
- * 1551x1194 canvas whose gaussian falloff gets clipped the moment it is scaled
- * into a differently-proportioned box, which left visible diamond edges.
+ * ⚠ Re-derived from the artboard on 2026-09-15 after the file was rebuilt. The
+ * old reference (3483:27261) no longer exists, and the values this rule carried
+ * were wrong in three ways at once. What the board actually specifies:
+ *
+ *   group      opacity 0.4, blend PASS_THROUGH (i.e. normal — no blend at all)
+ *   Ellipse 48 solid #FD8816 (amber.500), LAYER_BLUR radius 240
+ *   Ellipse 49 solid #FF5315 (orange.500), LAYER_BLUR radius 240
+ *
+ * So: normal compositing at 40%, over solid ellipses, blurred.
+ *
+ * This had been `mix-blend-mode: hard-light`, which is what made the footer
+ * read crimson rather than orange (Nabeel, 2026-09-15: "currently it's red").
+ * Hard-light branches on the SOURCE channel: orange.500's red is above the
+ * midpoint and screens to full, while its green (0x53) and blue (0x15) are far
+ * below it and multiply against a near-black backdrop down to nothing. An
+ * orange with its green crushed out is red. The first fix swapped in `screen`,
+ * which gets the hue right by accident; the board says no blend mode, so there
+ * is none now.
+ *
+ * The stops are HARD-EDGED (`color 0 100%, transparent 100%`) rather than a
+ * soft radial falloff, because that is what a solid ellipse is. All of the
+ * softness comes from the 240px blur, exactly as Figma composites it — a
+ * gradient that already fades out and is then blurred 240 is a much weaker,
+ * flatter bloom than the board draws.
+ *
+ * GEOMETRY, read off the two ellipses as fractions of the 1440x540 frame and
+ * reproduced against the footer box (see the note on the element in
+ * SiteFooter). Figma gives diameters; a radial-gradient takes radii, so each is
+ * halved:
+ *
+ *   Ellipse 49  orange.500  1098x284 at 145,358  -> r 38.1% 26.3%, centre 48.2% 92.6%
+ *   Ellipse 48  amber.500   1098x284 at 196,410  -> r 38.1% 26.3%, centre 51.7% 102.2%
+ *
+ * Both centres sit at or past the bottom edge, which is why the bloom reads as
+ * rising from underneath the wordmark rather than sitting behind it. Amber is
+ * listed first here so it paints ON TOP of orange, the order the group has.
+ *
+ * Still built from gradients rather than the exported SVG, for the original
+ * reason: that export is a 1551x1194 canvas whose falloff clips the moment it
+ * is scaled into a differently-proportioned box, which left visible diamond
+ * edges.
  */
 .footer-glow {
   pointer-events: none;
-  mix-blend-mode: hard-light;
+  opacity: 0.4;
   background:
-    radial-gradient(46% 52% at 44% 50%, var(--color-glow-warm) 0%, transparent 72%),
-    radial-gradient(38% 46% at 62% 50%, var(--color-glow-amber) 0%, transparent 74%);
+    radial-gradient(38.1% 26.3% at 51.7% 102.2%, var(--color-glow-amber) 0 100%, transparent 100%),
+    radial-gradient(38.1% 26.3% at 48.2% 92.6%, var(--color-glow-warm) 0 100%, transparent 100%);
+  /*
+    `--bbb-blur` is 120, against the board's LAYER_BLUR radius of 240, and the
+    halving is correct rather than a discrepancy: Figma's blur radius is about
+    twice the standard deviation CSS `blur()` takes, so 240 in Figma is ~120 in
+    CSS. Every LAYER_BLUR in the file is radius 240 — the pointer blob, the
+    stages glow, this — and the whole site has rendered them at 120 from the
+    first build.
+
+    ⚠ Briefly set to 240px on 2026-09-15 on the reasoning that the board said
+    240. It does, and the result was a bloom so diffuse it was almost invisible
+    against the footer ground. Checked against a render of the board itself
+    (node 3928:606) rather than against the number.
+  */
   filter: blur(var(--bbb-blur));
 }
 
