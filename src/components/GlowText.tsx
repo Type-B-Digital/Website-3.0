@@ -38,8 +38,17 @@ export type GlowTextProps = {
   aspect: number
   /** Words box width, as a fraction of the panel. */
   widthRatio: number
-  /** Words box left edge, as a fraction of the panel. */
-  leftRatio: number
+  /**
+   * Words box left edge, as a fraction of the panel. OPTIONAL — omit it and the
+   * artwork centres horizontally.
+   *
+   * ⚠ The homepage omits it. The artboard puts the words at x=121 on a 1440
+   * frame, which is not centred (1007 wide leaves 312 on the right against 121
+   * on the left), and that was reproduced here. Eduardo, 2026-09-16: "make sure
+   * the Bold. Brilliant. Beautiful. background copy is centered on the
+   * section." So centring is the default and a ratio is the exception.
+   */
+  leftRatio?: number
   /**
    * Raise the words off the panel's centre line, as a fraction of the panel
    * height. Defaults to 0 — dead centre, which is where the artboard has them.
@@ -52,6 +61,19 @@ export type GlowTextProps = {
   pointerY: MotionValue<number>
   /** Accessible text — the artwork is decorative SVG. */
   label: string
+  /**
+   * Draw the ambient haze behind the words.
+   *
+   * ⚠ The homepage passes false. That haze is a 900px blob inside this
+   * component's own box, and this component is inside a clipped panel — so its
+   * top edge was a visible horizontal seam where the glow simply stopped. The
+   * previous build hid that by fading the whole scene in very late; since
+   * 2026-09-16 the ambient light comes from `.intro-glow`, which spans the
+   * introduction and the highlight together and therefore has no edge inside
+   * the page. The letterform lighting below is unaffected: it is masked into
+   * the artwork and has to stay here.
+   */
+  ambient?: boolean
   className?: string
 }
 
@@ -62,6 +84,7 @@ export function GlowText({
   widthRatio,
   leftRatio,
   liftRatio = 0,
+  ambient = true,
   pointerX,
   pointerY,
   label,
@@ -82,7 +105,7 @@ export function GlowText({
 
   const boxWidth = panel.width * widthRatio
   const boxHeight = boxWidth / aspect
-  const boxLeft = panel.width * leftRatio
+  const boxLeft = leftRatio === undefined ? (panel.width - boxWidth) / 2 : panel.width * leftRatio
   /*
     Centred, then lifted by `liftRatio` of the panel height. The artboard has
     the words on the panel's own centre line, with the stats in a column to
@@ -112,19 +135,21 @@ export function GlowText({
       <span className="sr-only">{label}</span>
 
       {/* 1. Ambient blob — the overall haze. Figma node 3390:26682. */}
-      <fm.div
-        aria-hidden
-        className="bbb-blob bbb-blob--ambient absolute left-0 top-0"
-        style={{
-          x: pointerX,
-          y: pointerY,
-          width: blobSize,
-          height: blobSize,
-          marginLeft: -half,
-          marginTop: -half,
-          opacity: ambientOpacity,
-        }}
-      />
+      {ambient && (
+        <fm.div
+          aria-hidden
+          className="bbb-blob bbb-blob--ambient absolute left-0 top-0"
+          style={{
+            x: pointerX,
+            y: pointerY,
+            width: blobSize,
+            height: blobSize,
+            marginLeft: -half,
+            marginTop: -half,
+            opacity: ambientOpacity,
+          }}
+        />
+      )}
 
       {/* 2. Solid words — dark silhouette, occludes the ambient blob. */}
       <img

@@ -17,7 +17,30 @@
 
 export type Work = {
   name: string
+  /** The full line, as Our Work draws it. */
   description: string
+  /**
+   * One short line for the homepage row.
+   *
+   * ⚠ Added 2026-09-16. Eduardo: "the work section has extra copy under each
+   * work row header, which should be removed and replaced with the previous one
+   * line copy", against node 3944:582 — where each row is a name, ONE line, and
+   * the tags, inside a 106px block.
+   *
+   * The board's own strings there are the placeholders this list replaced
+   * ("Project description and details here.", under names like "Project Name"),
+   * so what carried over is the SHAPE and not the copy: real names stay, and
+   * each gets a line short enough to hold one row. `description` is untouched
+   * and is still what Our Work renders, where there is room for it.
+   *
+   * ⚠ Keep these under about 35 characters. The board's own placeholder is 37,
+   * and the text column it sits in is 404px at the designed 1440 — but the
+   * homepage grid gives the rows less than that below `xl`, where the page
+   * margin drops to 24. A first pass at ~50 characters read fine at 1440 and
+   * wrapped to two lines on a 1280 laptop, which is the thing this change was
+   * made to stop.
+   */
+  short: string
   /** Artboard thumbnail, where one exists. */
   thumb?: string
   /** Drawn on five of the nine rows. */
@@ -52,12 +75,14 @@ export const ROW_TAGS = ['Platform Expansion', 'UX/UI Design', 'Fractional CTO']
 export const WORK: readonly Work[] = [
   {
     name: 'MatchDay Health',
+    short: 'Agents that onboard clinicians.',
     description:
       'Healthcare career platform for doctors, nurses, and pharmacists; conversational agents took over onboarding and sales.',
     thumb: '/images/work/case-1.png',
   },
   {
     name: 'Class.fi',
+    short: 'Compliance classified in seconds.',
     description:
       'Healthcare career platform for doctors, nurses, and pharmacists; conversational agents took over onboarding and sales.',
     thumb: '/images/work/case-2.png',
@@ -65,6 +90,7 @@ export const WORK: readonly Work[] = [
   },
   {
     name: 'Sensor Bio',
+    short: 'Medical wearables off legacy tech.',
     description:
       'Medical-grade wearable platform re-architected off a decade of legacy technology.',
     thumb: '/images/work/case-3.png',
@@ -72,6 +98,7 @@ export const WORK: readonly Work[] = [
   },
   {
     name: 'Mave AI',
+    short: 'AI marketing for real-estate agents.',
     description:
       'AI marketing automation for real-estate agents, with the delivery operation rebuilt around it.',
     thumb: '/images/work/case-4.png',
@@ -79,12 +106,14 @@ export const WORK: readonly Work[] = [
   },
   {
     name: 'Ande AI',
+    short: 'A pod embedded in one week.',
     description:
       'A dedicated pod embedded in one week to unblock an AI platform after a stalled vendor.',
     thumb: '/images/work/case-5.png',
   },
   {
     name: 'RFL Wealth',
+    short: 'Brand, site, and CRM in ten weeks.',
     description:
       'Wealth advisory for physicians: new brand, new site, and a custom CRM in ten weeks.',
     thumb: '/images/work/case-6.png',
@@ -92,18 +121,21 @@ export const WORK: readonly Work[] = [
   },
   {
     name: 'Dome',
+    short: 'Fractional investing, web and app.',
     description:
       'Fractional real-estate investing across web, iOS, and Android, rescued from a stalled build.',
     stat: '~45% faster delivery.',
   },
   {
     name: 'Eezee Assist',
+    short: 'Support staff train the agent.',
     description:
       'AI-augmented franchise support platform, designed so non-technical staff can train the agent.',
     stat: '500K users supported.',
   },
   {
     name: 'UDM',
+    short: 'Steel-drum making, off paper.',
     description: 'Steel-drum manufacturing moved off paper cards onto a purpose-built ERP.',
     stat: '~45% faster delivery.',
   },

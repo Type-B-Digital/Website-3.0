@@ -957,10 +957,48 @@ export const motion = {
   glowScene: {
     /** Viewport heights of scroll the scene occupies. Most of it is dwell time
      *  so the pointer interaction can actually be explored. */
-    pinLength: 2.75,
+    /*
+      ⚠ `pinLength` is gone and nothing replaced it. Eduardo, 2026-09-16:
+      "instead of scroll locking the entire Bold Brilliant Beautiful section,
+      make the stats scroll across the page." The section is ordinary flow now
+      and its height comes from its content — a full screen of stats plus a
+      1.2-viewport tail — rather than from a number here. See the note on that
+      tail in index.tsx for why it exists.
+    */
     /** Where the ground starts turning into the next section's surface, and
      *  where it finishes — so there is no hard black-to-white seam. */
-    fade: { start: 0.62, end: 0.94 },
+    /*
+      Where the ground starts turning into the next section's surface, and where
+      it finishes — so there is no hard black-to-white seam.
+
+      ⚠ Retimed 2026-09-16 with the scroll range it is measured against. That
+      range used to be the pin (`start start` -> `end end`); it is now
+      `start start` -> `end start`, which reaches 1 exactly as the section's
+      bottom hits the top of the viewport — i.e. as the last stat leaves. So the
+      Both ends are MEASURED against the section's own geometry rather than
+      chosen, and both are bounded by a viewport height that moves:
+
+        start  the progress at which the last stat clears the top. Worst case is
+               a short viewport, where the fixed 515px of stat content is a
+               larger share of the section: 0.40 at 700px tall, falling to ~0.33
+               at 1200. 0.40 is the safe end — starting earlier would begin the
+               fade while the last stat was still on screen.
+        end    the progress at which the section's BOTTOM edge enters the
+               viewport, which is where the sticky words panel starts getting
+               cut off from below and the crossfade can no longer be seen. That
+               sits at 0.545 almost regardless of viewport height, because both
+               terms scale with it.
+
+      Which is the note's "once they reach the top, continue with the background
+      transition to the next section" — the window is exactly the gap between
+      those two events, and there is no room either side of it.
+
+      ⚠ Re-derive both if the stats block or the tail changes height. An earlier
+      pass had this at 0.64 -> 0.9, which put the whole crossfade after the
+      bottom edge had arrived: it played out on a strip that was shrinking to
+      nothing and read as a hard seam against the cream band below.
+    */
+    fade: { start: 0.4, end: 0.54 },
     /** Blob box, px. Large because it is heavily blurred. */
     blobSize: 900,
     /** Figma gaussian stdDeviation on the glow ellipses (node 3390:26688). */
@@ -993,9 +1031,10 @@ export const motion = {
    *
    * - `duration` is an order of magnitude longer. At 2.4s a self-playing
    *   sweep is an animation that happens at you and then stops; the note asks
-   *   for "very slowly", and at 28s the movement is below the threshold where
-   *   the eye tracks it as motion — you notice the hero has changed rather than
-   *   watching it change.
+   *   for "very slowly", and at this length the movement stays below the
+   *   threshold where the eye tracks it as motion — you notice the hero has
+   *   changed rather than watching it change. Was 28s, brought down to 20 on
+   *   2026-09-16 at Eduardo's request.
    * - It reverses rather than looping. `from` and `to` are different
    *   corners, so restarting at `from` would cut. Playing back down the same
    *   range is seamless, and it keeps the background alive for as long as
@@ -1006,7 +1045,7 @@ export const motion = {
    */
   heroSweep: {
     /** One direction, in seconds. A full there-and-back is twice this plus the holds. */
-    duration: 28,
+    duration: 20,
     /** Beat spent parked at each end before reversing. */
     hold: 1.5,
     /** 135deg: dark top-left, warm bottom-right. */
@@ -1097,12 +1136,18 @@ export const motion = {
    * a normal rate has gone past it.
    */
   scene: {
+    /*
+      ⚠ HALVED on 2026-09-16 at Eduardo's request — "decrease the images
+      animation by half". Every value below is exactly half what it was
+      (0.1 / 0.16 / 0.9), so the shape of the entrance is unchanged and only
+      its pace moves. The stack now finishes in about 0.6s rather than 1.3s.
+    */
     /** Delay before the first image moves, seconds. */
-    start: 0.1,
+    start: 0.05,
     /** Gap between one image starting and the next, seconds. */
-    stagger: 0.16,
+    stagger: 0.08,
     /** How long one image takes to travel, seconds. */
-    duration: 0.9,
+    duration: 0.45,
     /** Travel distance for an entering image, as % of its own width. */
     imageEnter: 170,
   },

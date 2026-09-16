@@ -320,6 +320,49 @@
   filter: blur(var(--bbb-blur));
 }
 
+/**
+ * The wash that runs from the introduction down through the highlight —
+ * Eduardo, 2026-09-16, "start the glow effect from the introduction section
+ * down to the Bold Brilliant Beautiful section".
+ *
+ * Built from the same three ramp colours as `.bbb-blob`, so the two read as
+ * one light source rather than two, and screened for the same reason: on a
+ * near-black ground screen behaves over the ramps where Figma's `difference`
+ * does not.
+ *
+ * Differences from the blob, and why:
+ *
+ * - It does not follow the pointer. This is ambient ground, not the thing that
+ *   lights the letterforms; a wash this size chasing the cursor would read as
+ *   the whole page sliding around.
+ * - Much wider and much softer. The blob is a 900px box inside one component;
+ *   this spans two sections, so the stops are placed as percentages and the
+ *   blur is proportionally larger.
+ * - Low opacity. It is meant to be felt at the top of the introduction and only
+ *   recognised as a glow by the time the words arrive.
+ *
+ * ⚠ NOT IN FIGMA as a single element. The board draws a glow group inside the
+ * bbb component (node 3390:26682) and nothing above it; carrying the light up
+ * into the introduction is the instruction, not a reproduction.
+ */
+.intro-glow {
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  /*
+    Stops placed so the light BEGINS in the introduction rather than at the
+    highlight's top edge — the whole point of hoisting it. The box spans both
+    sections, so the introduction is roughly its top third: the warm centre sits
+    at 42% (inside the introduction, under the image stack), the amber picks up
+    at 58%, and the cool one anchors the bottom behind the words. They overlap
+    heavily, which is what stops any one of them reading as a distinct blob.
+  */
+  background:
+    radial-gradient(58% 30% at 34% 42%, var(--color-glow-warm) 0%, transparent 72%),
+    radial-gradient(52% 28% at 68% 58%, var(--color-glow-amber) 0%, transparent 72%),
+    radial-gradient(66% 34% at 48% 78%, var(--color-glow-cool) 0%, transparent 74%);
+  filter: blur(var(--bbb-blur));
+}
+
 /* The haze behind the words. Figma uses difference; screen reads the same on
    a near-black ground and is far better behaved over the colour ramps. */
 .bbb-blob--ambient {

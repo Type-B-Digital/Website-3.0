@@ -146,15 +146,14 @@ const HIGHLIGHT_ID = 'highlight'
 const BBB_ARTWORK = {
   aspect: 1006.72 / 622.344,
   widthRatio: 1006.72 / 1440,
-  leftRatio: 121 / 1440,
-  /**
-   * ⚠ NOT IN FIGMA. The artboard centres the words vertically, because its
-   * stats are a column beside them. Ours are a row underneath, so the words
-   * clear it by 9% of the panel height — measured against the row at its
-   * tallest, which is a viewport narrow enough to wrap a stat label to two
-   * lines but still wide enough to keep the three side by side.
-   */
-  liftRatio: 0.09,
+  /*
+    ⚠ No `leftRatio` and no `liftRatio` any more. The board draws the words
+    off-centre at x=121 and the previous build lifted them to clear a stats row
+    sitting underneath. Both are gone: the stats scroll OVER the words now
+    rather than sharing the frame with them, so there is nothing to clear, and
+    Eduardo asked for the copy centred on the section. GlowText centres both
+    axes when neither ratio is given.
+  */
 }
 
 /**
@@ -162,14 +161,6 @@ const BBB_ARTWORK = {
  * Split into prefix/number/suffix so the numeral can count up while the
  * surrounding characters stay put.
  */
-/**
- * ⚠ NOT IN FIGMA. The artboard's stat column has no heading — it did not need
- * one, sitting as a labelled column beside the words. As a row along the foot
- * of the panel it reads as three loose numbers without something naming them,
- * so this is the "header (maybe)" from the 2026-09-15 note, taken as a yes.
- */
-const STATS_EYEBROW = 'By the numbers'
-
 const STATS = [
   { to: 100, prefix: '~', suffix: '', label: 'Collective years building products & brands' },
   { to: 25, prefix: '', suffix: '+', label: 'Global customers served' },
@@ -576,7 +567,7 @@ function StackImage({ image, index }: { image: (typeof MANIFESTO_STACK)[number];
           x: '0%',
           opacity: 1,
           transition: {
-            duration: scene.duration + index * 0.08,
+            duration: scene.duration + index * 0.04,
             delay,
             ease: [...easing.inOut],
             opacity: { duration: motionTokens.duration.fast, delay },
@@ -657,7 +648,20 @@ function Manifesto() {
   // 1240px is the artboard's introduction-component width: 640 text + 178 gap
   // + 422 stack. justify-between reproduces that gap at the designed width.
   return (
-    <Section tone="dark" spacing="loose" bare>
+    /*
+      ⚠ `tone="none"` and its own padding, rather than `tone="dark"` with the
+      loose rhythm.
+
+      The ground is painted by `IntroToHighlight` now, because the glow that
+      starts here has to run underneath this section AND the one below it; an
+      opaque `bg-canvas` on this section would cover it.
+
+      The top padding is 40, not the loose 80/160 it used to inherit. Eduardo,
+      2026-09-16: "make sure the logos in the introduction section has 40px top
+      padding from the hero." The board agrees — the hero rectangle ends at
+      y=880 (node 3944:732) and the logo row starts at 920 (node 3944:722).
+    */
+    <Section tone="none" spacing="none" bare className="relative pb-4xl pt-2xl xl:pb-[160px]">
       <div className="flex flex-col gap-4xl">
         <ClientLogos />
         <Container>
@@ -688,18 +692,81 @@ function Manifesto() {
 }
 
 /**
+ * Introduction -> Highlight. One ground, one glow, two sections.
+ *
+ * Eduardo, 2026-09-16: "start the glow effect from the introduction section
+ * down to the Bold Brilliant Beautiful section." The glow used to live inside
+ * `GlowText`, which meant it could not exist above the top of that component —
+ * and the old build had to fade the whole scene in late precisely to hide the
+ * hard edge where it stopped.
+ *
+ * So the bloom is hoisted here, to a wrapper that spans both sections, and this
+ * is also what paints `bg-canvas` for the pair. Neither section carries an
+ * opaque ground of its own any more; an opaque section would cover the glow it
+ * is supposed to be lit by.
+ *
+ * The glow is a STATIC wash, not the pointer-following blob. That blob is still
+ * inside `GlowText` lighting the letterforms, which is a different effect and
+ * has to stay bound to the artwork it masks into.
+ */
+function IntroToHighlight() {
+  return (
+    <div className="relative bg-canvas">
+      {/*
+        Sits behind both sections. Anchored to the top of the introduction and
+        running most of the way down the highlight, so the bloom rises through
+        the logo row and is at full strength behind the words.
+      */}
+      <div
+        aria-hidden
+        className="intro-glow pointer-events-none absolute inset-x-0 top-0 h-[70%]"
+      />
+      <Manifesto />
+      <BoldBrilliantBeautiful />
+    </div>
+  )
+}
+
+/**
  * Bold. Brilliant. Beautiful. — the page's centrepiece.
  *
- * Figma: "bbb-glowing-copy-component" node 3390:26748, stats node 3390:26720.
+ * Figma: "bbb-glowing-copy-component" node 3390:26748, stats nodes 3944:753 /
+ * 756 / 759.
  *
- * A pinned scene the visitor can play in. A colour blob follows the pointer and
- * lights the words as it passes — see GlowText for how the three layers work.
- * The stats sit right-aligned against the 80px margin (the artboard frame runs
- * x=1051..1360 in a 1440 frame), vertically centred beside the words.
+ * ── Unpinned, with the stats travelling over it (Eduardo, 2026-09-16) ─────
  *
- * Rather than cutting from this near-black band to the white section below, the
- * ground itself crossfades to that surface over the last third of the scene and
- * the content fades with it, so the seam never appears.
+ * This was a 2.75-viewport pinned scene: the page stopped, the words and a
+ * right-hand stat column held still, and the ground crossfaded on the way out.
+ * "Instead of scroll locking the entire Bold Brilliant Beautiful section, make
+ * the stats scroll across the page, once they reach the top, continue with the
+ * background transition to the next section."
+ *
+ * So the page never stops here any more. Three things do the work:
+ *
+ *  1. The words sit on a ZERO-HEIGHT sticky host. A `sticky top-0` element
+ *     with `h-0` pins itself to the top of the viewport while contributing
+ *     nothing to the flow, and its `h-screen` child hangs below it. That is
+ *     what lets the words hold behind the section without the section having to
+ *     be taller than its content, which is what a pin costs.
+ *  2. The stats are ordinary flow content ON TOP, staggered left / centre /
+ *     right so they cross the page as they rise — the arrangement the board
+ *     now draws (x=182, 749, 1123 on a 1440 frame, 195px apart).
+ *  3. The ground fades to the next section's surface over the LAST stretch of
+ *     the section's travel. See `glowScene.fade` for why that window moved.
+ *
+ * The fade is a cream overlay at ramping ALPHA rather than an interpolation
+ * between two colours. ⚠ That is NOT because it avoids a grey midpoint — an
+ * earlier version of this note claimed so and it is simply wrong: compositing
+ * cream at 50% over ink gives the same sRGB value as mixing the two 50/50, so
+ * the halfway point is the same neutral either way. A dark ground turning into
+ * a light one passes through a mid-tone; there is no arrangement of two colours
+ * that does not.
+ *
+ * The real reasons for the overlay are structural. It has to be OPAQUE by the
+ * end, because it is what covers the shared glow behind this section before the
+ * cream band below begins — an interpolated `backgroundColor` on the section
+ * would sit behind that glow instead of over it. And an overlay can be given
+ * its own place in the z-order, which a section background cannot.
  */
 function BoldBrilliantBeautiful() {
   const sceneRef = useRef<HTMLDivElement>(null)
@@ -707,38 +774,29 @@ function BoldBrilliantBeautiful() {
   const prefersReduced = useReducedMotion()
   const { glowScene } = motionTokens
 
+  /*
+    0 when the section's top reaches the top of the viewport, 1 when its BOTTOM
+    does — so 1 is the moment the last stat has left the screen. The pin used
+    `end end`, which measured something else entirely.
+  */
   const { scrollYProgress: rawProgress } = useScroll({
     target: sceneRef,
-    offset: ['start start', 'end end'],
+    offset: ['start start', 'end start'],
   })
   const scrollYProgress = useLaggedProgress(rawProgress)
 
-  /**
-   * A second tracker for the ENTRY phase — `scrollYProgress` above is clamped at
-   * 0 until the panel pins, so it cannot describe the section rising into view.
-   *
-   * This matters: the glow is clipped by the section's own box, so while the
-   * section is still climbing there is a hard horizontal edge where the glow
-   * stops. Fading the whole scene in as it arrives means the section reads as
-   * plain canvas during entry — identical to the band above it — and the edge
-   * never appears.
-   */
+  /*
+    Gate the count-up on the section actually being on screen. It no longer has
+    to wait for a pin to lock, so this fires as the section is half-way up the
+    viewport rather than at the end of a long entry fade.
+  */
   const { scrollYProgress: rawEntry } = useScroll({
     target: sceneRef,
-    offset: ['start end', 'start start'],
+    offset: ['start end', 'start center'],
   })
-  const entryProgress = useLaggedProgress(rawEntry)
-  // Deliberately late and short: the scene stays fully hidden while the section
-  // climbs, so during entry it is indistinguishable from the canvas band above
-  // it, then arrives over the last stretch. Widening this range brings the
-  // clipped-glow edge back.
-  const entryOpacity = useTransform(entryProgress, [0.88, 1], [0, 1])
-
-  // Gate the stat count-up on the scene actually being visible: the numbers are
-  // technically on screen the whole time the section climbs, behind opacity 0.
   const [revealed, setRevealed] = useState(false)
-  useMotionValueEvent(entryProgress, 'change', (value) => {
-    if (value > 0.92) setRevealed(true)
+  useMotionValueEvent(rawEntry, 'change', (value) => {
+    if (value > 0.4) setRevealed(true)
   })
 
   // Pointer in panel pixels. The springs are what make the blob trail the
@@ -770,71 +828,11 @@ function BoldBrilliantBeautiful() {
     rawY.set(event.clientY - rect.top)
   }
 
-  const background = useTransform(
-    scrollYProgress,
-    [glowScene.fade.start, glowScene.fade.end],
-    [colorTokens.background.canvas, colorTokens.background.surface],
-  )
-  const contentOpacity = useTransform(
-    scrollYProgress,
-    [glowScene.fade.start, glowScene.fade.end],
-    [1, 0],
-  )
-
-  /*
-    ── Horizontal, along the foot of the panel (Nabeel, 2026-09-15) ──────────
-
-    Was a 309px column pinned to the right margin and vertically centred, which
-    is the artboard's arrangement (the frame runs x=1051..1360 in a 1440 frame).
-    "Explore a horizontal layout with a header (maybe). Keep the glows and
-    background effect but fill in the page better."
-
-    The column was the reason the panel read as empty: it used a fifth of the
-    width and none of the bottom third, so a wide display drew a large amount of
-    unlit ground under the words. Three equal columns on the page's own margins
-    reach both edges and close that gap, and the words lift by `liftRatio` to
-    make room rather than the row overlapping them.
-
-    `items-end` on the grid, so the three labels sit on one baseline whether or
-    not a label wraps to a second line — the numbers are all one line, the labels
-    are not.
-  */
-  const stats = (
-    <div className="absolute inset-x-0 bottom-0 pb-4xl">
-      <Container>
-        <div className="flex flex-col items-start gap-xl">
-          <Eyebrow tone="slate">{STATS_EYEBROW}</Eyebrow>
-          <div className="grid w-full items-end gap-x-lg gap-y-xl sm:grid-cols-3">
-            {STATS.map((stat) => (
-              <div key={stat.label} className="flex flex-col gap-sm">
-                <Typography variant="h1" as="p" className="text-h2 text-on-dark-muted xl:text-h1">
-                  <CountUp
-                    to={stat.to}
-                    prefix={stat.prefix}
-                    suffix={stat.suffix}
-                    start={revealed}
-                  />
-                </Typography>
-                {/*
-                  Held to a measure so a label breaks where it reads rather than
-                  running the full third of a wide screen — the copy is a phrase,
-                  not a paragraph.
-                */}
-                <Typography
-                  variant="copyMedium"
-                  as="p"
-                  muted
-                  className="max-w-[309px] text-on-dark-muted"
-                >
-                  {stat.label}
-                </Typography>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Container>
-    </div>
-  )
+  const { fade } = glowScene
+  /* Cream at ramping alpha — see the note above on why this is not a colour mix. */
+  const groundAlpha = useTransform(scrollYProgress, [fade.start, fade.end], [0, 1])
+  const ground = useMotionTemplate`rgba(246, 242, 236, ${groundAlpha})`
+  const contentOpacity = useTransform(scrollYProgress, [fade.start, fade.end], [1, 0])
 
   const words = (
     <GlowText
@@ -843,57 +841,112 @@ function BoldBrilliantBeautiful() {
       label="Bold. Brilliant. Beautiful."
       aspect={BBB_ARTWORK.aspect}
       widthRatio={BBB_ARTWORK.widthRatio}
-      leftRatio={BBB_ARTWORK.leftRatio}
-      /* Off the centre line by roughly the height the stats row now occupies. */
-      liftRatio={BBB_ARTWORK.liftRatio}
+      /* No leftRatio: GlowText centres the artwork when none is given. */
+      /* The haze comes from the shared .intro-glow now — see IntroToHighlight. */
+      ambient={false}
       pointerX={pointerX}
       pointerY={pointerY}
     />
   )
 
-  // Reduced motion: no pin, no crossfade, blob parked at its resting spot.
+  /*
+    Left, centre, right on a flat 80px rhythm — the board's x=182 / 749 / 1123
+    on a 1440 frame, expressed as alignment so it stays put as the page widens.
+    Each block is held to a measure so a long label wraps inside its own column
+    instead of running the width of the screen.
+  */
+  const ALIGN = ['self-start text-left', 'self-center text-center', 'self-end text-right'] as const
+
+  const stats = (
+    <Container>
+      <ul className="flex flex-col gap-4xl">
+        {STATS.map((stat, i) => (
+          <li key={stat.label} className={cn('flex max-w-[380px] flex-col gap-sm', ALIGN[i % 3])}>
+            <Typography variant="h1" as="p" className="text-h2 text-on-dark-muted xl:text-h1">
+              <CountUp to={stat.to} prefix={stat.prefix} suffix={stat.suffix} start={revealed} />
+            </Typography>
+            <Typography variant="copyMedium" as="p" muted className="text-on-dark-muted">
+              {stat.label}
+            </Typography>
+          </li>
+        ))}
+      </ul>
+    </Container>
+  )
+
+  // Reduced motion: no sticky, no crossfade, blob parked at its resting spot.
   if (prefersReduced) {
     return (
-      <section
-        id={HIGHLIGHT_ID}
-        className="relative min-h-screen w-full overflow-hidden bg-canvas text-on-dark"
-      >
-        <div ref={panelRef} className="absolute inset-0">
+      <section id={HIGHLIGHT_ID} className="relative w-full overflow-hidden text-on-dark">
+        <div ref={panelRef} className="relative h-screen">
           {words}
-          {stats}
         </div>
+        <div className="relative py-4xl">{stats}</div>
       </section>
     )
   }
 
   return (
-    <div
-      id={HIGHLIGHT_ID}
-      ref={sceneRef}
-      /*
-        `snap-start` plus `scroll-snap-type: y proximity` on the root hands the
-        introduction-to-highlight boundary to the browser's own snapping, so it
-        arrives in place rather than being crawled through. Native snapping
-        cooperates with trackpad momentum; the JS hand-off this replaces fought
-        it and oscillated.
-      */
-      className="relative snap-start"
-      style={{ height: `${glowScene.pinLength * 100}vh` }}
-    >
-      <fm.div
-        ref={panelRef}
-        onPointerMove={handlePointerMove}
-        className="sticky top-0 h-screen w-full overflow-hidden text-on-dark"
-        style={{ backgroundColor: background }}
-      >
-        <fm.div className="absolute inset-0" style={{ opacity: entryOpacity }}>
+    /*
+      No min-height: the content below sets the section's height, because the
+      crossfade has to be timed against where the stats actually END and a
+      height fixed in viewport units makes that ratio move with the viewport.
+
+      `overflow-clip`, NOT `overflow-hidden`. The two sticky hosts below are
+      zero-height, so they stay pinned right down to this section's bottom edge
+      and their `h-screen` children hang a full viewport past it — over the top
+      of Stages, hiding its heading for ~800px of scroll. Clip cuts that off;
+      hidden would also do so but makes this a scroll container, which kills
+      the sticky.
+    */
+    <section id={HIGHLIGHT_ID} ref={sceneRef} className="relative w-full overflow-clip text-on-dark">
+      {/*
+        Zero-height sticky host. It pins to the top and adds nothing to the
+        flow, so the `h-screen` child below it holds the words on screen while
+        the stats — which start at this same flow position — scroll over them.
+      */}
+      <div className="sticky top-0 z-0 h-0">
+        <div
+          ref={panelRef}
+          onPointerMove={handlePointerMove}
+          className="relative h-screen w-full overflow-hidden"
+        >
           <fm.div className="absolute inset-0" style={{ opacity: contentOpacity }}>
             {words}
-            {stats}
           </fm.div>
-        </fm.div>
+        </div>
+      </div>
+
+      {/* The crossfade to the cream band below, and the cover for the glow. */}
+      <fm.div
+        aria-hidden
+        className="pointer-events-none sticky top-0 z-10 h-0"
+        style={{ opacity: 1 }}
+      >
+        <fm.div className="h-screen w-full" style={{ backgroundColor: ground }} />
       </fm.div>
-    </div>
+
+      {/*
+        Stats: ordinary flow, over the words — then a tail the words hold
+        through while the ground turns cream.
+
+        The tail is what makes the crossfade possible at all. A `sticky` child
+        cannot outlive its containing block, so once the section's bottom edge
+        rises into the viewport the words panel starts being cut off from below.
+        Everything the reader should see happen — the ground going cream behind
+        the words — therefore has to be FINISHED by then. 1.2 viewports of tail
+        buys that: the fade completes at 0.54 of the section (see
+        `glowScene.fade`) and the bottom edge does not arrive until 0.545.
+
+        `min-h-screen` on the stats block rather than padding alone, so the
+        three of them are centred in a full screen at any height and the
+        proportion the fade is timed against stays put.
+      */}
+      <fm.div className="relative z-20" style={{ opacity: contentOpacity }}>
+        <div className="flex min-h-screen flex-col justify-center py-[20vh]">{stats}</div>
+        <div aria-hidden className="h-[120vh]" />
+      </fm.div>
+    </section>
   )
 }
 
@@ -1157,8 +1210,13 @@ function Work() {
                         <Typography variant="copyLarge" as="h3">
                           {project.name}
                         </Typography>
+                        {/*
+                          The SHORT line, not the full description — node
+                          3944:582 gives each row one line under the name. The
+                          long one is Our Work’s, where the row has room for it.
+                        */}
                         <Typography variant="copyMedium" muted>
-                          {project.description}
+                          {project.short}
                         </Typography>
                       </div>
                       <div className="flex flex-wrap items-center gap-sm">
@@ -1421,8 +1479,8 @@ export function HomePage() {
   return (
     <PageShell>
       <Hero />
-      <Manifesto />
-      <BoldBrilliantBeautiful />
+      {/* One ground and one glow across the two of them — see IntroToHighlight. */}
+      <IntroToHighlight />
       {/*
         ⚠ Stages BEFORE Pillars — Nabeel, 2026-09-15: "switch the order of the
         three vertical cards section with the four cards section so it shows
