@@ -64,9 +64,8 @@ const TIER_GLYPHS: Record<string, GlyphName> = {
  *   1. THREE columns, not four. Entry / Core / Expanded sit in a row of 280px
  *      columns on a 1080 measure — 120px gutters — and "Type B Digital" is no
  *      longer one of them.
- *   2. Type B Digital is a full-width ink BAR underneath (node 3931:12695):
- *      1080x62, `#040E19`, with the label centred in cream. It used to be a
- *      dark rounded card in the first column slot.
+ *   2. Type B Digital was a full-width ink BAR underneath (node 3931:12695).
+ *      ⚠ Removed 2026-09-16 at Eduardo's request — see the note in the JSX.
  *   3. The heading is "Entry, Core, & Expanded." — the old one opened "Three
  *      lines." and the board has dropped that sentence.
  *
@@ -120,10 +119,9 @@ export function Packaging({
 }) {
   /*
     The board splits what used to be one row of four: three tier columns, then
-    the practices bar underneath. `lead` is still how a caller marks which entry
-    is the bar, so no page's data had to change.
+    a practices bar underneath. The bar has since been removed (see below), but
+    callers still mark that entry `lead`, so it is filtered out here.
   */
-  const lead = tiers.find((t) => t.lead)
   const columns = tiers.filter((t) => !t.lead)
 
   return (
@@ -182,35 +180,14 @@ export function Packaging({
         </ul>
 
         {/*
-          The practices bar — node 3931:12695. A full-width ink strip with the
-          label centred, where this used to be a rounded dark card sitting in
-          the first column.
-
-          It lists the three practices on the board only as its own name, "Type
-          B Digital"; the three names the old card carried (Advisory, Product &
-          AI Development, Teams) are not drawn in the redesign. They are kept in
-          the data and rendered under the label, because dropping them would
-          lose the one thing the block is for — saying what the three lines are
-          made of — and the board gives no other home for them.
+          ⚠ No practices bar. The board draws a full-width ink "Type B Digital"
+          strip here (node 3931:12695) and this component rendered it, with the
+          three practice names underneath, until Eduardo, 2026-09-16: "remove
+          the bottom Type B Digital dark bar under this component on all pages
+          where it exists." Removed here, so it is gone from all nine pages at
+          once. Callers still mark that entry `lead` in their data; it is
+          filtered out of the columns above and now simply not drawn.
         */}
-        {lead && (
-          <Reveal>
-            <div className="flex flex-col items-center gap-sm rounded-md bg-canvas px-lg py-md text-center text-on-dark">
-              <Typography variant="copyLarge" as="h3">
-                {lead.title}
-              </Typography>
-              <ul className="flex flex-wrap items-center justify-center gap-x-lg gap-y-xs">
-                {lead.items.map((item) => (
-                  <li key={item}>
-                    <Typography variant="copySmall" as="span" muted>
-                      {item}
-                    </Typography>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Reveal>
-        )}
       </div>
     </Section>
   )
