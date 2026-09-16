@@ -129,7 +129,7 @@ function Outline({ publication }: { publication: Publication }) {
   return (
     <nav
       aria-label="On this page"
-      className="hidden flex-col gap-md lg:sticky lg:top-[232px] lg:flex lg:self-start"
+      className="hidden flex-col gap-md lg:sticky lg:top-[192px] lg:flex lg:self-start"
     >
       {/* A chip, as every other section label on the site is. The artboard
           draws bare 48%-opacity text here; see the note in publications.tsx. */}
@@ -172,6 +172,24 @@ function Figure() {
   )
 }
 
+function Paragraphs({ paragraphs }: { paragraphs: readonly string[] }) {
+  if (paragraphs.length === 0) return null
+  return (
+    <div className="flex flex-col gap-lg">
+      {paragraphs.map((paragraph) => (
+        <Typography
+          key={paragraph.slice(0, 40)}
+          variant="copyLarge"
+          muted
+          className="tracking-[-0.01em]"
+        >
+          {paragraph}
+        </Typography>
+      ))}
+    </div>
+  )
+}
+
 function ArticleSection({ section }: { section: PublicationSection }) {
   return (
     <>
@@ -199,18 +217,23 @@ function ArticleSection({ section }: { section: PublicationSection }) {
             </Typography>
           )}
 
-          <div className="flex flex-col gap-lg">
-            {section.paragraphs.map((paragraph) => (
-              <Typography
-                key={paragraph.slice(0, 40)}
-                variant="copyLarge"
-                muted
-                className="tracking-[-0.01em]"
-              >
-                {paragraph}
+          <Paragraphs paragraphs={section.paragraphs} />
+
+          {/*
+            Titled parts — the imported posts' "Phase 1: …" and numbered signs.
+            20px SemiBold in ink: the body's own size, so a part heading never
+            reads SMALLER than the paragraph under it (16px did), and the weight
+            is what sets it apart. A clear step below the 32px section heading.
+            Not in the outline: five phases would crowd it.
+          */}
+          {section.subsections?.map((part) => (
+            <div key={part.heading} className="flex flex-col gap-sm pt-sm">
+              <Typography variant="copyLarge" as="h3" className="font-semibold tracking-[-0.01em]">
+                {part.heading}
               </Typography>
-            ))}
-          </div>
+              <Paragraphs paragraphs={part.paragraphs} />
+            </div>
+          ))}
         </div>
       </Reveal>
 
@@ -233,7 +256,8 @@ export function PublicationPostPage() {
   return (
     <PageShell headerTone="onLight">
       <div style={{ backgroundImage: PAGE_GRADIENT }}>
-        <Section tone="none" spacing="none" className="pb-4xl pt-[232px] text-on-light">
+        {/* 192: the 72px header plus 120, as on the index (was 232). */}
+        <Section tone="none" spacing="none" className="pb-4xl pt-[192px] text-on-light">
           <div className="grid gap-2xl lg:grid-cols-[323px_minmax(0,1fr)] lg:gap-x-[112px]">
             <Outline publication={publication} />
 
@@ -245,13 +269,14 @@ export function PublicationPostPage() {
                     {publication.title}
                   </Typography>
                   {/*
-                    ⚠ The artboard fills this slot with the index page's blurb
-                    rather than a line about the article — see the note in
-                    publications-content.ts. Drawn as-is.
+                    Only when a post has one. The artboard filled this slot with
+                    the index page's blurb; no real post carries a deck.
                   */}
-                  <Typography variant="copyLarge" muted className="tracking-[-0.01em]">
-                    {publication.deck}
-                  </Typography>
+                  {publication.deck && (
+                    <Typography variant="copyLarge" muted className="tracking-[-0.01em]">
+                      {publication.deck}
+                    </Typography>
+                  )}
                   <Typography variant="button" as="p" muted>
                     <time dateTime={publication.dateTime}>{publication.date}</time>
                   </Typography>

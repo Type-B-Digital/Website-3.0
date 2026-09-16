@@ -147,9 +147,10 @@ function Hero() {
   return (
     <HeroIntro>
       <div className="flex flex-col items-start gap-md">
-        <Eyebrow tone="ink">Blog</Eyebrow>
+        {/* Swapped 2026-09-16 (Eduardo): the chip names the library, the title the format. */}
+        <Eyebrow tone="ink">Publications</Eyebrow>
         <Typography variant="h1" className="max-w-[800px] text-h2 md:text-h1">
-          Publications
+          Blog
         </Typography>
         <Typography variant="copyLarge" muted className="max-w-[834px] tracking-[-0.01em]">
           Practical writing on AI, delivery, and the decisions in between, from the people doing the
@@ -270,8 +271,12 @@ export function PublicationsPage() {
   return (
     <PageShell headerTone="onLight">
       <div style={{ backgroundImage: PAGE_GRADIENT }}>
-        {/* 232 to the chip, then 80 down to the rail and the grid. */}
-        <Section tone="none" spacing="none" className="pb-4xl pt-[232px] text-on-light">
+        {/*
+          192 to the chip — the 72px header plus 120. Was 232 (160 clear of the
+          header) until Eduardo, 2026-09-16, asked for 120. Then 80 down to the
+          rail and the grid.
+        */}
+        <Section tone="none" spacing="none" className="pb-4xl pt-[192px] text-on-light">
           <div className="flex flex-col gap-4xl">
             <Hero />
             <Index />

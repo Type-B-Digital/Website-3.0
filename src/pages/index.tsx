@@ -669,7 +669,17 @@ function Manifesto() {
       padding from the hero." The board agrees — the hero rectangle ends at
       y=880 (node 3944:732) and the logo row starts at 920 (node 3944:722).
     */
-    <Section tone="none" spacing="none" bare className="relative pb-4xl pt-2xl xl:pb-[160px]">
+    /*
+      `overflow-x-clip` here, at full width, is what clips the sliding images —
+      see the note on the row below. `clip` rather than `hidden` so the section
+      does not become a scroll container.
+    */
+    <Section
+      tone="none"
+      spacing="none"
+      bare
+      className="relative overflow-x-clip pb-4xl pt-2xl xl:pb-[160px]"
+    >
       {/*
         160px between the logo row and the copy/images from `lg` — Eduardo,
         2026-09-16, "add 80px spacing between the logos and the copy/images",
@@ -680,18 +690,19 @@ function Manifesto() {
         <ClientLogos />
         <Container>
           {/*
-            `overflow-hidden` on the row, not on a pinned panel: the images start
-            170% of their own width to the right and have to be clipped by
-            something on the way in. It used to be the sticky frame.
+            ⚠ NOT clipped here. The images start 170% of their own width to the
+            right and something has to clip them on the way in; that used to be
+            this row, which cut them off on the content margin (x=1340 at 1440)
+            so they appeared out of thin air 100px short of the page edge.
+            Eduardo, 2026-09-16: "they should slide in from the edge of the
+            page." The clip is on the full-width section above instead.
 
-            ⚠ Which makes the row the one place on this page where content that
-            does not fit DISAPPEARS rather than wrapping. The statement column is
-            therefore `flex-1` with the artboard's 640 as a MAXIMUM, not as a
-            fixed width: 640 + 80 + the stack's 422 is 1142, and the fluid grid
-            only clears that above about 1300px. At 1266 the fixed version put
-            the stack 36px past the right edge, where the clip ate it whole.
+            The statement column stays `flex-1` with the artboard's 640 as a
+            MAXIMUM rather than a fixed width: 640 + 80 + the stack's 422 is
+            1142, which the fluid grid only clears above about 1300px, and a
+            fixed column would push the stack past the margin below that.
           */}
-          <div className="mx-auto flex w-full max-w-[1240px] flex-col items-center justify-between gap-4xl overflow-hidden lg:flex-row">
+          <div className="mx-auto flex w-full max-w-[1240px] flex-col items-center justify-between gap-4xl lg:flex-row">
             <Reveal className="w-full lg:max-w-[640px] lg:flex-1">
               <Typography variant="h2" as="p" className="leading-[1.2]">
                 {MANIFESTO_TEXT}
