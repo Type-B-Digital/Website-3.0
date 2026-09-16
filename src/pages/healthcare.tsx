@@ -226,6 +226,7 @@ export function HealthcarePage() {
       {/* ⚠ Claim only — the artboard draws no paragraph under it (3614:5893). */}
       <SplitFeature
         eyebrow="Featured"
+        headingLevel="h2"
         heading="MatchDay Health"
         claim="3 agents, +20% conversion, 16 weeks to production"
         image="/images/services/product-featured.jpg"

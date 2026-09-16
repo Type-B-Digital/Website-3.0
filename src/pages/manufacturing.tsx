@@ -225,6 +225,7 @@ export function ManufacturingPage() {
       */}
       <SplitFeature
         eyebrow="Featured"
+        headingLevel="h2"
         heading="UDM"
         claim="Details needed here."
         body="Details needed here."

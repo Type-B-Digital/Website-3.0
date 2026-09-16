@@ -422,6 +422,13 @@ export function LevelsList({
  * `heading` carries `h1` when the block is a case study (the name is the
  * headline) and `h2` when it is a section (a question or a statement); the
  * artboard sets 86px line boxes for the first and 58px for the second.
+ *
+ * ⚠ Featured is `h2` too since 2026-09-16 — Eduardo: "decrease the header size
+ * to 48px for all Featured sections across all pages." h2 is the 48px style,
+ * so every block with the Featured eyebrow passes `headingLevel="h2"`
+ * (FeaturedCase does it for the service pages). The one remaining `h1` use is
+ * the "Our Specialty" block on Healthcare and Financial Services, which was not
+ * part of the request.
  */
 export function SplitFeature({
   eyebrow,
@@ -517,7 +524,8 @@ export function SplitFeature({
  */
 export function FeaturedCase(props: { name: string; claim: string; body?: string; image: string }) {
   const { name, ...rest } = props
-  return <SplitFeature eyebrow="Featured" heading={name} {...rest} />
+  // 48px heading — see the note on SplitFeature.
+  return <SplitFeature eyebrow="Featured" heading={name} headingLevel="h2" {...rest} />
 }
 
 /* ------------------------------------------------------------------ *

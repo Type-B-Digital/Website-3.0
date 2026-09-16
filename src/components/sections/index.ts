@@ -36,7 +36,7 @@ export {
   CaseStudyPage,
 } from './case-study'
 export type { CaseOutcome, CasePoint } from './case-study'
-export { Packaging, StaggeredCards } from './shared'
+export { Packaging, StaggeredBackdrop, StaggeredCards } from './shared'
 export type { PackageTier, StaggeredCard } from './shared'
 export { ContentPage, SERVICE_GRADIENT } from './ContentPage'
 export type { ContentPageProps } from './ContentPage'

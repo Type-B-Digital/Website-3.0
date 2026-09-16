@@ -224,6 +224,7 @@ export function LegalPage() {
       */}
       <SplitFeature
         eyebrow="Featured"
+        headingLevel="h2"
         heading="RFL Wealth"
         claim="Details needed here."
         body="Details needed here."

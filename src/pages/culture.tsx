@@ -18,6 +18,7 @@ import {
   ValuesMarquee,
 } from '@/components'
 import { PageShell } from '@/components/layout'
+import { StaggeredBackdrop } from '@/components/sections'
 import { colors as colorTokens, gradients, motion as motionTokens, palette } from '@/tokens'
 import { asset } from '@/lib/asset'
 import { cn } from '@/lib/cn'
@@ -274,23 +275,6 @@ function HowWeShowUp() {
 function OurApproach() {
   return (
     <Section tone="light" spacing="none" className="relative overflow-hidden py-5xl">
-      {/*
-        z-0, not a negative index: the section paints `bg-surface`, and a
-        negative-z child sits *behind* its own section's background, which is
-        why the rings and bloom were invisible. The content takes z-10 instead.
-      */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 z-0">
-        {/* Four rings, evenly spaced about the centre and overlapping. */}
-        {[-1.5, -0.5, 0.5, 1.5].map((n) => (
-          <span
-            key={n}
-            className="absolute top-1/2 size-[860px] -translate-y-1/2 rounded-full border border-on-light/[0.08]"
-            style={{ left: `calc(50% + ${n * 460}px)`, marginLeft: -430 }}
-          />
-        ))}
-        <span className="approach-glow absolute left-1/2 top-1/2 h-[500px] w-[1240px] -translate-x-1/2 -translate-y-1/2" />
-      </div>
-
       <div className="relative z-10 flex flex-col gap-4xl">
         <Reveal>
           <div className="mx-auto flex max-w-[800px] flex-col items-center gap-md text-center">
@@ -307,7 +291,12 @@ function OurApproach() {
         </Reveal>
 
         {/* Cards 2 and 4 sit 243px lower, as on the artboard (2246 against 2003). */}
-        <div className="grid gap-lg md:grid-cols-2 lg:grid-cols-4">
+        <div className="relative grid gap-lg md:grid-cols-2 lg:grid-cols-4">
+          {/*
+            Rings and bloom, centred on the cards rather than on the section
+            (Eduardo, 2026-09-16). Shared with the Product page's cards.
+          */}
+          <StaggeredBackdrop />
           {STAGES.map((stage, i) => (
             <Reveal key={stage.number} index={i} className={cn(i % 2 === 1 && 'lg:mt-[243px]')}>
               <div className="flex aspect-square flex-col justify-between rounded-md bg-neutral-50 p-lg">

@@ -237,6 +237,7 @@ export function FinancialServicesPage() {
 
       <SplitFeature
         eyebrow="Featured"
+        headingLevel="h2"
         heading="Ferry Pay"
         claim="Daily payout on autopilot mode."
         body="We embedded a managed team, scaled engineering from two people to ten with playbooks and QA cycles, re-architected the platform, overhauled the UX, and launched the payroll product within six months. Infrastructure cost fell 43%, database queries went from 300ms to 80ms, the app rating climbed to 4.8, and support contacts fell to 4%. Partnering since 2023."

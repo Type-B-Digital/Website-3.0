@@ -205,13 +205,55 @@ export type StaggeredCard = {
 }
 
 /**
+ * The rings and warm bloom behind a staggered four-card row — Figma node
+ * 3679:10318 (Culture). Shared by Culture's Our Approach and `StaggeredCards`
+ * so the two cannot drift apart.
+ *
+ * ⚠ Centred on the CARD GRID, not on the section. Both used to hang off the
+ * section's `top-1/2`, and a section is header + cards, so the midpoint sat
+ * well above the cards and the bloom read as belonging to the heading.
+ * Eduardo, 2026-09-16: "lower the glow and shapes behind the cards so that
+ * they are vertically centered with the cards." So this renders inside a
+ * `relative` wrapper around the grid and centres on that box.
+ *
+ * It sits at `-z-10` inside the content's own `z-10` stacking context. That
+ * is safe here in a way it was not at section level: the context it lands in
+ * has no background of its own to disappear behind, so the backdrop paints
+ * above the section ground and below the cards and the heading.
+ * The section still clips it (`overflow-hidden`) — the rings are 860px
+ * across and deliberately run past the grid on every side.
+ */
+export function StaggeredBackdrop({ rings = true, glow = true }: { rings?: boolean; glow?: boolean }) {
+  if (!rings && !glow) return null
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-x-0 top-1/2 -z-10 h-0"
+    >
+      {rings &&
+        [-1.5, -0.5, 0.5, 1.5].map((n) => (
+          <span
+            key={n}
+            className="absolute top-0 size-[860px] -translate-y-1/2 rounded-full border border-on-light/[0.08]"
+            style={{ left: `calc(50% + ${n * 460}px)`, marginLeft: -430 }}
+          />
+        ))}
+      {glow && (
+        <span className="approach-glow absolute left-1/2 top-0 h-[500px] w-[1240px] -translate-x-1/2 -translate-y-1/2" />
+      )}
+    </div>
+  )
+}
+
+/**
  * Four flat cards in a row, with the even ones dropped a card-height so the
  * row reads as a stagger rather than a four-up. The offset is 243px on both
  * artboards and only applies once they are side by side.
  *
  * `rings` draws the four faint circles behind; `glow` adds the warm bloom.
- * Culture has both, the Product page only the rings — its ground is already
- * warm, and a bloom on top of it goes muddy.
+ * Both are on by default since 2026-09-16 — Eduardo asked for Culture's
+ * shapes and glow on every instance of these cards, including the Product
+ * page, which had carried the rings alone.
  *
  * The offset needs no spacer under it: a grid row is as tall as its tallest
  * item, and `mt-[243px]` on the even cards makes that 302+243 on its own. An
@@ -225,7 +267,7 @@ export function StaggeredCards({
   cards,
   footnote,
   rings = true,
-  glow = false,
+  glow = true,
 }: {
   eyebrow?: string
   eyebrowTone?: 'onLight' | 'onAccent' | 'ink' | 'cream'
@@ -238,26 +280,6 @@ export function StaggeredCards({
 }) {
   return (
     <Section tone="none" spacing="none" className="relative overflow-hidden py-4xl text-on-light">
-      {(rings || glow) && (
-        /*
-          z-0, not a negative index — a negative-z child paints behind its own
-          section's background, which is how this went invisible the first time.
-        */
-        <div aria-hidden className="pointer-events-none absolute inset-0 z-0">
-          {rings &&
-            [-1.5, -0.5, 0.5, 1.5].map((n) => (
-              <span
-                key={n}
-                className="absolute top-1/2 size-[860px] -translate-y-1/2 rounded-full border border-on-light/[0.08]"
-                style={{ left: `calc(50% + ${n * 460}px)`, marginLeft: -430 }}
-              />
-            ))}
-          {glow && (
-            <span className="approach-glow absolute left-1/2 top-1/2 h-[500px] w-[1240px] -translate-x-1/2 -translate-y-1/2" />
-          )}
-        </div>
-      )}
-
       <div className="relative z-10 flex flex-col gap-4xl">
         <Reveal>
           <div className="mx-auto flex max-w-[846px] flex-col items-center gap-md text-center">
@@ -273,7 +295,9 @@ export function StaggeredCards({
           </div>
         </Reveal>
 
-        <div className="grid gap-lg md:grid-cols-2 lg:grid-cols-4">
+        <div className="relative grid gap-lg md:grid-cols-2 lg:grid-cols-4">
+          {/* Centred on the cards, not the section — see StaggeredBackdrop. */}
+          <StaggeredBackdrop rings={rings} glow={glow} />
           {cards.map((card, i) => (
             <Reveal key={card.title} index={i} className={cn(i % 2 === 1 && 'lg:mt-[243px]')}>
               <div className="flex aspect-square flex-col justify-between rounded-md bg-neutral-50 p-lg">
