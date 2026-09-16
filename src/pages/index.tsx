@@ -18,12 +18,13 @@ import {
   useMemo,
   useRef,
   useState,
-  type PointerEvent as ReactPointerEvent,
+  type RefObject,
 } from 'react'
 import {
   AnimatePresence,
   cubicBezier,
   motion as fm,
+  type MotionValue,
   useAnimationFrame,
   useMotionTemplate,
   useMotionValue,
@@ -669,7 +670,13 @@ function Manifesto() {
       y=880 (node 3944:732) and the logo row starts at 920 (node 3944:722).
     */
     <Section tone="none" spacing="none" bare className="relative pb-4xl pt-2xl xl:pb-[160px]">
-      <div className="flex flex-col gap-4xl">
+      {/*
+        160px between the logo row and the copy/images from `lg` — Eduardo,
+        2026-09-16, "add 80px spacing between the logos and the copy/images",
+        on top of the 80 that was there. Stacked below `lg` it stays 80, where
+        160 would be most of a phone screen.
+      */}
+      <div className="flex flex-col gap-4xl lg:gap-[160px]">
         <ClientLogos />
         <Container>
           {/*
@@ -712,24 +719,109 @@ function Manifesto() {
  * opaque ground of its own any more; an opaque section would cover the glow it
  * is supposed to be lit by.
  *
- * The glow is a STATIC wash, not the pointer-following blob. That blob is still
- * inside `GlowText` lighting the letterforms, which is a different effect and
- * has to stay bound to the artwork it masks into.
+ * ── ONE blob (Eduardo, 2026-09-16) ────────────────────────────────────────
+ *
+ * "The hover effect should start at the intro section and smoothly move on to
+ * the Bold. Brilliant. Beautiful section, with no section block lines. There
+ * should only be one blob glow, remove all other static blob glows. The size of
+ * the blob glow should be decreased by half."
+ *
+ * So there is exactly one light here, and it lives on THIS wrapper rather than
+ * inside either section:
+ *
+ * - The static `.intro-glow` wash is gone, and so is GlowText's own ambient
+ *   haze. Each of those was a second blob, and the haze was clipped by the
+ *   words panel — that panel's edge is the "div block divide" that kept
+ *   showing through the hover effect.
+ * - The blob is positioned in WRAPPER pixels and tracks the cursor's viewport
+ *   position, re-derived on scroll as well as on pointer move. Holding the
+ *   mouse still and scrolling therefore carries the light down the page from
+ *   the introduction into the words, which is the hand-off the note asks for.
+ * - The letterform light inside GlowText is not a separate blob: it is the same
+ *   position, converted into panel pixels, shining through the stroke mask.
+ *   Nothing else draws a glow in either section.
+ *
+ * Before the pointer arrives (and on touch) the "cursor" is a virtual one at
+ * `glowScene.rest` of the viewport, so the light still rides down the page as
+ * you scroll.
  */
 function IntroToHighlight() {
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const { glowScene } = motionTokens
+
+  const rawX = useMotionValue(0)
+  const rawY = useMotionValue(0)
+  const blobX = useSpring(rawX, glowScene.pointer)
+  const blobY = useSpring(rawY, glowScene.pointer)
+
+  useLayoutEffect(() => {
+    const el = wrapperRef.current
+    if (!el) return
+    // Last known cursor, in viewport pixels. Starts as the virtual rest cursor.
+    const client = { x: window.innerWidth * glowScene.rest.x, y: window.innerHeight * glowScene.rest.y }
+    let jumped = false
+    const place = () => {
+      const rect = el.getBoundingClientRect()
+      const x = client.x - rect.left
+      const y = client.y - rect.top
+      // First placement jumps, so the blob does not fly in from the corner.
+      if (jumped) {
+        rawX.set(x)
+        rawY.set(y)
+      } else {
+        rawX.jump(x)
+        rawY.jump(y)
+        blobX.jump(x)
+        blobY.jump(y)
+        jumped = true
+      }
+    }
+    const onPointer = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') return
+      client.x = event.clientX
+      client.y = event.clientY
+      place()
+    }
+    place()
+    window.addEventListener('pointermove', onPointer, { passive: true })
+    window.addEventListener('scroll', place, { passive: true })
+    window.addEventListener('resize', place)
+    return () => {
+      window.removeEventListener('pointermove', onPointer)
+      window.removeEventListener('scroll', place)
+      window.removeEventListener('resize', place)
+    }
+  }, [rawX, rawY, blobX, blobY, glowScene.rest.x, glowScene.rest.y])
+
+  const half = glowScene.blobSize / 2
+
   return (
-    <div className="relative bg-canvas">
+    <div ref={wrapperRef} className="relative bg-canvas">
       {/*
-        Sits behind both sections. Anchored to the top of the introduction and
-        running most of the way down the highlight, so the bloom rises through
-        the logo row and is at full strength behind the words.
+        The one blob. Clipped by this wrapper (not by either section), with the
+        top edge feathered so the light fades out as it nears the hero instead
+        of stopping on a line. The bottom needs no feather: by the time the
+        wrapper ends, the highlight's cream crossfade overlay is opaque over it.
       */}
       <div
         aria-hidden
-        className="intro-glow pointer-events-none absolute inset-x-0 top-0 h-[70%]"
-      />
+        className="glow-field pointer-events-none absolute inset-0 overflow-hidden"
+      >
+        <fm.div
+          className="bbb-blob bbb-blob--ambient absolute left-0 top-0"
+          style={{
+            x: blobX,
+            y: blobY,
+            width: glowScene.blobSize,
+            height: glowScene.blobSize,
+            marginLeft: -half,
+            marginTop: -half,
+            opacity: glowScene.ambientOpacity,
+          }}
+        />
+      </div>
       <Manifesto />
-      <BoldBrilliantBeautiful />
+      <BoldBrilliantBeautiful wrapperRef={wrapperRef} blobX={blobX} blobY={blobY} />
     </div>
   )
 }
@@ -775,7 +867,16 @@ function IntroToHighlight() {
  * would sit behind that glow instead of over it. And an overlay can be given
  * its own place in the z-order, which a section background cannot.
  */
-function BoldBrilliantBeautiful() {
+function BoldBrilliantBeautiful({
+  wrapperRef,
+  blobX,
+  blobY,
+}: {
+  /** The IntroToHighlight wrapper — the space the shared blob is positioned in. */
+  wrapperRef: RefObject<HTMLDivElement>
+  blobX: MotionValue<number>
+  blobY: MotionValue<number>
+}) {
   const sceneRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const prefersReduced = useReducedMotion()
@@ -806,48 +907,32 @@ function BoldBrilliantBeautiful() {
     if (value > 0.4) setRevealed(true)
   })
 
-  // Pointer in panel pixels. The springs are what make the blob trail the
-  // cursor with weight instead of snapping to it.
-  const rawX = useMotionValue(0)
-  const rawY = useMotionValue(0)
-  const pointerX = useSpring(rawX, glowScene.pointer)
-  const pointerY = useSpring(rawY, glowScene.pointer)
-
-  // Rest the blob over the words before the pointer ever arrives, so the
-  // section reads as designed on load and on touch devices.
-  useLayoutEffect(() => {
-    const el = panelRef.current
-    if (!el) return
-    const rest = () => {
-      rawX.jump(el.clientWidth * glowScene.rest.x)
-      rawY.jump(el.clientHeight * glowScene.rest.y)
-    }
-    rest()
-    window.addEventListener('resize', rest)
-    return () => window.removeEventListener('resize', rest)
-  }, [rawX, rawY, glowScene.rest.x, glowScene.rest.y])
-
-  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-    const el = panelRef.current
-    if (!el) return
-    const rect = el.getBoundingClientRect()
-    rawX.set(event.clientX - rect.left)
-    rawY.set(event.clientY - rect.top)
-  }
-
   /*
-    Top-edge feather for the ambient haze. The words panel is clipped, so while
-    the section is still scrolling up into view its top edge is a hard line
-    through the haze. Feathered over 40% of the panel at entry, closing to 0 as
-    the section's top reaches the top of the viewport — by which point that edge
-    IS the viewport edge and there is nothing left to hide.
+    The shared blob, converted from wrapper pixels into words-panel pixels so
+    the letterform light sits exactly where the one blob is. The panel is
+    sticky, so its offset inside the wrapper changes with scroll and is
+    re-measured then; the blob's own spring supplies the smoothing.
   */
-  const { scrollYProgress: rawArrival } = useScroll({
-    target: sceneRef,
-    offset: ['start end', 'start start'],
-  })
-  const feather = useTransform(rawArrival, [0, 1], [40, 0])
-  const ambientMask = useMotionTemplate`linear-gradient(to bottom, transparent 0%, black ${feather}%)`
+  const offsetX = useMotionValue(0)
+  const offsetY = useMotionValue(0)
+  useLayoutEffect(() => {
+    const measure = () => {
+      const panel = panelRef.current?.getBoundingClientRect()
+      const wrapper = wrapperRef.current?.getBoundingClientRect()
+      if (!panel || !wrapper) return
+      offsetX.set(panel.left - wrapper.left)
+      offsetY.set(panel.top - wrapper.top)
+    }
+    measure()
+    window.addEventListener('scroll', measure, { passive: true })
+    window.addEventListener('resize', measure)
+    return () => {
+      window.removeEventListener('scroll', measure)
+      window.removeEventListener('resize', measure)
+    }
+  }, [offsetX, offsetY, wrapperRef])
+  const pointerX = useTransform(() => blobX.get() - offsetX.get())
+  const pointerY = useTransform(() => blobY.get() - offsetY.get())
 
   const { fade } = glowScene
   /* Cream at ramping alpha — see the note above on why this is not a colour mix. */
@@ -864,11 +949,11 @@ function BoldBrilliantBeautiful() {
       widthRatio={BBB_ARTWORK.widthRatio}
       /* No leftRatio: GlowText centres the artwork when none is given. */
       /*
-        Ambient haze ON — it is the background half of the hover effect. The
-        shared .intro-glow is static ground; this is the light that follows the
-        pointer over it.
+        No haze of its own: the background light is the ONE blob on the
+        IntroToHighlight wrapper. A haze here is clipped by this panel, and that
+        clip edge is the block line the hover effect kept showing.
       */
-      ambientMask={ambientMask}
+      ambient={false}
       pointerX={pointerX}
       pointerY={pointerY}
     />
@@ -925,18 +1010,11 @@ function BoldBrilliantBeautiful() {
       the sticky.
     */
     /*
-      The pointer listener is HERE, not on the words panel. The stats layer
-      (z-20, a full screen plus the tail) sits on top of the panel for the whole
-      scene, so a listener on the panel never received a single event and the
-      glow sat frozen at its resting spot. Events from anywhere in the section
-      bubble up to this one.
+      No pointer listener here: the cursor is tracked on `window` by
+      IntroToHighlight. A listener on the words panel never fired (the stats
+      layer covers it), and one on this section stopped at its top edge.
     */
-    <section
-      id={HIGHLIGHT_ID}
-      ref={sceneRef}
-      onPointerMove={handlePointerMove}
-      className="relative w-full overflow-clip text-on-dark"
-    >
+    <section id={HIGHLIGHT_ID} ref={sceneRef} className="relative w-full overflow-clip text-on-dark">
       {/*
         Zero-height sticky host. It pins to the top and adds nothing to the
         flow, so the `h-screen` child below it holds the words on screen while

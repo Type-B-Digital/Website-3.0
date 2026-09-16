@@ -999,10 +999,14 @@ export const motion = {
       nothing and read as a hard seam against the cream band below.
     */
     fade: { start: 0.4, end: 0.54 },
-    /** Blob box, px. Large because it is heavily blurred. */
+    /** Blob BOX, px — the paint area, not the light. The light was halved on
+     *  2026-09-16 (Eduardo) by halving the gradient radii in `.bbb-blob` and
+     *  its blur; the box stays 900 so those gradients fade out inside it
+     *  instead of being cut square by its edges. */
     blobSize: 900,
-    /** Figma gaussian stdDeviation on the glow ellipses (node 3390:26688). */
-    blur: 120,
+    /** Blur on the blob, px — mirrors --glow-blob-blur. Was 120 (Figma
+     *  stdDeviation, node 3390:26688) before the blob was halved. */
+    blur: 60,
     /**
      * Outline layer opacity. The artboard has 0.4; raised by half at Eduardo's
      * request because the strokes read too faintly in motion.

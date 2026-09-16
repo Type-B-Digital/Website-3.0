@@ -34,6 +34,10 @@
   --color-glow-cool: #17616e;
   /* Figma gaussian stdDeviation on the glow ellipses (node 3390:26688). */
   --bbb-blur: 120px;
+  /* The homepage's one pointer blob. Half of --bbb-blur, halved with the blob
+     itself (Eduardo, 2026-09-16) so the light is half the size and not just a
+     smaller box under the same soft edge. The other glows keep --bbb-blur. */
+  --glow-blob-blur: 60px;
 
   /* --- color: off-board values still in use ----------------------- */
   --color-paper: #f6f6f6;
@@ -313,54 +317,21 @@
 .bbb-blob {
   pointer-events: none;
   will-change: transform;
-  background:
-    radial-gradient(circle at 32% 34%, var(--color-glow-warm) 0%, transparent 58%),
-    radial-gradient(circle at 66% 30%, var(--color-glow-amber) 0%, transparent 58%),
-    radial-gradient(circle at 48% 70%, var(--color-glow-cool) 0%, transparent 62%);
-  filter: blur(var(--bbb-blur));
-}
-
-/**
- * The wash that runs from the introduction down through the highlight —
- * Eduardo, 2026-09-16, "start the glow effect from the introduction section
- * down to the Bold Brilliant Beautiful section".
- *
- * Built from the same three ramp colours as `.bbb-blob`, so the two read as
- * one light source rather than two, and screened for the same reason: on a
- * near-black ground screen behaves over the ramps where Figma's `difference`
- * does not.
- *
- * Differences from the blob, and why:
- *
- * - It does not follow the pointer. This is ambient ground, not the thing that
- *   lights the letterforms; a wash this size chasing the cursor would read as
- *   the whole page sliding around.
- * - Much wider and much softer. The blob is a 900px box inside one component;
- *   this spans two sections, so the stops are placed as percentages and the
- *   blur is proportionally larger.
- * - Low opacity. It is meant to be felt at the top of the introduction and only
- *   recognised as a glow by the time the words arrive.
- *
- * ⚠ NOT IN FIGMA as a single element. The board draws a glow group inside the
- * bbb component (node 3390:26682) and nothing above it; carrying the light up
- * into the introduction is the instruction, not a reproduction.
- */
-.intro-glow {
-  mix-blend-mode: screen;
-  opacity: 0.55;
   /*
-    Stops placed so the light BEGINS in the introduction rather than at the
-    highlight's top edge — the whole point of hoisting it. The box spans both
-    sections, so the introduction is roughly its top third: the warm centre sits
-    at 42% (inside the introduction, under the image stack), the amber picks up
-    at 58%, and the cool one anchors the bottom behind the words. They overlap
-    heavily, which is what stops any one of them reading as a distinct blob.
+    ⚠ Explicit radii, and the box is NOT what got halved. With a percentage
+    radius the light scales with the box — but it also reaches the box edge, so
+    halving the box to 450 cut every gradient off on a straight line (a faint
+    square around the glow). The box stays 900; the LIGHT is halved: each
+    gradient faded out at ~490px from its centre and now fades at 245, which
+    sits inside the box on every side. The centres moved halfway in toward the
+    middle too (were 32/34, 66/30, 48/70), so the whole shape is halved and the
+    three colours still merge into one blob rather than splitting into three.
   */
   background:
-    radial-gradient(58% 30% at 34% 42%, var(--color-glow-warm) 0%, transparent 72%),
-    radial-gradient(52% 28% at 68% 58%, var(--color-glow-amber) 0%, transparent 72%),
-    radial-gradient(66% 34% at 48% 78%, var(--color-glow-cool) 0%, transparent 74%);
-  filter: blur(var(--bbb-blur));
+    radial-gradient(circle 245px at 41% 42%, var(--color-glow-warm) 0%, transparent 100%),
+    radial-gradient(circle 245px at 58% 40%, var(--color-glow-amber) 0%, transparent 100%),
+    radial-gradient(circle 245px at 49% 60%, var(--color-glow-cool) 0%, transparent 100%);
+  filter: blur(var(--glow-blob-blur));
 }
 
 /* The haze behind the words. Figma uses difference; screen reads the same on
@@ -370,6 +341,14 @@
 }
 
 /* The letterform mask is static; the blob moves inside it. */
+/* The shared blob's clip box spans the introduction and the highlight. Its top
+   edge meets the hero, so the light fades out over the first 160px rather than
+   being cut on a line. */
+.glow-field {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 160px);
+  mask-image: linear-gradient(to bottom, transparent 0, black 160px);
+}
+
 .bbb-lit {
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
