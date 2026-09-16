@@ -134,7 +134,7 @@ export function Packaging({
         <Reveal>
           <div className="flex max-w-[549px] flex-col items-start gap-md">
             <Eyebrow tone={eyebrowTone}>{eyebrow}</Eyebrow>
-            <Typography variant="h2" className="text-h3 md:text-h2">
+            <Typography variant="h2" className="text-h2-compact md:text-h2">
               {heading}
             </Typography>
           </div>
@@ -284,7 +284,7 @@ export function StaggeredCards({
         <Reveal>
           <div className="mx-auto flex max-w-[846px] flex-col items-center gap-md text-center">
             {eyebrow && <Eyebrow tone={eyebrowTone}>{eyebrow}</Eyebrow>}
-            <Typography variant="h2" className="text-h3 md:text-h2">
+            <Typography variant="h2" className="text-h2-compact md:text-h2">
               {heading}
             </Typography>
             {intro && (
@@ -300,7 +300,8 @@ export function StaggeredCards({
           <StaggeredBackdrop rings={rings} glow={glow} />
           {cards.map((card, i) => (
             <Reveal key={card.title} index={i} className={cn(i % 2 === 1 && 'lg:mt-[243px]')}>
-              <div className="flex aspect-square flex-col justify-between rounded-md bg-neutral-50 p-lg">
+              {/* Square from md; on a phone a square card is mostly empty, so it sizes to its copy. */}
+              <div className="flex min-h-[200px] flex-col justify-between gap-2xl rounded-md bg-neutral-50 p-lg md:aspect-square md:min-h-0">
                 <div className="flex items-baseline gap-sm">
                   {card.number && (
                     <Typography variant="copyLarge" as="span" className="opacity-subtle">

@@ -306,10 +306,10 @@ function HeroCarousel() {
                     src={asset(SLIDES[index].numeral)}
                     alt=""
                     aria-hidden="true"
-                    className="-mb-[34px] h-[179px] w-auto select-none"
+                    className="-mb-[23px] h-[120px] w-auto select-none md:-mb-[34px] md:h-[179px]"
                   />
 
-                  <Typography variant="h2" as="p" className="max-w-[519px] text-h3 md:text-h2">
+                  <Typography variant="h2" as="p" className="max-w-[519px] text-h2-compact md:text-h2">
                     {SLIDES[index].copy}
                   </Typography>
                 </fm.div>
@@ -399,7 +399,7 @@ function OurBench() {
       <div className="flex flex-col gap-2xl">
         <Reveal>
           <div className="flex flex-col items-center gap-md text-center">
-            <Typography variant="h2" className="text-h3 md:text-h2">
+            <Typography variant="h2" className="text-h2-compact md:text-h2">
               Our Bench
             </Typography>
             <Typography variant="copyMedium" muted className="max-w-[720px]">
@@ -466,7 +466,7 @@ function OpenRoles() {
         <Reveal className="lg:col-span-5 lg:col-start-1">
           <div className="flex flex-col items-start gap-2xl">
             <div className="flex max-w-[519px] flex-col gap-md">
-              <Typography variant="h2" className="text-h3 text-neutral-50 md:text-h2">
+              <Typography variant="h2" className="text-h2-compact text-neutral-50 md:text-h2">
                 Open Roles
               </Typography>
               <Typography variant="copyMedium" muted>

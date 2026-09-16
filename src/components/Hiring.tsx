@@ -52,7 +52,7 @@ export function Hiring({
         {/* Copy column starts at x=845 of the content width — column 8. */}
         <Reveal index={1} className="lg:col-span-5 lg:col-start-8">
           <div className="flex flex-col items-start gap-2xl">
-            <Typography variant="h2" className="text-h3 md:text-h2">
+            <Typography variant="h2" className="text-h2-compact md:text-h2">
               We’re Hiring!
             </Typography>
             <div className="flex flex-col gap-md">

@@ -151,9 +151,25 @@ export function DivergeConverge({
         })}
       </div>
 
-      {/* Labels share the block columns, so each sits under its own block. */}
+      {/*
+        Labels share the block columns, so each sits under its own block — from
+        md. On a phone five columns are 66px each and the descriptions ran one
+        word per line, so there they become a list under the row instead.
+      */}
+      <ol className="flex flex-col gap-lg md:hidden">
+        {stages.map((stage, i) => (
+          <li key={stage.label} className="flex flex-col gap-xs">
+            <Typography variant="copyLarge" as="h3">
+              <span className="opacity-subtle">{String(i + 1).padStart(2, '0')}</span> {stage.label}
+            </Typography>
+            <Typography variant="copySmall" muted>
+              {stage.description}
+            </Typography>
+          </li>
+        ))}
+      </ol>
       <div
-        className="grid w-full"
+        className="hidden w-full md:grid"
         style={{
           gridTemplateColumns: `repeat(${stages.length}, ${(BLOCK_WIDTH / ROW_WIDTH) * 100}%)`,
           justifyContent: 'space-between',

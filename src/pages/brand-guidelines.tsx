@@ -249,7 +249,7 @@ function TierBand({ tier, children }: { tier: Tier; children: React.ReactNode })
       <div className="flex flex-col gap-4xl">
         <Reveal>
           <div className="grid gap-lg lg:grid-cols-[120px_1fr]">
-            <Typography variant="h2" as="span" className="text-h3 opacity-subtle md:text-h2">
+            <Typography variant="h2" as="span" className="text-h2-compact opacity-subtle md:text-h2">
               0{tier.n}
             </Typography>
             <div className="flex max-w-[720px] flex-col items-start gap-md">
@@ -257,7 +257,7 @@ function TierBand({ tier, children }: { tier: Tier; children: React.ReactNode })
                 <Eyebrow tone="ink">{tier.label}</Eyebrow>
                 <Tag>{tier.band}</Tag>
               </div>
-              <Typography variant="h2" className="text-h3 md:text-h2">
+              <Typography variant="h2" className="text-h2-compact md:text-h2">
                 {tier.name}
               </Typography>
               <Typography variant="copyMedium" muted>

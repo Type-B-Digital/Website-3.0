@@ -105,6 +105,12 @@ function Hero() {
           aria-hidden="true"
           className="absolute inset-0 z-0 size-full object-cover"
         />
+        {/*
+          Below lg the copy spans the width and crosses the phone in the photo,
+          which is light. The contrast note above holds only for the left 628px
+          of the desktop crop, so phones and tablets get an ink wash.
+        */}
+        <div aria-hidden className="absolute inset-0 z-0 bg-neutral-900/55 lg:hidden" />
         <Container className="relative z-10 flex min-h-[880px] flex-col justify-center">
           <div className="flex max-w-[628px] flex-col items-start gap-md">
             <Eyebrow tone="onAccent">Featured</Eyebrow>
@@ -221,7 +227,7 @@ function Industries() {
     <Section tone="none" spacing="none" className="py-4xl text-on-light">
       <div className="flex flex-col gap-4xl">
         <Reveal>
-          <Typography variant="h2" className="text-h3 md:text-h2">
+          <Typography variant="h2" className="text-h2-compact md:text-h2">
             Industries we serve
           </Typography>
         </Reveal>

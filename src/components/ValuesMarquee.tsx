@@ -58,7 +58,7 @@ export function ValuesMarquee({
     <div className={cn('pb-md pt-[calc(theme(spacing.4xl)*2)]', className)}>
       <Marquee speed="marqueeSlow" gapClassName="gap-lg" className={toneClasses[tone]}>
         {VALUES.map((value) => (
-          <Typography key={value} variant="h1" as="span" className="whitespace-nowrap">
+          <Typography key={value} variant="h1" as="span" className="whitespace-nowrap text-h2 md:text-h1">
             {value}
             <span aria-hidden className="pl-lg opacity-muted">
               ·

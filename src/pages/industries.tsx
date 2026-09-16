@@ -200,7 +200,7 @@ function IndustryRow({ industry }: { industry: (typeof INDUSTRIES)[number] }) {
             <div className="flex flex-col gap-md">
               {/* As on What We Do: plain text, with "Learn more" beside it
                   carrying the link. Five headings, five duplicate targets. */}
-              <Typography variant="h2" className="text-h3 md:text-h2">
+              <Typography variant="h2" className="text-h2-compact md:text-h2">
                 {industry.title}
               </Typography>
               <Typography variant="copyMedium" muted>

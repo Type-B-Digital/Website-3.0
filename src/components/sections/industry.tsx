@@ -94,7 +94,7 @@ export function Statement({ children }: { children: string }) {
       className="pb-4xl pt-[calc(theme(spacing.4xl)*2)] text-on-light"
     >
       <Reveal>
-        <Typography variant="h3" as="p" className="max-w-[954px]">
+        <Typography variant="h3" as="p" className="max-w-[954px] text-h2-compact md:text-h3">
           {children}
         </Typography>
       </Reveal>
@@ -125,7 +125,7 @@ export function StatBand({ heading, stats }: { heading: string; stats: readonly 
     <Section tone="none" spacing="none" className="py-4xl text-on-light">
       <div className="grid gap-lg md:grid-cols-2 lg:grid-cols-4">
         <Reveal className="lg:col-span-2">
-          <Typography variant="h2" className="max-w-[519px] text-h3 md:text-h2">
+          <Typography variant="h2" className="max-w-[519px] text-h2-compact md:text-h2">
             {heading}
           </Typography>
         </Reveal>
@@ -133,7 +133,7 @@ export function StatBand({ heading, stats }: { heading: string; stats: readonly 
           <Reveal key={stat.value} index={i + 1}>
             {/* 74 - 58 = 16 between the numeral and its line of proof. */}
             <div className="flex flex-col gap-md">
-              <Typography variant="h2" as="p" className="text-h3 md:text-h2">
+              <Typography variant="h2" as="p" className="text-h2-compact md:text-h2">
                 {stat.value}
               </Typography>
               <Typography variant="copyMedium" muted>

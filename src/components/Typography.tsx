@@ -24,6 +24,7 @@ const variantClass: Record<TypographyVariant, string> = {
   h1: 'text-h1',
   h2: 'text-h2',
   h3: 'text-h3',
+  h2Compact: 'text-h2-compact',
   display: 'text-display',
   subHeaderLarge: 'text-sub-header-large',
   subHeaderSmall: 'text-sub-header-small',
@@ -63,10 +64,24 @@ const variantClass: Record<TypographyVariant, string> = {
  */
 const WRAP_UTILITY = /(?:^|\s)(?:whitespace-\S+|text-(?:nowrap|wrap|balance|pretty))(?:\s|$)/
 
+/**
+ * A caller that sets its own UNPREFIXED type size replaces the variant's.
+ *
+ * ⚠ Not a nicety. Tailwind emits the type-scale utilities in ALPHABETICAL
+ * order, not scale order, so when two base sizes land on one element the later
+ * name wins — not the caller's. `variant="h3"` with `text-h2-compact` rendered
+ * 40px, because `.text-h3` sorts after `.text-h2-compact`. Dropping the variant
+ * class leaves exactly one base size, and responsive ones (`md:text-h3`) sit in
+ * their own media query where order is not in question. The variant still sets
+ * the default element and the wrap behaviour.
+ */
+const SIZE_UTILITY = /(?:^|\s)text-(?:h1|h2|h3|h2-compact|display|sub-header-large|sub-header-small|copy-large|copy-medium|copy-small|copy-x-small|eyebrow|tag|button|nav-link|nav-panel-link|numeral|\[\d+px\])(?:\s|$)/
+
 const BALANCED: ReadonlySet<TypographyVariant> = new Set([
   'h1',
   'h2',
   'h3',
+  'h2Compact',
   'display',
   'numeral',
 ])
@@ -76,6 +91,7 @@ const defaultElement: Record<TypographyVariant, ElementType> = {
   h1: 'h1',
   h2: 'h2',
   h3: 'h3',
+  h2Compact: 'h2',
   display: 'h2',
   subHeaderLarge: 'p',
   subHeaderSmall: 'p',
@@ -121,7 +137,7 @@ export function Typography({
   return (
     <Component
       className={cn(
-        variantClass[variant],
+        !SIZE_UTILITY.test(className ?? '') && variantClass[variant],
         muted && 'opacity-muted',
         !WRAP_UTILITY.test(className ?? '') &&
           (BALANCED.has(variant) ? 'text-balance' : 'text-pretty'),

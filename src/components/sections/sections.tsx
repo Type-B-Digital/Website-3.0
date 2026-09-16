@@ -51,7 +51,7 @@ export function IdealCustomerProfiles({
     <Section tone="none" spacing="none" className="py-4xl text-on-light">
       <div className="flex flex-col gap-3xl">
         <Reveal>
-          <Typography variant="h2" className="text-h3 md:text-h2">
+          <Typography variant="h2" className="text-h2-compact md:text-h2">
             {heading}
           </Typography>
         </Reveal>
@@ -170,7 +170,7 @@ export function CapabilityGrid({
         <Reveal>
           <div className="mx-auto flex max-w-[800px] flex-col items-center gap-lg text-center">
             <Eyebrow tone="cream">{eyebrow}</Eyebrow>
-            <Typography variant="h2" className="text-h3 md:text-h2">
+            <Typography variant="h2" className="text-h2-compact md:text-h2">
               {heading}
             </Typography>
           </div>
@@ -235,7 +235,7 @@ export function EngagementSteps({
       <div className="flex flex-col gap-3xl">
         <Reveal>
           <div className="mx-auto flex max-w-[800px] flex-col items-center gap-lg text-center">
-            <Typography variant="h2" className="text-h3 md:text-h2">
+            <Typography variant="h2" className="text-h2-compact md:text-h2">
               {heading}
             </Typography>
             {intro && (
@@ -355,7 +355,7 @@ export function LevelsList({
             co-occur, so the gap follows whichever is present.
           */}
           <div className={cn('flex max-w-[628px] flex-col', image ? 'gap-3xl' : 'gap-md')}>
-            <Typography variant="h2" className="text-h3 md:text-h2">
+            <Typography variant="h2" className="text-h2-compact md:text-h2">
               {heading}
             </Typography>
             {intro && (
@@ -462,7 +462,7 @@ export function SplitFeature({
             {heading}
           </Typography>
         ) : (
-          <Typography variant="h2" className="text-h3 md:text-h2">
+          <Typography variant="h2" className="text-h2-compact md:text-h2">
             {heading}
           </Typography>
         )}
@@ -557,7 +557,7 @@ export function RelatedServices({ services }: { services: readonly RelatedServic
     <Section tone="none" spacing="none" className="py-4xl text-on-light">
       <div className="flex flex-col gap-3xl">
         <Reveal>
-          <Typography variant="h2" className="text-h3 md:text-h2">
+          <Typography variant="h2" className="text-h2-compact md:text-h2">
             Related Services
           </Typography>
         </Reveal>

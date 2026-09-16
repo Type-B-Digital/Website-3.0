@@ -227,7 +227,7 @@ function HowWeShowUp() {
     <Section tone="light" spacing="none" className="py-5xl">
       <div className="flex flex-col gap-2xl">
         <Reveal>
-          <Typography variant="h2" className="text-h3 md:text-h2">
+          <Typography variant="h2" className="text-h2-compact md:text-h2">
             How we show up
           </Typography>
         </Reveal>
@@ -279,7 +279,7 @@ function OurApproach() {
         <Reveal>
           <div className="mx-auto flex max-w-[800px] flex-col items-center gap-md text-center">
             <Eyebrow tone="onAccent">Four stages</Eyebrow>
-            <Typography variant="h2" className="text-h3 md:text-h2">
+            <Typography variant="h2" className="text-h2-compact md:text-h2">
               Our Approach
             </Typography>
             <Typography variant="copyLarge" muted>
@@ -299,7 +299,8 @@ function OurApproach() {
           <StaggeredBackdrop />
           {STAGES.map((stage, i) => (
             <Reveal key={stage.number} index={i} className={cn(i % 2 === 1 && 'lg:mt-[243px]')}>
-              <div className="flex aspect-square flex-col justify-between rounded-md bg-neutral-50 p-lg">
+              {/* Square from md; on a phone a square card is mostly empty, so it sizes to its copy. */}
+              <div className="flex min-h-[200px] flex-col justify-between gap-2xl rounded-md bg-neutral-50 p-lg md:aspect-square md:min-h-0">
                 <div className="flex items-baseline gap-sm">
                   <Typography variant="copyLarge" as="span" className="opacity-subtle">
                     {stage.number}
@@ -339,7 +340,7 @@ function DesignThinking() {
         <Reveal>
           <div className="mx-auto flex max-w-[800px] flex-col items-center gap-md text-center">
             <Eyebrow tone="onLight">Design thinking</Eyebrow>
-            <Typography variant="h2" className="text-h3 md:text-h2">
+            <Typography variant="h2" className="text-h2-compact md:text-h2">
               We diverge. Then converge.
             </Typography>
             <Typography variant="copyLarge" muted>
@@ -387,7 +388,7 @@ function Talent() {
         <Reveal>
           <div className="mx-auto flex max-w-[800px] flex-col items-center gap-md text-center">
             <Eyebrow tone="cream">Talent</Eyebrow>
-            <Typography variant="h2" className="text-h3 md:text-h2">
+            <Typography variant="h2" className="text-h2-compact md:text-h2">
               Global by design
             </Typography>
             <Typography variant="copyLarge" muted>

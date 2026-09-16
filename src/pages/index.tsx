@@ -18,6 +18,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type RefObject,
 } from 'react'
 import {
@@ -530,6 +531,17 @@ const MANIFESTO_STACK = [
 
 const STACK_BOX = { width: 421.806, height: 498.014 }
 
+/** An image's artboard box as percentages of the stack, so the stack can scale. */
+function stackStyle(image: (typeof MANIFESTO_STACK)[number]) {
+  const pct = (v: number, of: number) => `${(v / of) * 100}%`
+  return {
+    left: pct(image.left, STACK_BOX.width),
+    top: pct(image.top, STACK_BOX.height),
+    width: pct(image.width, STACK_BOX.width),
+    height: pct(image.height, STACK_BOX.height),
+  }
+}
+
 /**
  * One image in the stack: enters from beyond the right edge and settles at its
  * artboard offset.
@@ -562,10 +574,7 @@ function StackImage({ image, index }: { image: (typeof MANIFESTO_STACK)[number];
       aria-hidden="true"
       className="absolute max-w-none rounded-md will-change-transform"
       style={{
-        left: image.left,
-        top: image.top,
-        width: image.width,
-        height: image.height,
+        ...stackStyle(image),
         zIndex: index,
       }}
       variants={{
@@ -623,8 +632,13 @@ function Manifesto() {
   const stack = (
     <fm.div
       data-scene="manifesto-stack"
-      className="relative shrink-0"
-      style={{ width: STACK_BOX.width, height: STACK_BOX.height }}
+      /*
+        Fluid below 422px: the box keeps the artboard's aspect and each image is
+        placed as a percentage of it (see `stackStyle`), so on a 390 phone the
+        stack scales down inside the margins instead of running 64px past them.
+      */
+      className="relative w-full shrink-0"
+      style={{ maxWidth: STACK_BOX.width, aspectRatio: `${STACK_BOX.width} / ${STACK_BOX.height}` }}
       /* The trigger for all three images — see the note on StackImage. */
       initial={prefersReduced ? undefined : 'hidden'}
       whileInView={prefersReduced ? undefined : 'visible'}
@@ -639,10 +653,7 @@ function Manifesto() {
             aria-hidden="true"
             className="absolute max-w-none rounded-md"
             style={{
-              left: image.left,
-              top: image.top,
-              width: image.width,
-              height: image.height,
+              ...stackStyle(image),
               zIndex: i,
             }}
           />
@@ -704,7 +715,7 @@ function Manifesto() {
           */}
           <div className="mx-auto flex w-full max-w-[1240px] flex-col items-center justify-between gap-4xl lg:flex-row">
             <Reveal className="w-full lg:max-w-[640px] lg:flex-1">
-              <Typography variant="h2" as="p" className="leading-[1.2]">
+              <Typography variant="h2" as="p" className="text-h2-compact leading-[1.2] md:text-h2">
                 {MANIFESTO_TEXT}
               </Typography>
             </Reveal>
@@ -1098,7 +1109,7 @@ function Pillars() {
             <div className="flex flex-col items-start gap-lg lg:flex-row lg:items-center">
               <div className="flex flex-1 flex-col items-start gap-md">
                 <Eyebrow tone="onLight">We do things different</Eyebrow>
-                <Typography variant="h2" className="text-h3 md:text-h2">
+                <Typography variant="h2" className="text-h2-compact md:text-h2">
                   What sets us apart
                 </Typography>
               </div>
@@ -1117,7 +1128,7 @@ function Pillars() {
         */}
         <ScrollTrack>
           {PILLARS.map((pillar, i) => (
-            <li key={pillar.title} className="w-[410px] shrink-0">
+            <li key={pillar.title} className="w-[min(410px,85vw)] shrink-0">
               <Reveal index={i}>
                 <Card
                   src={asset('/images/scene.png')}
@@ -1217,7 +1228,7 @@ function Stages() {
         <Reveal>
           <div className="flex flex-col items-center gap-md text-center">
             <Eyebrow tone="onLight">Who we serve</Eyebrow>
-            <Typography variant="h2" className="text-h3 md:text-h2">
+            <Typography variant="h2" className="text-h2-compact md:text-h2">
               Built for all stages
             </Typography>
           </div>
@@ -1439,7 +1450,7 @@ function Partner() {
     <Container>
       <div className="flex max-w-[351px] flex-col items-start gap-md">
         <Eyebrow tone="onAccent">Core offerings</Eyebrow>
-        <Typography variant="h2" className="text-h3 md:text-h2">
+        <Typography variant="h2" className="text-h2-compact md:text-h2">
           How we partner
         </Typography>
       </div>
@@ -1531,7 +1542,7 @@ function Partner() {
       {/* Same colour as an unselected offering, so the band reads as one family. */}
       <Marquee speed="marqueeSlow" gapClassName="gap-lg" className="relative pb-md text-accent-400">
         {VALUES.map((value) => (
-          <Typography key={value} variant="h1" as="span" className="whitespace-nowrap">
+          <Typography key={value} variant="h1" as="span" className="whitespace-nowrap text-h2 md:text-h1">
             {value}
             <span aria-hidden className="pl-lg opacity-muted">
               ·
@@ -1556,13 +1567,20 @@ function Partner() {
   }
 
   return (
+    /*
+      ⚠ Pinned from `lg` only. Below it the row stacks (copy, the three names,
+      the image) and is far taller than the header and marquee leave room for
+      inside one screen, so the absolutely-placed header sat on top of the copy.
+      Below `lg` the three parts are ordinary flow and the section is as tall as
+      its content.
+    */
     <div
       ref={sceneRef}
-      className="relative"
-      style={{ height: `${offeringScene.pinLength * 100}vh` }}
+      className="relative lg:h-[var(--pin-length)]"
+      style={{ '--pin-length': `${offeringScene.pinLength * 100}vh` } as CSSProperties}
     >
       {/* No ground here either — WorkToOfferings paints it. */}
-      <div className="sticky top-0 h-screen w-full overflow-hidden text-on-dark-muted">
+      <div className="w-full overflow-hidden text-on-dark-muted lg:sticky lg:top-0 lg:h-screen">
         {/*
           Header and marquee are pinned to the panel's edges and the row is
           centred on the panel itself, rather than all three sharing a
@@ -1571,10 +1589,13 @@ function Partner() {
           is taller than the marquee, that midpoint sits below the section's own
           middle, which read as the row hanging low.
         */}
-        <fm.div className="relative size-full" style={{ opacity: contentOpacity }}>
-          <div className="absolute inset-x-0 top-0 pt-4xl">{header}</div>
-          <div className="flex size-full items-center">{row}</div>
-          <div className="absolute inset-x-0 bottom-0">{values}</div>
+        <fm.div
+          className="relative flex flex-col gap-3xl pt-4xl lg:block lg:size-full lg:pt-0"
+          style={{ opacity: contentOpacity }}
+        >
+          <div className="lg:absolute lg:inset-x-0 lg:top-0 lg:pt-4xl">{header}</div>
+          <div className="lg:flex lg:size-full lg:items-center">{row}</div>
+          <div className="lg:absolute lg:inset-x-0 lg:bottom-0">{values}</div>
         </fm.div>
       </div>
     </div>

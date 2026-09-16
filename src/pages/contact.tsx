@@ -292,7 +292,7 @@ function HeroAndForm() {
                 wide; display would push it to three. Logged in BUILD_LOG rather
                 than adding a one-off size.
               */}
-              <Typography variant="h2" className="text-h3 md:text-h2">
+              <Typography variant="h2" className="text-h2-compact md:text-h2">
                 We believe in what you’re building
               </Typography>
               <Typography variant="copyLarge" muted>

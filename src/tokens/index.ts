@@ -592,6 +592,20 @@ export const typography = {
    * update, along with the sample being renamed text-header-4 -> text-header-3.
    */
   h3: { fontSize: '40px', lineHeight: 1.2, fontWeight: fontWeight.semibold },
+  /**
+   * ⚠ NOT IN FIGMA. The compact heading step — where `h2` lands below `md`.
+   *
+   * Eduardo, 2026-09-16: "bring down all 72px headers to 48px and all 48px
+   * headers down to 32px so the hierarchy remains". h1 already had somewhere to
+   * go (h2, 48); h2 did not — it used to drop to h3 (40), which kept only 8px
+   * between a section heading and the 32px sub-headers under it. 32 is the
+   * `subHeaderLarge` SIZE, but that token is regular on 1.5 leading: a heading
+   * needs semibold on 1.2, like every other step here, so it is its own token.
+   *
+   *   desktop    h1 72   h2 48   h3 40
+   *   below md   h1 48   h2 32   h3 32
+   */
+  h2Compact: { fontSize: '32px', lineHeight: 1.2, fontWeight: fontWeight.semibold },
   /** Full-bleed CTA band headline. Figma: 3390:26562 */
   display: { fontSize: '64px', lineHeight: 1.2, fontWeight: fontWeight.semibold },
   /** Figma: "Sub-Header Large" — node 3386:25396 */
@@ -944,8 +958,17 @@ export const motion = {
    * scroll slightly and settle, instead of tracking it rigidly frame for frame.
    */
   scrollLag: { stiffness: 55, damping: 22, mass: 0.45 },
-  /** Viewport trigger point for scroll reveals. */
-  viewport: { amount: 0.25, once: true },
+  /**
+   * Viewport trigger point for scroll reveals.
+   *
+   * ⚠ Was `amount: 0.25` — reveal once a quarter of the element is on screen.
+   * That can never happen for an element more than four viewports tall, and on
+   * a phone the article body of a blog post is (4,100px on an 844px screen), so
+   * it stayed at opacity 0 for good: the whole post read as blank page. Now it
+   * fires when ANY part of the element is 10% of the viewport up from the
+   * bottom edge, which works at every element height.
+   */
+  viewport: { amount: "some", margin: "0px 0px -10% 0px", once: true },
   /**
    * Schedule and geometry for the pointer-lit "Bold. Brilliant. Beautiful."
    * scene. Figma: bbb-glowing-copy-component, node 3390:26748.

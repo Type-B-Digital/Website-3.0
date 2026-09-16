@@ -227,7 +227,7 @@ function NavPanelContent({
            them stacked in a 390px drawer is not the same design decision, so
            the drawer takes the h3 step the rest of the site already uses for
            this. */
-        className={cn('text-on-light', bare && 'text-h3 md:text-h2')}
+        className={cn('text-on-light', bare && 'text-h2-compact md:text-h2')}
       >
         {item.to ? (
           <Link

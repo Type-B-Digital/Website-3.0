@@ -259,7 +259,7 @@ export function CaseChallenge({
         <Reveal className="lg:col-span-4">
           <div className="flex max-w-[411px] flex-col items-start gap-lg">
             <Eyebrow tone="onLight">{eyebrow}</Eyebrow>
-            <Typography variant="h2" className="text-h3 md:text-h2">
+            <Typography variant="h2" className="text-h2-compact md:text-h2">
               {heading}
             </Typography>
           </div>
@@ -319,7 +319,7 @@ export function CaseSolution({
           <Reveal className="lg:col-span-6">
             <div className="flex max-w-[628px] flex-col items-start gap-lg">
               <Eyebrow tone="onLight">{eyebrow}</Eyebrow>
-              <Typography variant="h2" className="text-h3 md:text-h2">
+              <Typography variant="h2" className="text-h2-compact md:text-h2">
                 {heading}
               </Typography>
             </div>
@@ -391,7 +391,7 @@ export function CaseImpact({
         <Reveal>
           <div className="flex max-w-[676px] flex-col items-start gap-lg">
             <Eyebrow tone="onLight">{eyebrow}</Eyebrow>
-            <Typography variant="h2" className="text-h3 md:text-h2">
+            <Typography variant="h2" className="text-h2-compact md:text-h2">
               {heading}
             </Typography>
           </div>

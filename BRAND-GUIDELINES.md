@@ -312,6 +312,7 @@ Every step below is a token in `typography` and maps 1:1 to a Tailwind
 | `display` | `text-display` | 64px | 1.2 | 600 | — |
 | `h2` | `text-h2` | 48px | 1.2 | 600 | — |
 | `h3` | `text-h3` | 40px | 1.2 | 600 | — |
+| `h2Compact` | `text-h2-compact` | 32px | 1.2 | 600 | ⚠ Not in Figma. Where `h2` lands below `md` |
 | `subHeaderLarge` | `text-sub-header-large` | 32px | 1.5 | 400 | — |
 | `navPanelLink` | `text-nav-panel-link` | 32px | 42/32 | 400 | — |
 | `subHeaderSmall` | `text-sub-header-small` | 24px | 1.5 | 400 | — |
@@ -804,7 +805,16 @@ Some layouts do **not** sit on the 12-column grid and are held as literals:
 There are no artboards below 1440. Established interpretations:
 
 - Multi-column grids collapse `lg` → `md` → single column.
-- Display type steps down one scale step below `md` (`text-h2 md:text-h1`).
+- Headings step down below `md` so the hierarchy survives a phone (2026-09-16):
+  72 → 48 (`text-h2 md:text-h1`), 48 → 32 (`text-h2-compact md:text-h2`),
+  and the 64px CTA display → 48. A caller's own size class replaces the
+  `Typography` variant's size outright — Tailwind emits the type-scale utilities
+  alphabetically, so two base sizes on one element would resolve by name, not
+  by intent.
+- Pinned scroll scenes pin from `lg` only; below it their content is ordinary
+  flow, because the stacked layout no longer fits in one screen.
+- Scroll reveals fire when any part of an element is on screen (never a
+  fraction of its height), so a very tall block cannot stay invisible.
 - The five nav dropdowns are replaced by a full-viewport drawer below `lg`.
 - Navigational aids that would precede the content they describe are hidden
   below `lg` rather than stacked above it.

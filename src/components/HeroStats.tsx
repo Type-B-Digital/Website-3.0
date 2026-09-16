@@ -52,7 +52,7 @@ export function HeroStats({ stats }: { stats: readonly HeroStat[] }) {
       {stats.map((stat, i) => (
         <Reveal key={stat.label} index={i} className={cn('lg:col-span-3', STAT_COLUMN[i % 3])}>
           <div className="flex flex-col gap-sm text-right">
-            <Typography variant="h2" as="p">
+            <Typography variant="h2" as="p" className="text-h2-compact md:text-h2">
               {(() => {
                 const parts = splitStat(stat.value)
                 return parts ? (

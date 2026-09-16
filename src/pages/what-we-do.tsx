@@ -328,7 +328,7 @@ function ServiceBlock({ service }: { service: (typeof SERVICES)[number] }) {
                 was the only thing announcing it — it read as an accident on a
                 40px headline. The CTA is the affordance; this is the label.
               */}
-              <Typography variant="h2" className="text-h3 md:text-h2">
+              <Typography variant="h2" className="text-h2-compact md:text-h2">
                 {service.title}
               </Typography>
               <Typography variant="copyMedium" muted>
@@ -347,7 +347,8 @@ function ServiceBlock({ service }: { service: (typeof SERVICES)[number] }) {
           </div>
         </Reveal>
 
-        <div className="grid items-start gap-4xl lg:grid-cols-[628px_1fr]">
+        {/* Even halves at lg: 628 + 80 left the services list 268px, and it clipped. */}
+        <div className="grid items-start gap-2xl lg:grid-cols-2 xl:grid-cols-[628px_1fr] xl:gap-4xl">
           <Reveal index={1}>
             <img
               src={service.image}
@@ -424,20 +425,25 @@ function WhyWeExist() {
         <Reveal>
           <div className="flex max-w-[490px] flex-col items-start gap-md">
             <Eyebrow tone="onLight">Why we exist</Eyebrow>
-            <Typography variant="h2" className="text-h3 md:text-h2">
+            <Typography variant="h2" className="text-h2-compact md:text-h2">
               One accountable team instead of four
             </Typography>
           </div>
         </Reveal>
 
         <Reveal index={1}>
-          <div className="grid grid-cols-[minmax(150px,193px)_repeat(5,minmax(0,1fr))] items-center gap-x-md gap-y-xl">
+          {/*
+            Below md the five capability columns are ~36px each, so the labels
+            under them run vertically (read bottom to top) and the row labels
+            give up some width. From md everything is as drawn.
+          */}
+          <div className="grid grid-cols-[minmax(108px,193px)_repeat(5,minmax(0,1fr))] items-center gap-x-xs gap-y-xl md:gap-x-md">
             {MATRIX_ROWS.map((row) => {
               const covered = COVERAGE[row.name] ?? []
               const isUs = row.name === 'Type B Digital'
               return (
                 <Fragment key={row.name}>
-                  <div className="flex flex-col gap-xs pr-md">
+                  <div className="flex flex-col gap-xs pr-xs md:pr-md">
                     <Typography variant="copyLarge" as="span">
                       {row.name}
                     </Typography>
@@ -473,7 +479,13 @@ function WhyWeExist() {
             {/* Column labels sit below the grid on the artboard (node 3604:1249). */}
             <span aria-hidden />
             {MATRIX_COLUMNS.map((column) => (
-              <Typography key={column} variant="copyMedium" as="span" muted className="text-center">
+              <Typography
+                key={column}
+                variant="copyMedium"
+                as="span"
+                muted
+                className="rotate-180 justify-self-center text-center text-copy-small [writing-mode:vertical-rl] md:rotate-0 md:text-copy-medium md:[writing-mode:horizontal-tb]"
+              >
                 {column}
               </Typography>
             ))}
@@ -505,7 +517,7 @@ function ManagedEndToEnd() {
         <Reveal>
           <div className="flex flex-col items-center gap-md">
             <Eyebrow tone="onLight">Senior teams</Eyebrow>
-            <Typography variant="h2" className="text-h3 md:text-h2">
+            <Typography variant="h2" className="text-h2-compact md:text-h2">
               We manage end-to-end
             </Typography>
             <Typography variant="copyMedium" muted className="max-w-[720px]">
