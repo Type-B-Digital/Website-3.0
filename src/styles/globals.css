@@ -37,7 +37,7 @@
   /* The homepage's one pointer blob. Half of --bbb-blur, halved with the blob
      itself (Eduardo, 2026-09-16) so the light is half the size and not just a
      smaller box under the same soft edge. The other glows keep --bbb-blur. */
-  --glow-blob-blur: 60px;
+  --glow-blob-blur: 66px;
 
   /* --- color: off-board values still in use ----------------------- */
   --color-paper: #f6f6f6;
@@ -326,11 +326,14 @@
     sits inside the box on every side. The centres moved halfway in toward the
     middle too (were 32/34, 66/30, 48/70), so the whole shape is halved and the
     three colours still merge into one blob rather than splitting into three.
+
+    +10% on 2026-09-16 (Eduardo): radii 245 -> 270, centres 10% further from
+    the middle, blur 60 -> 66. Nearest box edge is still 351px from any centre.
   */
   background:
-    radial-gradient(circle 245px at 41% 42%, var(--color-glow-warm) 0%, transparent 100%),
-    radial-gradient(circle 245px at 58% 40%, var(--color-glow-amber) 0%, transparent 100%),
-    radial-gradient(circle 245px at 49% 60%, var(--color-glow-cool) 0%, transparent 100%);
+    radial-gradient(circle 270px at 40.1% 41.2%, var(--color-glow-warm) 0%, transparent 100%),
+    radial-gradient(circle 270px at 58.8% 39%, var(--color-glow-amber) 0%, transparent 100%),
+    radial-gradient(circle 270px at 48.9% 61%, var(--color-glow-cool) 0%, transparent 100%);
   filter: blur(var(--glow-blob-blur));
 }
 

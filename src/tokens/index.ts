@@ -962,7 +962,7 @@ export const motion = {
       "instead of scroll locking the entire Bold Brilliant Beautiful section,
       make the stats scroll across the page." The section is ordinary flow now
       and its height comes from its content — a full screen of stats plus a
-      1.2-viewport tail — rather than from a number here. See the note on that
+      0.8-viewport tail — rather than from a number here. See the note on that
       tail in index.tsx for why it exists.
     */
     /** Where the ground starts turning into the next section's surface, and
@@ -997,8 +997,26 @@ export const motion = {
       pass had this at 0.64 -> 0.9, which put the whole crossfade after the
       bottom edge had arrived: it played out on a strip that was shrinking to
       nothing and read as a hard seam against the cream band below.
+
+      ⚠ RETIMED AGAIN 2026-09-16 — Eduardo: "start the dark to light section
+      transition sooner so that there's less white space as you scroll." The
+      tail went from 1.2 to 0.8 viewports and the window from 0.40 -> 0.54 to
+      0.30 -> 0.44. Measured at 1440 wide with the 0.8 tail:
+
+        viewport   last stat leaves   bottom edge enters
+          700          0.484               0.483
+          900          0.437               0.444
+         1200          0.397               0.444
+
+      `end` is 0.44, just inside the smallest bottom-edge value, so the fade
+      still completes before the panel starts being cut off — that constraint
+      is unchanged. What changed is `start`: the fade no longer waits for the
+      last stat to clear the top. It begins while "7" is still rising through
+      the upper third, and that stat fades out with the words (contentOpacity)
+      rather than scrolling off first. That overlap is the "sooner"; the
+      shorter tail is the "less white space" (~330px less scroll at 900 tall).
     */
-    fade: { start: 0.4, end: 0.54 },
+    fade: { start: 0.3, end: 0.44 },
     /** Blob BOX, px — the paint area, not the light. The light was halved on
      *  2026-09-16 (Eduardo) by halving the gradient radii in `.bbb-blob` and
      *  its blur; the box stays 900 so those gradients fade out inside it
@@ -1006,7 +1024,7 @@ export const motion = {
     blobSize: 900,
     /** Blur on the blob, px — mirrors --glow-blob-blur. Was 120 (Figma
      *  stdDeviation, node 3390:26688) before the blob was halved. */
-    blur: 60,
+    blur: 66,
     /**
      * Outline layer opacity. The artboard has 0.4; raised by half at Eduardo's
      * request because the strokes read too faintly in motion.

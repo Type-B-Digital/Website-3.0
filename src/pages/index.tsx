@@ -1048,9 +1048,10 @@ function BoldBrilliantBeautiful({
         cannot outlive its containing block, so once the section's bottom edge
         rises into the viewport the words panel starts being cut off from below.
         Everything the reader should see happen — the ground going cream behind
-        the words — therefore has to be FINISHED by then. 1.2 viewports of tail
-        buys that: the fade completes at 0.54 of the section (see
-        `glowScene.fade`) and the bottom edge does not arrive until 0.545.
+        the words — therefore has to be FINISHED by then. 0.8 viewports of tail
+        buys that: the fade completes at 0.44 of the section (see
+        `glowScene.fade`) and the bottom edge does not arrive until 0.444 at
+        the earliest. Was 1.2 until Eduardo asked for less white space here.
 
         `min-h-screen` on the stats block rather than padding alone, so the
         three of them are centred in a full screen at any height and the
@@ -1058,7 +1059,7 @@ function BoldBrilliantBeautiful({
       */}
       <fm.div className="relative z-20" style={{ opacity: contentOpacity }}>
         <div className="flex min-h-screen flex-col justify-center py-[20vh]">{stats}</div>
-        <div aria-hidden className="h-[120vh]" />
+        <div aria-hidden className="h-[80vh]" />
       </fm.div>
     </section>
   )
