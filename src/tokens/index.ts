@@ -1137,17 +1137,21 @@ export const motion = {
    */
   scene: {
     /*
-      ⚠ HALVED on 2026-09-16 at Eduardo's request — "decrease the images
-      animation by half". Every value below is exactly half what it was
-      (0.1 / 0.16 / 0.9), so the shape of the entrance is unchanged and only
-      its pace moves. The stack now finishes in about 0.6s rather than 1.3s.
+      ⚠ HALF SPEED since 2026-09-16 — Eduardo, "decrease the images animation
+      by half", meaning half as fast. Every value below is exactly DOUBLE the
+      original (0.1 / 0.16 / 0.9), so the shape of the entrance is unchanged
+      and only its pace moves: the stack finishes in about 2.6s, not 1.3s.
+
+      An earlier pass halved these numbers instead, which halves the TIME and
+      so doubled the speed. Longer durations are slower; do not "fix" these
+      back down.
     */
     /** Delay before the first image moves, seconds. */
-    start: 0.05,
+    start: 0.2,
     /** Gap between one image starting and the next, seconds. */
-    stagger: 0.08,
+    stagger: 0.32,
     /** How long one image takes to travel, seconds. */
-    duration: 0.45,
+    duration: 1.8,
     /** Travel distance for an entering image, as % of its own width. */
     imageEnter: 170,
   },

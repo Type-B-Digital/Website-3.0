@@ -241,28 +241,34 @@ const CASE_STUDIES = HOMEPAGE_WORK.map((work) => ({
  * Figma: words node 3390:26751, copy node 3390:26555, image node 3390:26553.
  *
  * ⚠ The artboard only provides copy and imagery for ONE selected state (Product
- * is the one drawn), so all three entries currently share that placeholder
- * lorem and that image. The selection mechanism is complete — filling in real
- * per-offering content is one line each here and nothing else.
+ * is the one drawn), in lorem. The copy below was written 2026-09-16 as a
+ * one-sentence condensation of each offering's `body` on What We Do, so the
+ * two pages say the same thing. Kept to roughly the placeholder's length
+ * (~130 characters): the copy column is 302px with a 72px minimum height, and
+ * much longer would push the row taller on every switch.
+ *
+ * All three still share one image — the board draws only one.
  */
-const OFFERING_PLACEHOLDER_COPY =
-  'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis at the ' +
-  'praesentium voluptatum deleniti.'
-
 const OFFERINGS = [
   {
     label: 'Advisory',
-    copy: OFFERING_PLACEHOLDER_COPY,
+    copy:
+      'An honest technical read and a plan you can execute: AI strategy, diligence ' +
+      'for deals, and the change management that makes it stick.',
     image: asset('/images/partner/offering-1.png'),
   },
   {
     label: 'Product',
-    copy: OFFERING_PLACEHOLDER_COPY,
+    copy:
+      'End-to-end AI products, from the data underneath to the agents people use. ' +
+      'Sovereign AI when your data cannot leave your boundary.',
     image: asset('/images/partner/offering-1.png'),
   },
   {
     label: 'Teams',
-    copy: OFFERING_PLACEHOLDER_COPY,
+    copy:
+      'Senior engineers, designers, and data talent who ship with agents every day, ' +
+      'fully managed by us and accountable for the outcome.',
     image: asset('/images/partner/offering-1.png'),
   },
 ]
@@ -567,7 +573,8 @@ function StackImage({ image, index }: { image: (typeof MANIFESTO_STACK)[number];
           x: '0%',
           opacity: 1,
           transition: {
-            duration: scene.duration + index * 0.04,
+            // Doubled with the tokens (was 0.08) — see `motion.scene`.
+            duration: scene.duration + index * 0.16,
             delay,
             ease: [...easing.inOut],
             opacity: { duration: motionTokens.duration.fast, delay },
@@ -828,6 +835,20 @@ function BoldBrilliantBeautiful() {
     rawY.set(event.clientY - rect.top)
   }
 
+  /*
+    Top-edge feather for the ambient haze. The words panel is clipped, so while
+    the section is still scrolling up into view its top edge is a hard line
+    through the haze. Feathered over 40% of the panel at entry, closing to 0 as
+    the section's top reaches the top of the viewport — by which point that edge
+    IS the viewport edge and there is nothing left to hide.
+  */
+  const { scrollYProgress: rawArrival } = useScroll({
+    target: sceneRef,
+    offset: ['start end', 'start start'],
+  })
+  const feather = useTransform(rawArrival, [0, 1], [40, 0])
+  const ambientMask = useMotionTemplate`linear-gradient(to bottom, transparent 0%, black ${feather}%)`
+
   const { fade } = glowScene
   /* Cream at ramping alpha — see the note above on why this is not a colour mix. */
   const groundAlpha = useTransform(scrollYProgress, [fade.start, fade.end], [0, 1])
@@ -842,8 +863,12 @@ function BoldBrilliantBeautiful() {
       aspect={BBB_ARTWORK.aspect}
       widthRatio={BBB_ARTWORK.widthRatio}
       /* No leftRatio: GlowText centres the artwork when none is given. */
-      /* The haze comes from the shared .intro-glow now — see IntroToHighlight. */
-      ambient={false}
+      /*
+        Ambient haze ON — it is the background half of the hover effect. The
+        shared .intro-glow is static ground; this is the light that follows the
+        pointer over it.
+      */
+      ambientMask={ambientMask}
       pointerX={pointerX}
       pointerY={pointerY}
     />
@@ -899,7 +924,19 @@ function BoldBrilliantBeautiful() {
       hidden would also do so but makes this a scroll container, which kills
       the sticky.
     */
-    <section id={HIGHLIGHT_ID} ref={sceneRef} className="relative w-full overflow-clip text-on-dark">
+    /*
+      The pointer listener is HERE, not on the words panel. The stats layer
+      (z-20, a full screen plus the tail) sits on top of the panel for the whole
+      scene, so a listener on the panel never received a single event and the
+      glow sat frozen at its resting spot. Events from anywhere in the section
+      bubble up to this one.
+    */
+    <section
+      id={HIGHLIGHT_ID}
+      ref={sceneRef}
+      onPointerMove={handlePointerMove}
+      className="relative w-full overflow-clip text-on-dark"
+    >
       {/*
         Zero-height sticky host. It pins to the top and adds nothing to the
         flow, so the `h-screen` child below it holds the words on screen while
@@ -908,7 +945,6 @@ function BoldBrilliantBeautiful() {
       <div className="sticky top-0 z-0 h-0">
         <div
           ref={panelRef}
-          onPointerMove={handlePointerMove}
           className="relative h-screen w-full overflow-hidden"
         >
           <fm.div className="absolute inset-0" style={{ opacity: contentOpacity }}>

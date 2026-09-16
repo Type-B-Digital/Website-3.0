@@ -62,18 +62,22 @@ export type GlowTextProps = {
   /** Accessible text — the artwork is decorative SVG. */
   label: string
   /**
-   * Draw the ambient haze behind the words.
+   * Draw the ambient haze behind the words — the half of the hover effect that
+   * lights the BACKGROUND, following the pointer like the stroke light does.
    *
-   * ⚠ The homepage passes false. That haze is a 900px blob inside this
-   * component's own box, and this component is inside a clipped panel — so its
-   * top edge was a visible horizontal seam where the glow simply stopped. The
-   * previous build hid that by fading the whole scene in very late; since
-   * 2026-09-16 the ambient light comes from `.intro-glow`, which spans the
-   * introduction and the highlight together and therefore has no edge inside
-   * the page. The letterform lighting below is unaffected: it is masked into
-   * the artwork and has to stay here.
+   * ⚠ Briefly switched off on the homepage (2026-09-16) because the haze is
+   * clipped by its panel, and the panel's top edge showed as a hard seam while
+   * the section scrolled in. That removed the background half of the hover
+   * effect, which was the wrong trade. The seam is now handled with
+   * `ambientMask` instead, and the haze is back on.
    */
   ambient?: boolean
+  /**
+   * CSS mask for the ambient layer, in panel coordinates. The homepage feeds a
+   * top-edge feather that is wide while the section scrolls in and closes to
+   * nothing once it is pinned, so the clipped edge never reads as a line.
+   */
+  ambientMask?: MotionValue<string>
   className?: string
 }
 
@@ -85,6 +89,7 @@ export function GlowText({
   leftRatio,
   liftRatio = 0,
   ambient = true,
+  ambientMask,
   pointerX,
   pointerY,
   label,
@@ -138,17 +143,22 @@ export function GlowText({
       {ambient && (
         <fm.div
           aria-hidden
-          className="bbb-blob bbb-blob--ambient absolute left-0 top-0"
-          style={{
-            x: pointerX,
-            y: pointerY,
-            width: blobSize,
-            height: blobSize,
-            marginLeft: -half,
-            marginTop: -half,
-            opacity: ambientOpacity,
-          }}
-        />
+          className="absolute inset-0"
+          style={ambientMask ? { WebkitMaskImage: ambientMask, maskImage: ambientMask } : undefined}
+        >
+          <fm.div
+            className="bbb-blob bbb-blob--ambient absolute left-0 top-0"
+            style={{
+              x: pointerX,
+              y: pointerY,
+              width: blobSize,
+              height: blobSize,
+              marginLeft: -half,
+              marginTop: -half,
+              opacity: ambientOpacity,
+            }}
+          />
+        </fm.div>
       )}
 
       {/* 2. Solid words — dark silhouette, occludes the ambient blob. */}
