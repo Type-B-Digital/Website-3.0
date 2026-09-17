@@ -421,7 +421,8 @@ function Talent() {
                     onClick={() => setActive(i)}
                     aria-pressed={isActive}
                     className={cn(
-                      'flex w-5xl flex-col items-center gap-sm rounded-sm py-xs',
+                      // 32 between the flag and the city name (Eduardo, 2026-09-16).
+                      'flex w-5xl flex-col items-center gap-xl rounded-sm py-xs',
                       'transition-opacity duration-fast ease-out',
                       'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
                       'focus-visible:outline-on-dark',
