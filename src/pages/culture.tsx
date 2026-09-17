@@ -19,6 +19,7 @@ import {
 } from '@/components'
 import { PageShell } from '@/components/layout'
 import { StaggeredBackdrop } from '@/components/sections'
+import FlagOutline, { type FlagCountry } from '@/components/icons/FlagOutline'
 import { colors as colorTokens, gradients, motion as motionTokens, palette } from '@/tokens'
 import { asset } from '@/lib/asset'
 import { cn } from '@/lib/cn'
@@ -132,14 +133,15 @@ const DESIGN_THINKING: DivergeStage[] = [
  * Figma: node 3672:9752. Real coordinates, because the globe is a real
  * orthographic projection — a city has to rotate to where it actually is.
  */
-const LOCATIONS: GlobeLocation[] = [
-  { name: 'Calgary', lat: 51.05, lon: -114.07 },
-  { name: 'Toronto', lat: 43.65, lon: -79.38 },
-  { name: 'New York', lat: 40.71, lon: -74.01 },
-  { name: 'Colombo', lat: 6.93, lon: 79.86 },
-  { name: 'Buenos Aires', lat: -34.6, lon: -58.38 },
-  { name: 'Istanbul', lat: 41.01, lon: 28.98 },
-  { name: 'Hyderabad', lat: 17.39, lon: 78.49 },
+/** `country` picks the flag outline drawn in the city's chip. */
+const LOCATIONS: (GlobeLocation & { country: FlagCountry })[] = [
+  { name: 'Calgary', lat: 51.05, lon: -114.07, country: 'canada' },
+  { name: 'Toronto', lat: 43.65, lon: -79.38, country: 'canada' },
+  { name: 'New York', lat: 40.71, lon: -74.01, country: 'usa' },
+  { name: 'Colombo', lat: 6.93, lon: 79.86, country: 'sri-lanka' },
+  { name: 'Buenos Aires', lat: -34.6, lon: -58.38, country: 'argentina' },
+  { name: 'Istanbul', lat: 41.01, lon: 28.98, country: 'turkey' },
+  { name: 'Hyderabad', lat: 17.39, lon: 78.49, country: 'india' },
 ]
 
 /** Literal classes — Tailwind never emits a computed `lg:col-start-N`. */
@@ -426,13 +428,20 @@ function Talent() {
                       isActive ? 'opacity-100' : 'opacity-subtle hover:opacity-100',
                     )}
                   >
+                    {/*
+                      The ring now carries the city's flag as a line drawing
+                      (Eduardo, 2026-09-16). It inherits the button's colour, so
+                      it dims and brightens with the chip.
+                    */}
                     <span
                       aria-hidden
                       className={cn(
-                        'size-4xl rounded-full border transition-colors duration-fast ease-out',
+                        'flex size-4xl items-center justify-center rounded-full border transition-colors duration-fast ease-out',
                         isActive ? 'border-on-dark bg-on-dark/20' : 'border-on-dark-subtle',
                       )}
-                    />
+                    >
+                      <FlagOutline country={location.country} className="w-[52px]" />
+                    </span>
                     <Typography variant="copyLarge" as="span" className="whitespace-nowrap">
                       {location.name}
                     </Typography>

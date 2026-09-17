@@ -243,7 +243,11 @@ function NavPanelContent({
         )}
       </Typography>
 
-      <ul className="mt-lg flex flex-col gap-sm">
+      {/*
+        In the drawer: 16px links on a 24px pitch (Eduardo, 2026-09-16). The
+        desktop panel keeps the artboard's 32px on 8.
+      */}
+      <ul className={cn('mt-lg flex flex-col', bare ? 'gap-lg' : 'gap-sm')}>
         {item.links.map((link) => {
           /*
             Two separate things. `isCurrent` is a fact about the route and
@@ -255,7 +259,8 @@ function NavPanelContent({
           const isCurrent = link.to === currentPath
           const showCurrent = isCurrent && !link.noCurrentState
           const classes = cn(
-            'w-max text-nav-panel-link transition-colors duration-fast ease-out',
+            'w-max transition-colors duration-fast ease-out',
+            bare ? 'text-copy-medium' : 'text-nav-panel-link',
             showCurrent
               ? 'text-on-light underline decoration-from-font'
               : 'text-neutral-800 hover:text-on-light hover:underline hover:decoration-from-font',
@@ -343,7 +348,7 @@ function NavDrawer({
           exit={{ opacity: prefersReduced ? 1 : 0 }}
           transition={{ duration: prefersReduced ? 0 : navPanel.close, ease: [...easing.out] }}
         >
-          <Container className="flex flex-col gap-2xl py-xl">
+          <Container className="flex flex-col gap-2xl pt-xl">
             <div className="flex items-center justify-between">
               <Link to="/" className="shrink-0 text-neutral-900" aria-label="Type B Digital — home">
                 <TypeBLogo />
@@ -367,10 +372,19 @@ function NavDrawer({
               ))}
             </nav>
 
-            {/* The CTA is in the bar on desktop; in the drawer it belongs at the end. */}
-            <Button as={Link} to="/contact" variant="primary" tone="onLight" className="w-max">
-              Let’s talk!
-            </Button>
+            {/*
+              The CTA is in the bar on desktop. In the drawer it is STICKY at the
+              bottom with 40px under it (Eduardo, 2026-09-16), so it is always in
+              reach however far down the five sections you are. The links scroll
+              under a cream fade (the panel ground is flat neutral.50) rather than
+              colliding with the button. The wrapper's own bottom padding is the
+              40 — the Container no longer pads its bottom.
+            */}
+            <div className="sticky bottom-0 -mx-md bg-gradient-to-t from-neutral-50 from-60% to-neutral-50/0 px-md pb-2xl pt-xl">
+              <Button as={Link} to="/contact" variant="primary" tone="onLight" className="w-max">
+                Let’s talk!
+              </Button>
+            </div>
           </Container>
         </fm.div>
       )}
