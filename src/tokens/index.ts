@@ -797,9 +797,10 @@ export const motion = {
     slow: 0.9,
     /**
      * Scroll reveals. Deliberately long: these are meant to ease in and out
-     * rather than pop, so the eye follows them.
+     * rather than pop, so the eye follows them. Was 1.2 — cut 25% (with `lag`
+     * and `stagger` below) on client feedback that section reveals felt slow.
      */
-    reveal: 1.2,
+    reveal: 0.9,
     /** Values band. */
     marquee: 40,
     /** Client logo strip — slower, so marks read as they pass. */
@@ -945,8 +946,8 @@ export const motion = {
   },
   reveal: {
     distance: 32,
-    stagger: 0.14,
-    lag: 0.12,
+    stagger: 0.105,
+    lag: 0.09,
     feather: 10,
   },
 

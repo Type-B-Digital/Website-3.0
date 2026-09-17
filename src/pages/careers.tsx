@@ -253,9 +253,8 @@ function HeroCarousel() {
                 Each slide arrives with the page's own feather — opacity, a
                 short rise, and a blur resolving to zero — rather than swapping
                 instantly. Same three properties `Reveal` uses, at
-                `duration.base` rather than `duration.reveal`: a 1.2s entrance
-                inside a 3s dwell would still be arriving when the slide is
-                already half over.
+                `duration.base` rather than `duration.reveal`: a 0.9s entrance
+                would spend nearly a third of a 3s dwell still arriving.
 
                 `mode="wait"` so the outgoing slide is gone before the next
                 begins; crossfading two numerals on top of each other turns the

@@ -3697,3 +3697,19 @@ Publications panel and the footer column both carry the two external links with
 page itself, all seven contents rows resolve to a heading that exists (zero
 dead anchors), three h3 subsections render, and the mailto and both external
 links are live. 21 routes clean at 1440 and 390.
+
+## Section reveals 25% faster — 2026-09-17
+
+Client feedback: the feathered fade-in on sections loads too slowly. Every
+scroll reveal (`Reveal`, `DivergeConverge`) reads the same tokens, so the whole
+site changes from one place — each timing scaled by 0.75:
+
+- `duration.reveal` 1.2s -> **0.9s**
+- `reveal.lag` 0.12s -> **0.09s**
+- `reveal.stagger` 0.14s -> **0.105s**
+
+The feather itself (10px blur, 32px rise, symmetric ease) is unchanged, so
+reveals keep their soft arrival and only get there sooner. A four-item group
+now settles in 1.305s, down from 1.74s. The page-load entrance (`intro.nav`,
+`intro.hero`) and the careers carousel (`duration.base`) are separate tokens
+and were not touched.
