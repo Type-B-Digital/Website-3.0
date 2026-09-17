@@ -429,19 +429,12 @@ function Talent() {
                     )}
                   >
                     {/*
-                      The ring now carries the city's flag as a line drawing
-                      (Eduardo, 2026-09-16). It inherits the button's colour, so
-                      it dims and brightens with the chip.
+                      The city's flag as a line drawing (Eduardo, 2026-09-16),
+                      with no ring around it — the circle outline was removed
+                      the same day. It inherits the button's colour, so the
+                      active city is the one at full opacity.
                     */}
-                    <span
-                      aria-hidden
-                      className={cn(
-                        'flex size-4xl items-center justify-center rounded-full border transition-colors duration-fast ease-out',
-                        isActive ? 'border-on-dark bg-on-dark/20' : 'border-on-dark-subtle',
-                      )}
-                    >
-                      <FlagOutline country={location.country} className="w-[52px]" />
-                    </span>
+                    <FlagOutline country={location.country} className="w-[52px]" />
                     <Typography variant="copyLarge" as="span" className="whitespace-nowrap">
                       {location.name}
                     </Typography>
