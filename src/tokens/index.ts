@@ -1039,7 +1039,27 @@ export const motion = {
       rather than scrolling off first. That overlap is the "sooner"; the
       shorter tail is the "less white space" (~330px less scroll at 900 tall).
     */
-    fade: { start: 0.3, end: 0.44 },
+    /*
+      ⚠ RETIMED 2026-09-16 (third pass) — Eduardo: the Who we serve section
+      should arrive "sooner, so that there's less white space". Tail 0.8 -> 0.5
+      viewports, Stages' top padding 160 -> 80, and the window re-measured with
+      the 0.5 tail:
+
+        viewport      last stat leaves   bottom edge enters
+        390 x 667         0.546              0.352
+        390 x 844         0.503              0.333
+        768 x 1024        0.473              0.333
+        1440 x 700        0.572              0.389
+        1440 x 900        0.524              0.333
+        1440 x 1200       0.476              0.333
+        2560 x 1440       0.453              0.333
+
+      `end` 0.33 sits just inside the 0.333 floor, so the crossfade still
+      finishes before the words panel is cut off. `start` 0.2 means the stats
+      now fade out WITH the words while the last one is still rising — there is
+      no longer room to wait for it to leave first.
+    */
+    fade: { start: 0.2, end: 0.33 },
     /** Blob BOX, px — the paint area, not the light. The light was halved on
      *  2026-09-16 (Eduardo) by halving the gradient radii in `.bbb-blob` and
      *  its blur; the box stays 900 so those gradients fade out inside it
@@ -1090,9 +1110,20 @@ export const motion = {
    */
   heroSweep: {
     /** One direction, in seconds. A full there-and-back is twice this plus the holds. */
-    duration: 20,
-    /** Beat spent parked at each end before reversing. */
-    hold: 1.5,
+    duration: 15,
+    /**
+     * Beat spent parked at each end before reversing. 0 since 2026-09-16 —
+     * Eduardo: "start it immediately and make it last 15 seconds one way and
+     * then 15 seconds back to the start, and loop." A hold is a pause.
+     */
+    hold: 0,
+    /**
+     * LINEAR, not the site's ease-in-out. Over 15s an ease-in-out spends its
+     * first two seconds all but still, so the hero read as not having started.
+     * Linear moves from the first frame; the turnaround at each end is a
+     * change of direction at ~6deg/s, which does not read as a jolt.
+     */
+    linear: true,
     /** 135deg: dark top-left, warm bottom-right. */
     from: 135,
     /** 225deg: dark top-right, warm bottom-left. */

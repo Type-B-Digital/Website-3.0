@@ -376,7 +376,8 @@ function Hero() {
     (elapsed: number) => {
       if (prefersReduced || !onScreen.current) return
 
-      const { from, to, duration, hold } = motionTokens.heroSweep
+      const { from, to, duration, hold, linear } = motionTokens.heroSweep
+      const shape = linear ? (t: number) => t : ease
       const travel = duration * 1000
       const pause = hold * 1000
       /* out, hold, back, hold */
@@ -384,9 +385,9 @@ function Hero() {
       const phase = elapsed % cycle
 
       let progress: number
-      if (phase < travel) progress = ease(phase / travel)
+      if (phase < travel) progress = shape(phase / travel)
       else if (phase < travel + pause) progress = 1
-      else if (phase < travel * 2 + pause) progress = 1 - ease((phase - travel - pause) / travel)
+      else if (phase < travel * 2 + pause) progress = 1 - shape((phase - travel - pause) / travel)
       else progress = 0
 
       angle.set(from + (to - from) * progress)
@@ -1070,10 +1071,11 @@ function BoldBrilliantBeautiful({
         cannot outlive its containing block, so once the section's bottom edge
         rises into the viewport the words panel starts being cut off from below.
         Everything the reader should see happen — the ground going cream behind
-        the words — therefore has to be FINISHED by then. 0.8 viewports of tail
-        buys that: the fade completes at 0.44 of the section (see
-        `glowScene.fade`) and the bottom edge does not arrive until 0.444 at
-        the earliest. Was 1.2 until Eduardo asked for less white space here.
+        the words — therefore has to be FINISHED by then. 0.5 viewports of tail
+        buys that: the fade completes at 0.33 of the section (see
+        `glowScene.fade`) and the bottom edge does not arrive until 0.333 at
+        the earliest. Was 1.2, then 0.8, shortened each time Eduardo asked for
+        less white space here.
 
         `min-h-screen` on the stats block rather than padding alone, so the
         three of them are centred in a full screen at any height and the
@@ -1081,7 +1083,7 @@ function BoldBrilliantBeautiful({
       */}
       <fm.div className="relative z-20" style={{ opacity: contentOpacity }}>
         <div className="flex min-h-screen flex-col justify-center py-[20vh]">{stats}</div>
-        <div aria-hidden className="h-[80vh]" />
+        <div aria-hidden className="h-[50vh]" />
       </fm.div>
     </section>
   )
@@ -1223,7 +1225,7 @@ function StageCard({ stage }: { stage: (typeof STAGES)[number] }) {
  */
 function Stages() {
   return (
-    <Section tone="light" spacing="loose" className="pb-4xl xl:pb-4xl">
+    <Section tone="light" spacing="loose" className="pb-4xl pt-4xl xl:pb-4xl xl:pt-4xl">
       <div className="flex flex-col items-center gap-3xl">
         <Reveal>
           <div className="flex flex-col items-center gap-md text-center">
@@ -1340,11 +1342,24 @@ function Work() {
                     onMouseLeave={() => clear(i)}
                     onFocus={() => setActive(i)}
                     onBlur={() => clear(i)}
-                    className="flex items-center justify-between gap-lg py-md"
+                    className="flex items-center justify-between gap-md py-md sm:gap-lg"
                   >
-                    <div className="flex flex-col gap-lg">
+                    {/*
+                      Phone thumbnail, on the LEFT — Eduardo, 2026-09-16. From
+                      `sm` the row keeps the artboard's 201x120 thumbnail on the
+                      right with its hover CTA; below it that one is hidden, and
+                      this smaller one (same 201:120 crop) leads the row instead.
+                    */}
+                    <img
+                      src={project.thumb}
+                      alt=""
+                      aria-hidden="true"
+                      className="aspect-[201/120] w-[112px] shrink-0 self-start rounded-md object-cover sm:hidden"
+                    />
+                    <div className="flex min-w-0 flex-1 flex-col gap-lg">
                       <div className="flex flex-col gap-sm">
-                        <Typography variant="copyLarge" as="h3">
+                        {/* 16px on phones (Eduardo, 2026-09-16), 20 from sm. */}
+                        <Typography variant="copyLarge" as="h3" className="text-copy-medium sm:text-copy-large">
                           {project.name}
                         </Typography>
                         {/*
