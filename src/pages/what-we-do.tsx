@@ -39,7 +39,9 @@ const SERVICES = [
       'strategy and roadmaps, technology due diligence for M&A and investment, and the ' +
       'change management that makes a transformation stick. Everything we recommend is ' +
       'something our own delivery teams could build, which keeps the advice honest.',
-    image: asset('/images/services/advisory.png'),
+    ground: gradients.service.advisory,
+    /** Height / width of the Advisory page's ground at 1440 (1440x7425). */
+    groundAspect: 7425 / 1440,
     offerings: [
       { name: 'Architecture Audit & Roadmap', audience: 'Software rebuild & scale' },
       { name: 'Diligence & 90-Day Roadmap', audience: 'PE, VC & M&A deal teams' },
@@ -61,7 +63,9 @@ const SERVICES = [
       'Type B builds AI solutions of every kind, from agents and RAG to workflow ' +
       'automation and analytics. Sovereign AI is our specialty: the version we build when ' +
       'your data cannot leave your boundary.',
-    image: asset('/images/services/product.png'),
+    // The Product page passes no ground of its own; ContentPage defaults to this.
+    ground: gradients.page.service,
+    groundAspect: 9120 / 1440,
     offerings: [
       { name: 'AI Assessment or Discovery', audience: 'Mid-market & funded startups' },
       { name: 'Product Build or AI Safety Net', audience: 'Funded scale-ups' },
@@ -82,7 +86,8 @@ const SERVICES = [
       'success, as industry experts, not just recruiters. A North America-based delivery ' +
       'lead owns the outcome, and build-operate-transfer is there for when you want the ' +
       'team in-house.',
-    image: asset('/images/services/teams.png'),
+    ground: gradients.service.teams,
+    groundAspect: 7496 / 1440,
     offerings: [
       { name: 'Pod Starter', audience: 'Funded scale-ups' },
       { name: 'Delivery Pod', audience: 'Scale-ups' },
@@ -350,10 +355,29 @@ function ServiceBlock({ service }: { service: (typeof SERVICES)[number] }) {
         {/* Even halves at lg: 628 + 80 left the services list 268px, and it clipped. */}
         <div className="grid items-start gap-2xl lg:grid-cols-2 xl:grid-cols-[628px_1fr] xl:gap-4xl">
           <Reveal index={1}>
-            <img
-              src={service.image}
-              alt={`${service.title} — project imagery`}
-              className="aspect-[628/375] w-full rounded-md object-cover"
+            {/*
+              The service page's own hero gradient, not a photograph — Eduardo,
+              2026-09-16: the three blocks should match "the hero gradients of
+              their respective pages". `ground` is the same token each page
+              paints its hero with, so they cannot drift.
+
+              ⚠ Sized as the PAGE, not the panel. Each service page stretches its
+              gradient over the whole page (~7,400-9,100px), so its hero only
+              ever shows the top slice. Painting the full gradient into 628x375
+              showed every stop at once and looked nothing like the hero. So the
+              gradient is laid out on a box with the page ground's own
+              proportions, scaled to the panel's width, anchored top: the panel
+              then shows the same ~900px band behind the hero heading. Heights
+              were measured at 1440; if a page's content changes length a lot,
+              re-measure `groundAspect`.
+            */}
+            <div
+              aria-hidden
+              className="aspect-[628/375] w-full rounded-md bg-top bg-no-repeat"
+              style={{
+                backgroundImage: service.ground,
+                backgroundSize: `100% ${service.groundAspect * (628 / 375) * 100}%`,
+              }}
             />
           </Reveal>
 
@@ -444,7 +468,8 @@ function WhyWeExist() {
               return (
                 <Fragment key={row.name}>
                   <div className="flex flex-col gap-xs pr-xs md:pr-md">
-                    <Typography variant="copyLarge" as="span">
+                    {/* 16px on phones, 20 from md (Eduardo, 2026-09-16). */}
+                    <Typography variant="copyLarge" as="span" className="text-copy-medium md:text-copy-large">
                       {row.name}
                     </Typography>
                     <Typography variant="copySmall" as="span" muted>

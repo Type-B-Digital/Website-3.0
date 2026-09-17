@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { CaretDown, Container, ParallaxSection, Typography } from '@/components'
+import { CaretDown, Container, Typography } from '@/components'
 import TypeBMark from '@/components/icons/TypeBMark'
 import ClutchLogo from '@/components/icons/ClutchLogo'
 import { asset } from '@/lib/asset'
@@ -313,15 +313,38 @@ export function SiteFooter() {
         </div>
       </Container>
 
-      {/* Oversized wordmark bleeding off both edges. Figma: node 3390:26763 */}
-      <ParallaxSection speed="subtle" className="relative mt-4xl">
-        <img
-          src={asset('/icons/wordmark.svg')}
-          alt=""
-          aria-hidden="true"
-          className="w-full min-w-frame px-md"
-        />
-      </ParallaxSection>
+      {/*
+        Oversized wordmark bleeding off both edges. Figma: node 3390:26763
+
+        ⚠ Cropped at the BASELINE — Eduardo, 2026-09-16: "the bottom of the
+        footer and the baseline of 'Type B Digital' align, hiding the bottom
+        parts of the words under the fold." The footer has no bottom padding, so
+        this box is its bottom edge, and it is exactly as tall as the artwork
+        down to the baseline: y=167.36 of the SVG's 214.2, measured with getBBox
+        on the flat-bottomed glyphs (T, B, D, i). The descenders of y, p and g,
+        and the ~1.7px overshoot of the round letters, fall below it and are
+        clipped.
+
+        ⚠ No parallax any more. It moved the artwork up to ~2% of its height
+        against its box depending on the viewport, which would put the crop line
+        somewhere other than the baseline.
+
+        1408 = the 1440 frame less the 16px margins the old `px-md` gave it, so
+        the artwork is the same size it was.
+      */}
+      <div className="relative mt-4xl px-md">
+        <div
+          className="relative w-full min-w-[1408px] overflow-hidden"
+          style={{ aspectRatio: '1386.39 / 167.36' }}
+        >
+          <img
+            src={asset('/icons/wordmark.svg')}
+            alt=""
+            aria-hidden="true"
+            className="absolute left-0 top-0 w-full max-w-none"
+          />
+        </div>
+      </div>
     </footer>
   )
 }
