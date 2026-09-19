@@ -701,7 +701,8 @@ icon plus the message in `text-danger`.
 - `Toast`: `open` · `title` · `description` · `duration` *(pass 0 for manual)* ·
   `onDismiss`. A dark pill.
 - `Tabs`: `items` (`{ id, label, variant?: 'pill' | 'plain' }`) · `active` ·
-  `onChange` · `tone` · `panelId`.
+  `onChange` · `tone` · `panelId` · `label` *(the tablist's accessible name;
+  defaults to the Careers row it was drawn for, so any other use must set it)*.
 - `Accordion`: `items` · `tone`: `onLight` | `onDark` · `defaultOpen` *(null —
   all closed, as drawn)* · `single` *(true)*. Rules use `accentSoft` on light
   and `accentSoftOnDark` on ink.
@@ -720,6 +721,28 @@ Motion primitives. All honour `useReducedMotion()`.
 `stats: { value, label }[]`. Right-aligned to columns 4–6, 7–9, 10–12 so the
 numbers line up as a column of **right edges**. Parses its display strings
 ("30+", "25%") into `CountUp` parts.
+
+#### `ImageWash`
+`className`. A studio tool rather than a component a page composes — only the
+Brand System page renders it. Takes any image a designer drops in, reads its
+histogram, and sets exposure, contrast, highlights, shadows, whites, blacks and
+saturation to bring it onto the brand's tonal targets; then maps the corrected
+tone onto one of the three mood ramps and exports at full resolution.
+
+The engine is `src/lib/imageWash.ts` and is the part that belongs to the
+system: every colour a washed image can land on comes from `palette` by way of
+`moods`, so the three washes ARE the three mood directions. The ramp is built
+from `moods[…].accent` at 800/600/400/200 between `neutral.900` and
+`neutral.50` — the brand's two grounds at the ends is what lets a washed
+photograph sit on `bg-canvas` or `bg-surface` as if it were cut from it.
+
+- **Do** treat Auto as a starting point. It writes slider values, so every
+  automatic decision is visible and can be nudged.
+- **Don't** add a correction that does not surface as a slider. A hidden second
+  pass makes the tool unpredictable and the result impossible to reproduce.
+- Runs entirely in the browser — no upload, no network call. That is a
+  requirement, not an optimisation: the page is public and designers will drop
+  unreleased client photography into it.
 
 ### 3.3 Organisms
 
@@ -852,6 +875,7 @@ through `asset()`, which normalises both sides of the join.
 | **Atoms** | `src/components/*.tsx` | `Typography`, `Button`, `Eyebrow`, `Tag`, `Card`, `Container`, `Section`, `icons/*` |
 | **Molecules** | `src/components/*.tsx` | `Field`, `Captcha`, `Toast`, `Tabs`, `Accordion`, `CountUp`, `HeroStats`, `Marquee`, `Reveal`, `ParallaxSection`, `ScrollTrack`, `GroundCrossfade`, `ScrollFillText`, `GlowText`, `Intro`, `ScrollToTop` |
 | **Organisms** | `src/components/layout/*`, `src/components/sections/*` | `SiteHeader`, `SiteFooter`, `ClosingCta`, `Testimonial`, `Hiring`, `ValuesMarquee`, `FaqSection`, `Globe`, `DivergeConverge`, and the section library |
+| **Tools** | `src/components/ImageWash.tsx`, `src/lib/imageWash.ts` | `ImageWash` — not an atom, molecule or organism; a studio utility the system colours rather than a thing a page composes |
 | **Templates** | `src/components/layout/PageShell.tsx`, `src/components/sections/ContentPage.tsx`, `case-study.tsx` | `PageShell`, `ContentPage`, `CaseStudyPage` |
 | **Pages** | `src/pages/*.tsx` | one file per route; content data lives beside it in `*-content.ts` |
 

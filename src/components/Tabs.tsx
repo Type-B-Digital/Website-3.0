@@ -34,6 +34,12 @@ export type TabsProps = {
   tone?: 'onDark' | 'onLight'
   /** Id of the element the panel content lives in, for `aria-controls`. */
   panelId: string
+  /**
+   * Accessible name for the tablist. Defaults to the Careers row this was
+   * drawn for; any other use has to say what it is filtering, or a screen
+   * reader announces the wrong thing.
+   */
+  label?: string
   className?: string
 }
 
@@ -43,6 +49,7 @@ export function Tabs({
   onChange,
   tone = 'onDark',
   panelId,
+  label = 'Filter open roles by team',
   className,
 }: TabsProps) {
   const baseId = useId()
@@ -68,7 +75,7 @@ export function Tabs({
   return (
     <div
       role="tablist"
-      aria-label="Filter open roles by team"
+      aria-label={label}
       onKeyDown={onKeyDown}
       className={cn('flex flex-wrap items-center gap-tag', className)}
     >
@@ -98,7 +105,10 @@ export function Tabs({
               // the plain variant which carries no box at all.
               selected && !plain && tone === 'onDark' && 'bg-neutral-50 text-on-light',
               selected && !plain && tone === 'onLight' && 'bg-canvas text-on-dark',
-              !selected && !plain && tone === 'onDark' && 'border border-on-dark-subtle text-on-dark',
+              !selected &&
+                !plain &&
+                tone === 'onDark' &&
+                'border border-on-dark-subtle text-on-dark',
               !selected && !plain && tone === 'onLight' && 'border border-on-light text-on-light',
               plain && tone === 'onDark' && 'text-on-dark hover:opacity-muted',
               plain && tone === 'onLight' && 'text-on-light hover:opacity-muted',

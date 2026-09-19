@@ -3713,3 +3713,120 @@ reveals keep their soft arrival and only get there sooner. A four-item group
 now settles in 1.305s, down from 1.74s. The page-load entrance (`intro.nav`,
 `intro.hero`) and the careers carousel (`duration.base`) are separate tokens
 and were not touched.
+
+## Image Wash — a tool for putting photography in brand colour — 2026-09-19
+
+Requested for the Brand System page, under Core UI Components: somewhere a
+designer can drop any image and get it back exposed, graded and in Type B's
+palette, without opening Lightroom or knowing the ramp by heart.
+
+`src/lib/imageWash.ts` is the engine, `src/components/ImageWash.tsx` the UI,
+and the demo is one `<Sub>` in Tier 3 of `brand-guidelines.tsx`.
+
+### It is in Tier 3, and it is not an atom
+
+Tier 3 reads "the smallest things a page composes" and this composes nothing —
+no page renders it but the one demo. It is filed there because that is where
+the team will look for the things they use, not because it fits the taxonomy.
+`BRAND-GUIDELINES.md` § 5 gains a **Tools** row saying so rather than quietly
+listing it as a molecule.
+
+### The ramps are the moods, not a new palette
+
+The whole point of the wash is that it cannot invent a colour. It maps tone
+onto `[neutral.900, accent.800, accent.600, accent.400, accent.200,
+neutral.50]`, and the accent comes from `moods[…].accent` — read, not restated,
+so a change to a ramp reaches the tool with no edit in `lib/`. That makes the
+three washes the three mood directions: Deep is turquoise, Ember orange, Solar
+amber, the same architecture as `data-mood` on `<html>`.
+
+The ends are the brand's two grounds. That is what lets a washed photograph sit
+on `bg-canvas` or `bg-surface` looking cut from it rather than pasted on: its
+black point IS the canvas and its white point IS the surface.
+
+### Auto writes slider values, and nothing else
+
+The auto pass produces exactly the numbers a person would dial in, and then
+stops. There is no second, hidden correction. Two things follow: every
+automatic decision is visible on a slider and can be undone, and a result is
+reproducible — the same seven numbers on the same file give the same PNG.
+
+It drives the image toward brand targets, not neutral-photographic ones: mean
+luma 0.46, luma σ 0.21, mean chroma 0.34. Type B imagery is dark,
+open-shadowed and high-separation across every artboard in the Figma file, and
+the wash then pulls all that chroma onto one hue family — a flat image reads as
+muddy rather than moody once it is mapped, which is why the chroma target is
+high and not low.
+
+Whites and blacks invert the same `0.2` scale factor the render uses, so "place
+the measured end points on 0 and 1" is one line each rather than a search.
+
+### Three decisions in the pipeline worth naming
+
+- **Contrast is a tanh curve, not a multiply.** `0.5 + (v - 0.5) * k` clips:
+  push contrast on anything with real highlight detail and the top of the
+  histogram becomes a block of pure white that no later control can recover.
+  The curve is monotonic, pins 0 and 1, and asymptotes instead of clipping.
+  Its steepness is scaled *from* the slider rather than offset from 1, because
+  `s → 0` has to degenerate to the identity or the control jumps at zero.
+- **Highlights and shadows mask on the result of the global moves, not on the
+  original.** They are recovery controls. Masking on the original lets a
+  two-stop exposure push blow a highlight that the highlight slider then cannot
+  see.
+- **The wash restores the pre-wash luma.** Without that, mapping onto a ramp
+  re-does the tonal work — a turquoise mid-tone is darker than the grey it
+  replaced, so every corrected image came back about a stop down and exposure
+  had to be re-dialled per wash strength. Holding luma makes the wash a colour
+  operation only: tone is settled by the time it runs.
+
+### Nothing is uploaded
+
+Decode, analysis, preview and export are all local; there is no network call
+anywhere in either file. This is a requirement rather than an optimisation.
+The repository and the deployed site are both public, and designers will drop
+unreleased client photography into this page.
+
+Preview runs on a copy downscaled to 1200px on the long edge so a slider drag
+stays interactive, and renders are coalesced to one animation frame — a drag
+fires far faster than the pipeline runs, and a queue of stale renders is what
+makes a tool like this feel broken. Download re-runs the identical pipeline
+over the full-resolution original.
+
+The per-channel stages (exposure, contrast, blacks, whites) are resolved into
+one 256-entry table instead of four transcendental calls per subpixel, which on
+a 12-megapixel export is the difference between a moment and several seconds.
+
+### `Tabs` gained a `label`
+
+The wash selector is a real tablist, and `Tabs` had `aria-label="Filter open
+roles by team"` hard-coded — correct for Careers, a lie anywhere else. Added as
+an optional prop defaulting to the old string, per the rule in Tier 3: extend
+with a prop that defaults to current behaviour, never fork.
+
+### Verified
+
+Driven for real over CDP — file pushed into the input with
+`DOM.setFileInputFiles`, then the canvases read back pixel by pixel. On
+`public/images/hiring.jpg` (1256×1256, mean luma 0.301, σ 0.195, chroma 0.582):
+
+- auto chose exposure +41, contrast +6, highlights 0, shadows +5, whites +45,
+  blacks −25, saturation −23, and landed the result on mean luma **0.460** —
+  the target, exactly.
+- mean luma stayed **0.460** across Deep, Ember and Solar and across wash 0,
+  45 and 100. The wash moves colour and nothing else, which is the claim above
+  and now a measured one.
+- at wash 100 the Deep result is turquoise-dominant (B 0.543 / R 0.303) and
+  Ember is orange-dominant (R 0.625 / B 0.285).
+- Download produced `hiring--type-b-ember.png` at the full 1256×1256, carrying
+  the wash.
+- 390px stacks and does not overflow (`scrollWidth === clientWidth === 390`).
+- every range has a `<label for>` and a resolvable `aria-describedby`; the two
+  tablists on the page now report distinct names ("Filter open roles by team",
+  "Choose a wash"); both canvases carry `role="img"` and an `aria-label`.
+- `tsc --noEmit` and `vite build` clean; no console errors.
+
+⚠ **Open, for design.** The default wash strength is 45, which on a *warm*
+photograph under the *Deep* ramp lands in olive — the honest result of mixing
+teal into orange at half strength, and it resolves either way as the slider
+moves. Whether 45 is the right default per ramp, or whether Deep should start
+lower, is a judgement call for Eduardo rather than something to tune blind.

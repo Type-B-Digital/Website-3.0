@@ -7,6 +7,7 @@ import {
   Field,
   HeroIntro,
   HIRING_TRAITS,
+  ImageWash,
   Reveal,
   Section,
   Tabs,
@@ -249,7 +250,11 @@ function TierBand({ tier, children }: { tier: Tier; children: React.ReactNode })
       <div className="flex flex-col gap-4xl">
         <Reveal>
           <div className="grid gap-lg lg:grid-cols-[120px_1fr]">
-            <Typography variant="h2" as="span" className="text-h2-compact opacity-subtle md:text-h2">
+            <Typography
+              variant="h2"
+              as="span"
+              className="text-h2-compact opacity-subtle md:text-h2"
+            >
               0{tier.n}
             </Typography>
             <div className="flex max-w-[720px] flex-col items-start gap-md">
@@ -1128,6 +1133,13 @@ export function BrandGuidelinesPage() {
                 ]}
               />
             </div>
+          </Sub>
+
+          <Sub
+            title="Image Wash"
+            note="A studio tool, not an atom. Reads a photograph's histogram, corrects it onto the brand's tonal targets, then maps it onto a mood ramp. Runs entirely in the browser — nothing is uploaded."
+          >
+            <ImageWash />
           </Sub>
 
           <Sub title="Rules">
