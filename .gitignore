@@ -38,3 +38,8 @@ logs/
 .eslintcache
 .cache/
 .vite/
+
+# Asset audit of the LIVE www.typeb.digital (52MB of scraped binaries).
+# Reference material for the rebuild, not source. Delete these two lines if
+# the exports should be versioned with the site.
+typeb-website-audit/
