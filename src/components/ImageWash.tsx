@@ -206,7 +206,7 @@ export function ImageWash({ className }: { className?: string }) {
     )
   }
 
-  const replace = () => {
+  const startOver = () => {
     baseRef.current = null
     setLoaded(null)
     setAdjustments(NEUTRAL)
@@ -346,8 +346,8 @@ export function ImageWash({ className }: { className?: string }) {
             >
               Clear all
             </Button>
-            <Button variant="tertiary" tone="onLight" icon={false} onClick={replace}>
-              Replace image
+            <Button variant="tertiary" tone="onLight" icon={false} onClick={startOver}>
+              Start over
             </Button>
           </div>
         </>
