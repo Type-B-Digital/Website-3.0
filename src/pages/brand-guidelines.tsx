@@ -437,7 +437,7 @@ const PATTERNS: readonly Pattern[] = [
   {
     name: 'Service hero',
     composes: 'Eyebrow · Typography · Button · image',
-    where: 'Advisory, Product & AI Development, Teams',
+    where: 'Advisory, Product & AI development, Teams',
     status: 'Built',
   },
   {
@@ -479,7 +479,7 @@ const PATTERNS: readonly Pattern[] = [
   {
     name: 'Packaging tiers',
     composes: 'Eyebrow · Typography · lead card',
-    where: 'What We Do and every service page',
+    where: 'What we do and every service page',
     status: 'Built',
   },
   { name: 'Modal / dialog', composes: '—', where: 'Nowhere', status: 'Not designed' },
