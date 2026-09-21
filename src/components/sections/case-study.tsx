@@ -340,7 +340,15 @@ export function CaseSolution({
           </Reveal>
         </div>
 
-        <ul className="grid max-w-[894px] gap-x-4xl gap-y-4xl md:grid-cols-2 lg:grid-cols-3">
+        {/*
+          ⚠ 48 between rows below `md` against the artboard's 80 — Eduardo,
+          2026-09-21, "tighten up the vertical rhythm in the solution section
+          to 48p between rows", and the same for FinTech Group, which is this
+          same component. The 80 is a measurement of a THREE-column grid where
+          only two rows exist; on a phone the grid is one column, so all six
+          roles stack and 80 between each turned the section into six screens.
+        */}
+        <ul className="grid max-w-[894px] gap-x-4xl gap-y-3xl md:grid-cols-2 md:gap-y-4xl lg:grid-cols-3">
           {roles.map((role, i) => (
             <li key={role.title}>
               <Reveal index={i}>

@@ -4331,3 +4331,114 @@ names are ever revisited, since "Product & AI development" went the other way.
 The footer's LinkedIn row read "Linkedin". Fixed to "LinkedIn" while in there —
 it is a capitalisation error in a nav label, but it is a misspelling of a proper
 noun, not a case convention.
+
+---
+
+## A mobile pass — 2026-09-21
+
+Eduardo, eighteen items in one note, opening "on mobile view make the
+following changes". Below `md` throughout, with two deliberate exceptions
+noted at the end. `md` is the right boundary because his own description
+names it: "all headers that are 32p in size" IS the below-`md` state of `h2`
+— on a desktop that heading is 48.
+
+### Type
+
+- **FAQ questions 16px** (`Accordion`). The 20px question wrapped to three
+  lines on the longer FAQs, and the 79px row pitch the artboard measures was
+  a desktop measurement that had already stopped holding.
+- **40px line box on both 32px styles**, at EVERY width — `h2Compact` was 1.2
+  (38.4) and `subHeaderLarge` was the board's 1.5 (48). The request arrived as
+  "change the line height in all testimonial sections to 40p", and the
+  testimonial quote IS `subHeaderLarge`, then generalised to "all headers that
+  are 32p in size". Written `40 / 32` rather than 1.25 so the relationship
+  survives a size change.
+- **Stat numerals 40px**, in all three places they are drawn: `HeroStats`,
+  `StatBand` and the homepage's own block. A stat is a numeral, not a
+  heading — short, read as a figure — so it holds a larger size on a phone
+  than the prose headings around it without costing a line.
+- **"Applied to your needs" 32px.** That is `SplitFeature`'s `h1` branch,
+  whose only two callers are the Our Specialty blocks on Healthcare and
+  Financial Services. Both branches now render 32 on a phone.
+
+### Rhythm
+
+| Section | Was | Now (below `md`) |
+|---|---|---|
+| Industries, between rows | 160 | 120 |
+| Industries, Legal to FAQ | 240 | 160 |
+| Our Work, hero to first row and between rows | 160 / 24 | 120 / 120 |
+| How we show up, image to heading | 40 | 32 |
+| How we show up, between principles | 24 | 48 |
+| How we work here, inner gap | 48 | 40 |
+| Case Solution, between role rows | 80 | 48 |
+
+Two of those are worth the why. **Our Work's 24px row gap** is a measurement
+of a row that is one horizontal band; stacked it is image + copy, so at 24 the
+next study's artwork read as belonging to the previous study's text. **How we
+show up's outer gap has to exceed its inner one** — 48 against 32 — or the
+block reads as image, heading, image with no grouping.
+
+**Packaging** was the odd one out rather than a resize: eight call sites ran
+80/80 and What We Do passed `spacing="loose"`, which is the same 80 below `xl`
+and 160 above it. So the nine agreed on a phone and diverged on a desktop.
+The prop is deleted, not defaulted, so it cannot come back. ⚠ That is a
+DESKTOP change — the only way "the same vertical spacing across the site"
+means anything.
+
+### Layout
+
+- **Our Work leads with the image.** CSS `order`, not a markup swap: the copy
+  has to stay first in the DOM because it carries the row's heading and the
+  whole row is one link.
+- **Culture's stats are a 2x3 table**, `items-start` so a label wrapping to
+  two lines cannot drag its neighbour's numeral down. ⚠ `HeroStats` is shared,
+  so the case-study hero's three stats now land 2 + 1 on a phone — better than
+  three stacked singles, but it is a change to those pages too.
+- **Design thinking turned on its side.** The 16:3 row made each block 66x12
+  on a 360px phone, and the five labels had to repeat as a list underneath.
+  Transposed, the silhouette's steps become WIDTHS, the blocks stack
+  left-aligned and each step's copy sits 16px from its own block. Every number
+  is the artboard's transposed rather than redesigned — block proportions, the
+  two diamond centres at 27.04%/72.96% of the run, the diamond at 38.24% of it
+  — so the motif still passes behind all five and each block still reveals
+  only its slice. ⚠ The copy's left edge therefore steps with the silhouette,
+  which is what "16p to the right of their respective block step" asks for;
+  aligning all five to the widest block is the alternative if the ragged edge
+  is not wanted.
+- **Talent has no interactivity.** Rendered as a plain `div` below `md` and as
+  the button from `md`, NOT one button with its styling suppressed — that
+  would leave a control in the tab order that takes focus and does nothing,
+  the rule this repo already follows for inert nav rows. Rendering both and
+  letting CSS choose is the pattern `DivergeConverge` already uses. Flags 39px
+  (25% off 52), city names 16px.
+- **Publications filters are a native select.** One tap to the platform's own
+  picker, keyboard and screen-reader support with none of the listbox wiring a
+  custom menu needs, and no vertical cost. The clear button appears once
+  something is chosen; the select's own empty option does the same job for
+  anyone driving it by keyboard. The artboard's rail is untouched from `md`.
+
+### The two exceptions to "mobile only"
+
+The 40px line box on 32px type, and the testimonial's new **40px circular
+portrait** between the quote and the attribution. Both are the same at every
+width because neither is a response to width.
+
+⚠ No portrait exists anywhere in `public/images`, so the slot renders flat and
+obviously empty and the `avatar` prop is wired for when they arrive. That is
+the call `Placeholder` already makes on Our Work, and for the same reason: a
+blurred stand-in hides which slots still need art.
+
+### Verified
+
+Driven over CDP with device metrics at 390x844, measuring computed styles
+rather than reading the diff: FAQ 16px, quote line box 40, avatar 40x40,
+Industries 120/160, Our Work 120/120 with the image above the heading on every
+row, Solution rows 48, stats `167px 167px` and top-aligned, How we show up
+48/32, flags 39px, city copy 16px, zero interactive city controls, select
+visible and the rail hidden. All seven `How we work here` instances report 40px
+and agree with each other; Packaging reports 80/80 on both Advisory and What We
+Do. Re-run at 1440x900 for regressions: stats back to 12 columns, cities
+interactive, flags 52px, Our Work side by side on a 24px gap, select hidden,
+the vertical figure hidden and the horizontal row drawn. `tsc --noEmit` and
+`vite build` clean.

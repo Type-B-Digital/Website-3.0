@@ -81,6 +81,71 @@ function DiamondLayer({ offsetX }: { offsetX: number }) {
   )
 }
 
+/* ------------------------------------------------------------------ *
+ * The vertical arrangement — below `md`
+ * ------------------------------------------------------------------ */
+
+/**
+ * ⚠ NOT IN FIGMA. Eduardo, 2026-09-21: "try a version where the 5 block image
+ * is vertical left aligned and the 5 steps, 16p to the right of their
+ * respective block step."
+ *
+ * The horizontal row is 16:3. On a 360px phone that made each block 66px wide
+ * and 12 tall, which is not a figure so much as a smear, and the five labels
+ * had to be repeated as a plain list underneath it. Turned on its side the
+ * graphic gets the axis the phone actually has: the silhouette's steps become
+ * WIDTHS, the blocks stack left-aligned, and each step's copy sits beside its
+ * own block instead of in a second list.
+ *
+ * Every number below is the artboard's, transposed rather than redesigned:
+ *
+ *   block width   236.8 / 260.8 of the pitch   ->  the same fraction of height
+ *   heights 80/160/240/240-row                 ->  widths, same fractions
+ *   diamond centres 346.07 / 933.93 of 1280    ->  27.04% / 72.96% of the run
+ *   diamond size 489.413 of 1280               ->  38.24% of the run
+ *
+ * So the two diamonds still pass behind all five blocks as one continuous
+ * motif, and each block still reveals only its own slice of them.
+ */
+/** The widest block, i.e. the extent of the silhouette. */
+const V_COLUMN = 120
+/** Block height and the gap under it, on the artboard's 236.8/24 proportions. */
+const V_BLOCK_HEIGHT = 56
+const V_GAP = Math.round((24 / 236.8) * V_BLOCK_HEIGHT)
+
+const DIAMOND_FRACTIONS = DIAMOND_CENTRES.map((c) => c / ROW_WIDTH)
+const DIAMOND_RATIO = DIAMOND_SIZE / ROW_WIDTH
+
+/**
+ * The same two diamonds in column coordinates, shifted up by each block's own
+ * top offset so the figure stays continuous down the stack. The blocks are
+ * left-aligned and the layer is too, so there is no horizontal offset to
+ * carry — only `offsetY`.
+ */
+function VerticalDiamondLayer({ offsetY, runLength }: { offsetY: number; runLength: number }) {
+  const size = DIAMOND_RATIO * runLength
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute left-0"
+      style={{ top: -offsetY, width: V_COLUMN, height: runLength }}
+    >
+      {DIAMOND_FRACTIONS.map((f) => (
+        <div
+          key={f}
+          className="absolute left-1/2 rounded-md border border-white/[0.32]"
+          style={{
+            width: size,
+            height: size,
+            top: f * runLength,
+            transform: 'translate(-50%, -50%) rotate(-45deg)',
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
 export function DivergeConverge({
   stages,
   className,
@@ -99,7 +164,7 @@ export function DivergeConverge({
         which are absolutely placed in the same coordinate space, stay aligned.
       */}
       <div
-        className="relative grid w-full"
+        className="relative hidden w-full md:grid"
         style={{
           aspectRatio: `${ROW_WIDTH} / ${ROW_HEIGHT}`,
           gridTemplateColumns: `repeat(${stages.length}, ${(BLOCK_WIDTH / ROW_WIDTH) * 100}%)`,
@@ -152,21 +217,59 @@ export function DivergeConverge({
       </div>
 
       {/*
-        Labels share the block columns, so each sits under its own block — from
-        md. On a phone five columns are 66px each and the descriptions ran one
-        word per line, so there they become a list under the row instead.
+        Below `md`: the figure turned on its side, each step's copy 16px to the
+        right of its own block. See the note on `VerticalDiamondLayer`.
       */}
-      <ol className="flex flex-col gap-lg md:hidden">
-        {stages.map((stage, i) => (
-          <li key={stage.label} className="flex flex-col gap-xs">
-            <Typography variant="copyLarge" as="h3">
-              <span className="opacity-subtle">{String(i + 1).padStart(2, '0')}</span> {stage.label}
-            </Typography>
-            <Typography variant="copySmall" muted>
-              {stage.description}
-            </Typography>
-          </li>
-        ))}
+      <ol className="flex flex-col md:hidden" style={{ gap: V_GAP }}>
+        {stages.map((stage, i) => {
+          const runLength = stages.length * V_BLOCK_HEIGHT + (stages.length - 1) * V_GAP
+          const offsetY = i * (V_BLOCK_HEIGHT + V_GAP)
+          return (
+            <li key={stage.label} className="flex items-center gap-md">
+              <fm.div
+                className="relative shrink-0"
+                style={{
+                  width: (stage.height / ROW_HEIGHT) * V_COLUMN,
+                  height: V_BLOCK_HEIGHT,
+                }}
+                initial={
+                  prefersReduced
+                    ? undefined
+                    : { opacity: 0, y: reveal.distance, filter: `blur(${reveal.feather}px)` }
+                }
+                whileInView={prefersReduced ? undefined : { opacity: 1, y: 0, filter: 'blur(0px)' }}
+                viewport={motionTokens.viewport}
+                transition={{
+                  duration: duration.reveal,
+                  ease: [...easing.inOut],
+                  delay: reveal.lag + i * reveal.stagger,
+                }}
+              >
+                {stage.glow && (
+                  <span
+                    aria-hidden
+                    className="diverge-glow pointer-events-none absolute -inset-2xl -z-10"
+                  />
+                )}
+                <div
+                  className="relative size-full overflow-hidden rounded-md"
+                  style={{ backgroundImage: `linear-gradient(90deg, ${stage.from}, ${stage.to})` }}
+                >
+                  <VerticalDiamondLayer offsetY={offsetY} runLength={runLength} />
+                </div>
+              </fm.div>
+              <div className="flex min-w-0 flex-col gap-xs">
+                <Typography variant="copyLarge" as="h3">
+                  <span className="opacity-subtle">{String(i + 1).padStart(2, '0')}</span>{' '}
+                  {stage.label}
+                </Typography>
+                <Typography variant="copySmall" muted>
+                  {stage.description}
+                </Typography>
+              </div>
+            </li>
+          )
+        })}
       </ol>
       <div
         className="hidden w-full md:grid"

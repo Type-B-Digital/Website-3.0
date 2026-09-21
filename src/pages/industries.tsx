@@ -244,15 +244,26 @@ export function IndustriesPage() {
       */}
       <div style={{ backgroundImage: PAGE_GRADIENT }}>
         <Hero />
-        {/* 160px between rows: artboard pitch is 480 on a 320-tall row. */}
-        <div className="flex flex-col gap-[calc(theme(spacing.4xl)*2)]">
+        {/*
+          160px between rows: artboard pitch is 480 on a 320-tall row.
+
+          ⚠ 120 below `md` — Eduardo, 2026-09-21. The artboard pitch assumes
+          the copy and the fill sit SIDE BY SIDE; stacked on a phone the row is
+          roughly twice as tall, so 160 of air between them read as five
+          unrelated pages rather than one list.
+        */}
+        <div className="flex flex-col gap-5xl md:gap-[calc(theme(spacing.4xl)*2)]">
           {INDUSTRIES.map((industry) => (
             <IndustryRow key={industry.title} industry={industry} />
           ))}
         </div>
         {/* Artboard: last row ends at y=2937, the FAQ heading sits at 3177 —
-            a 240px gap, three times the 80px band rhythm. */}
-        <FaqSection items={FAQ} className="pb-4xl pt-[calc(theme(spacing.4xl)*3)]" />
+            a 240px gap, three times the 80px band rhythm.
+
+            ⚠ 160 below `md`, so the step down from the rows above it holds:
+            the gap between Legal and the FAQ stays larger than the gap between
+            two industries (120), which is what tells the eye the list ended. */}
+        <FaqSection items={FAQ} className="pb-4xl pt-6xl md:pt-[calc(theme(spacing.4xl)*3)]" />
         <ValuesMarquee />
       </div>
     </PageShell>

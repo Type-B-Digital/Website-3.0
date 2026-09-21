@@ -234,10 +234,19 @@ function HowWeShowUp() {
             How we show up
           </Typography>
         </Reveal>
-        <div className="grid gap-lg md:grid-cols-3">
+        {/*
+          ⚠ Below `md` the three stack, and the two gaps are set from the
+          artboard's proportions rather than inherited — Eduardo, 2026-09-21:
+          32 between an image and its heading, 48 from one principle's last
+          line to the next principle's image. The outer gap has to be the
+          LARGER of the two, or the block reads as image-then-heading-then-
+          image with no grouping. From `md` they sit in a row and the
+          artboard's 24px gutter and 40px stack are restored.
+        */}
+        <div className="grid gap-3xl md:grid-cols-3 md:gap-lg">
           {PRINCIPLES.map((p, i) => (
             <Reveal key={p.title} index={i}>
-              <div className="flex flex-col gap-2xl">
+              <div className="flex flex-col gap-xl md:gap-2xl">
                 <TiltCard>
                   <img
                     src={asset(p.image)}
@@ -434,8 +443,53 @@ function Talent() {
           <ul className="flex w-full flex-wrap items-start justify-center gap-x-2xl gap-y-lg">
             {LOCATIONS.map((location, i) => {
               const isActive = i === active
+              /*
+                Flag over city name — the pair is identical in both branches
+                below, so it is built once here.
+
+                39px below `md`, 25% off the artboard's 52 (Eduardo,
+                2026-09-21): six flags at 52 wrapped to three ragged rows on a
+                phone and hold two clean ones at 39. The city name drops to
+                16px with them. The flag is a line drawing with no ring
+                (Eduardo, 2026-09-16) and inherits its parent's colour, which
+                is what makes the lit city read as the active one.
+              */
+              const mark = (
+                <>
+                  <FlagOutline country={location.country} className="w-[39px] md:w-[52px]" />
+                  <Typography
+                    variant="copyLarge"
+                    as="span"
+                    className="whitespace-nowrap text-copy-medium md:text-copy-large"
+                  >
+                    {location.name}
+                  </Typography>
+                </>
+              )
+              // 32 between the flag and the city name (Eduardo, 2026-09-16).
+              const shell = 'flex w-5xl flex-col items-center gap-xl rounded-sm py-xs'
+
               return (
                 <li key={location.name}>
+                  {/*
+                    ⚠ TWO renderings, one per breakpoint — Eduardo,
+                    2026-09-21: "no interactivity" on a phone.
+
+                    Below `md` this is a plain `div`: not focusable, no
+                    handlers, nothing dimmed. It is not the same button with
+                    its styling suppressed, because that would leave a control
+                    in the tab order that takes focus and does nothing — the
+                    rule this file already follows for inert nav rows. The
+                    dim/lit pair it loses only ever meant "this is the city
+                    the globe is pointing at", which needs a pointer to move
+                    between them to say anything at all.
+
+                    Rendering both and letting CSS pick is the pattern
+                    `DivergeConverge` already uses for its two label layouts;
+                    the alternative is a viewport hook, and there is none in
+                    this codebase.
+                  */}
+                  <div className={cn(shell, 'md:hidden')}>{mark}</div>
                   <button
                     type="button"
                     onMouseEnter={() => setActive(i)}
@@ -443,24 +497,15 @@ function Talent() {
                     onClick={() => setActive(i)}
                     aria-pressed={isActive}
                     className={cn(
-                      // 32 between the flag and the city name (Eduardo, 2026-09-16).
-                      'flex w-5xl flex-col items-center gap-xl rounded-sm py-xs',
+                      'hidden md:flex',
+                      shell,
                       'transition-opacity duration-fast ease-out',
                       'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
                       'focus-visible:outline-on-dark',
                       isActive ? 'opacity-100' : 'opacity-subtle hover:opacity-100',
                     )}
                   >
-                    {/*
-                      The city's flag as a line drawing (Eduardo, 2026-09-16),
-                      with no ring around it — the circle outline was removed
-                      the same day. It inherits the button's colour, so the
-                      active city is the one at full opacity.
-                    */}
-                    <FlagOutline country={location.country} className="w-[52px]" />
-                    <Typography variant="copyLarge" as="span" className="whitespace-nowrap">
-                      {location.name}
-                    </Typography>
+                    {mark}
                   </button>
                 </li>
               )

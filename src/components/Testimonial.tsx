@@ -51,12 +51,24 @@ export type TestimonialQuote = {
   quote: string
   name: string
   role: string
+  /**
+   * A 40px circular portrait between the quote and the attribution, added
+   * 2026-09-21. Optional, and no call site has one yet: there is no portrait
+   * anywhere in `public/images`, so the slot renders flat and obviously empty
+   * — the same call `Placeholder` makes on Our Work, and for the same reason.
+   * A blurred stand-in would hide which slots still need art.
+   *
+   * Already resolved against the base path — pass `asset('/images/…')`, as
+   * `Card` requires for the same reason.
+   */
+  avatar?: string
 }
 
 export function Testimonial({
   quote,
   name,
   role,
+  avatar,
   /**
    * The 1248px warm blob behind the Contact page's copy (node 3617:9101),
    * isolated by subtracting the fitted page gradient from the artboard pixels.
@@ -102,6 +114,22 @@ export function Testimonial({
             <Typography variant="subHeaderLarge" as="p" className="font-medium">
               {quote}
             </Typography>
+            {/*
+              The portrait sits between the quote and the attribution rather
+              than beside the name, which is where the block's own centre line
+              already is — the quote, the face and the name read as one
+              stacked column. 40x40, circular; see the note on `avatar`.
+            */}
+            {avatar ? (
+              <img
+                src={avatar}
+                alt=""
+                aria-hidden="true"
+                className="size-2xl shrink-0 rounded-full object-cover"
+              />
+            ) : (
+              <span aria-hidden className="size-2xl shrink-0 rounded-full bg-neutral-900/10" />
+            )}
             <div className="text-ink-soft">
               <Typography variant="copyMedium" as="p" className="font-semibold">
                 {name}

@@ -1025,7 +1025,12 @@ function BoldBrilliantBeautiful({
       <ul className="flex flex-col gap-4xl">
         {STATS.map((stat, i) => (
           <li key={stat.label} className={cn('flex max-w-[380px] flex-col gap-sm', ALIGN[i % 3])}>
-            <Typography variant="h1" as="p" className="text-h2 text-on-dark-muted xl:text-h1">
+            {/* 40px on a phone — see the note in HeroStats. */}
+            <Typography
+              variant="h1"
+              as="p"
+              className="text-h3 text-on-dark-muted md:text-h2 xl:text-h1"
+            >
               <CountUp to={stat.to} prefix={stat.prefix} suffix={stat.suffix} start={revealed} />
             </Typography>
             <Typography variant="copyMedium" as="p" muted className="text-on-dark-muted">

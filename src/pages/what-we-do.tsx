@@ -601,7 +601,7 @@ export function WhatWeDoPage() {
           <ServiceBlock key={service.title} service={service} />
         ))}
         <WhyWeExist />
-        <Packaging tiers={PACKAGES} spacing="loose" />
+        <Packaging tiers={PACKAGES} />
         <ManagedEndToEnd />
       </div>
     </PageShell>

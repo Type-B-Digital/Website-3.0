@@ -102,8 +102,6 @@ export function Packaging({
   eyebrow = 'How we package it',
   heading = 'Entry, Core, & Expanded.',
   tiers,
-  /** What We Do runs the doubled 160/160 rhythm; the service pages run 80/80. */
-  spacing = 'service',
   /**
    * Teams draws this chip white (node 3605:2713) rather than the amber.100
    * `onLight` chip, because its page ground is warm and the two sit too close
@@ -114,7 +112,6 @@ export function Packaging({
   eyebrow?: string
   heading?: ReactNode
   tiers: readonly PackageTier[]
-  spacing?: 'service' | 'loose'
   eyebrowTone?: EyebrowTone
 }) {
   /*
@@ -125,11 +122,15 @@ export function Packaging({
   const columns = tiers.filter((t) => !t.lead)
 
   return (
-    <Section
-      tone="none"
-      spacing={spacing === 'loose' ? 'loose' : 'none'}
-      className={cn('text-on-light', spacing === 'service' && 'py-4xl')}
-    >
+    /*
+      80/80 on every page. What We Do used to pass `spacing="loose"`, which is
+      the same 80 below `xl` and 160 above it, so the nine instances agreed on
+      a phone and diverged on a desktop. Eduardo, 2026-09-21: "make sure that
+      all How we package it sections have the same vertical spacing across the
+      site." The prop is gone rather than defaulted, so a future call site
+      cannot reintroduce the split.
+    */
+    <Section tone="none" spacing="none" className="py-4xl text-on-light">
       <div className="flex flex-col gap-4xl">
         <Reveal>
           <div className="flex max-w-[549px] flex-col items-start gap-md">

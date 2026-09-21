@@ -196,7 +196,16 @@ function WorkRow({ work }: { work: Work }) {
         </div>
       </Reveal>
 
-      <Reveal index={1} className="lg:col-span-7">
+      {/*
+        ⚠ The IMAGE comes first below `lg` — Eduardo, 2026-09-21: "put the
+        image first, then header, and description, tags." Stacked, the row
+        used to open with a 24px title and its paragraph, so a phone scrolled
+        through three near-identical blocks of text with the artwork trailing
+        each one. Ordered rather than reordered in the markup, because the
+        copy has to stay first in the DOM: it carries the row's heading, and
+        the whole row is one link.
+      */}
+      <Reveal index={1} className="order-first lg:order-none lg:col-span-7">
         {/* 737 x 441 on the artboard. Art is borrowed for now — see the note in
             work-content.ts; a row without one keeps the flat block. */}
         <TiltCard>
@@ -243,10 +252,14 @@ function Work() {
     <Section
       tone="none"
       spacing="none"
-      /* 160 above: the hero band is flush at 880 and the first row is at 1040. */
-      className="pb-4xl pt-[calc(theme(spacing.4xl)*2)] text-on-light"
+      /* 160 above: the hero band is flush at 880 and the first row is at 1040.
+         ⚠ 120 below `md`, with the same 120 between rows — Eduardo,
+         2026-09-21. The artboard's 24px row gap assumes a row is one
+         horizontal band; stacked it is image + copy, so at 24 the next
+         study's artwork read as belonging to the previous study's text. */
+      className="pb-4xl pt-5xl text-on-light md:pt-[calc(theme(spacing.4xl)*2)]"
     >
-      <div className="flex flex-col gap-lg">
+      <div className="flex flex-col gap-5xl md:gap-lg">
         {WORK_ROWS.map((work) => (
           <WorkRow key={work.name} work={work} />
         ))}

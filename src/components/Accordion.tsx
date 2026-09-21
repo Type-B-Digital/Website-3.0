@@ -90,11 +90,21 @@ function AccordionRow({
           )}
         >
           {/*
-            copyLarge, not copyMedium: the artboard's question row is 31 tall
-            (the chevron is centred at y=3.5 of it), which with py-lg gives the
-            79px row pitch every FAQ on the site is drawn on.
+            copyLarge from `md`, not copyMedium: the artboard's question row is
+            31 tall (the chevron is centred at y=3.5 of it), which with py-lg
+            gives the 79px row pitch every FAQ on the site is drawn on.
+
+            ⚠ 16px below `md` — Eduardo, 2026-09-21. On a phone a 20px question
+            wrapped to three lines on the longer FAQs and the row pitch the
+            note above describes stopped holding anyway; at 16 most questions
+            fit two. The artboard's pitch is a desktop measurement, so nothing
+            is lost by dropping the size where it no longer applies.
           */}
-          <Typography variant="copyLarge" as="span">
+          <Typography
+            variant="copyLarge"
+            as="span"
+            className="text-copy-medium md:text-copy-large"
+          >
             {item.question}
           </Typography>
           <fm.span

@@ -231,8 +231,17 @@ export function EngagementSteps({
   footnote?: string
 }) {
   return (
+    /*
+      All seven call sites render this with no spacing prop, so the section
+      rhythm was already identical across the site; what moved on 2026-09-21
+      is the gap INSIDE it. Eduardo: "on all How we work here sections tighten
+      up the vertical spacing by 8p". 48 -> 40 below `md`, where the three
+      steps stack and the 48 between the heading block and the first step read
+      as the same break as the 48 between the steps themselves. From `md` the
+      steps sit in a row and the artboard's 48 is restored.
+    */
     <Section tone="none" spacing="none" className="py-4xl text-on-light">
-      <div className="flex flex-col gap-3xl">
+      <div className="flex flex-col gap-2xl md:gap-3xl">
         <Reveal>
           <div className="mx-auto flex max-w-[800px] flex-col items-center gap-lg text-center">
             <Typography variant="h2" className="text-h2-compact md:text-h2">
@@ -460,7 +469,18 @@ export function SplitFeature({
       <div className="flex max-w-[628px] flex-col items-start gap-md">
         {eyebrow && <Eyebrow tone="onAccent">{eyebrow}</Eyebrow>}
         {headingLevel === 'h1' ? (
-          <Typography variant="h1" className="text-h2 md:text-h1">
+          /*
+            ⚠ 32px below `md`, not the 48 an `h1` drops to everywhere else —
+            Eduardo, 2026-09-21, "change the Applied to your needs header to
+            32p". The only two blocks still passing `h1` are the Our Specialty
+            ones on Healthcare and Financial Services (see the note above), so
+            this branch IS that section. On a phone those headings sit above a
+            claim line and a long paragraph, and at 48 they took three lines
+            and pushed the photograph off the first screen. Both branches now
+            render 32 on a phone, which is also the size the rest of the
+            32px-header change settled on.
+          */
+          <Typography variant="h1" className="text-h2-compact md:text-h1">
             {heading}
           </Typography>
         ) : (

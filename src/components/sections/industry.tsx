@@ -133,7 +133,8 @@ export function StatBand({ heading, stats }: { heading: string; stats: readonly 
           <Reveal key={stat.value} index={i + 1}>
             {/* 74 - 58 = 16 between the numeral and its line of proof. */}
             <div className="flex flex-col gap-md">
-              <Typography variant="h2" as="p" className="text-h2-compact md:text-h2">
+              {/* 40px on a phone — see the note in HeroStats. */}
+              <Typography variant="h2" as="p" className="text-h3 md:text-h2">
                 {stat.value}
               </Typography>
               <Typography variant="copyMedium" muted>

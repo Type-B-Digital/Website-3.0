@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
+  ChevronDown,
   CloseIcon,
   Eyebrow,
   HeroIntro,
@@ -199,7 +200,74 @@ function FilterRail({
       <div>
         <Eyebrow tone="onLight">Filter</Eyebrow>
       </div>
-      <ul className="flex flex-col gap-md">
+
+      {/*
+        ⚠ Below `md` the eight categories are a SELECT, not a list — Eduardo,
+        2026-09-21: "change the filter to a dropdown select component with a
+        clear button next to it once an item is selected."
+
+        A native `select` rather than a built menu: it is one tap to the
+        platform's own picker, it is reachable by keyboard and screen reader
+        without any of the listbox wiring a custom control needs, and eight
+        rows of it cost no vertical space on the page. The rail's own list is
+        what the artboard draws (nodes 2887:9854 / 3752:445) and it is
+        untouched from `md` up.
+
+        The clear button appears only once something is selected, which is the
+        same rule the list rows follow — and the empty option inside the
+        select does the same job for anyone driving it by keyboard, so the
+        filter can always be cleared without the button.
+      */}
+      <div className="flex items-center gap-sm md:hidden">
+        <div className="relative flex-1">
+          <select
+            value={active ?? ''}
+            aria-label="Filter publications by category"
+            onChange={(e) => {
+              const value = e.target.value
+              if (!value) onClear()
+              else onToggle(value as PublicationFilter)
+            }}
+            className={cn(
+              'w-full appearance-none rounded-sm border border-divider bg-transparent',
+              'py-sm pl-md pr-3xl text-copy-medium text-on-light',
+              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
+              'focus-visible:outline-accent-500',
+            )}
+          >
+            <option value="">All publications</option>
+            {FILTERS.map((filter) => (
+              <option key={filter} value={filter}>
+                {filter}
+              </option>
+            ))}
+          </select>
+          {/* The select's own arrow is suppressed above, so the site's caret
+              is drawn in its place. `pointer-events-none` keeps the tap on
+              the select underneath. */}
+          <ChevronDown
+            aria-hidden
+            className="pointer-events-none absolute right-md top-1/2 size-md -translate-y-1/2"
+          />
+        </div>
+        {active && (
+          <button
+            type="button"
+            onClick={onClear}
+            aria-label={`Clear the ${active} filter`}
+            className={cn(
+              'flex size-3xl shrink-0 items-center justify-center rounded-sm border border-divider',
+              'transition-opacity duration-fast ease-out hover:opacity-muted',
+              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
+              'focus-visible:outline-accent-500',
+            )}
+          >
+            <CloseIcon className="size-md" />
+          </button>
+        )}
+      </div>
+
+      <ul className="hidden flex-col gap-md md:flex">
         {FILTERS.map((filter) => {
           const selected = filter === active
           return (

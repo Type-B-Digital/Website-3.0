@@ -645,11 +645,26 @@ export const typography = {
    *   desktop    h1 72   h2 48   h3 40
    *   below md   h1 48   h2 32   h3 32
    */
-  h2Compact: { fontSize: '32px', lineHeight: 1.2, fontWeight: fontWeight.semibold },
+  /*
+    ⚠ 40px line box since 2026-09-21, not the 1.2 (38.4px) every other heading
+    step carries — Eduardo, "change all headers that are 32p in size to have
+    40p line height". The two 32px styles on the scale, this and
+    `subHeaderLarge`, now agree on 40 and nothing else moves. 1.25 rather than
+    a literal so the relationship survives a size change.
+  */
+  h2Compact: { fontSize: '32px', lineHeight: 40 / 32, fontWeight: fontWeight.semibold },
   /** Full-bleed CTA band headline. Figma: 3390:26562 */
   display: { fontSize: '64px', lineHeight: 1.2, fontWeight: fontWeight.semibold },
-  /** Figma: "Sub-Header Large" — node 3386:25396 */
-  subHeaderLarge: { fontSize: '32px', lineHeight: 1.5, fontWeight: fontWeight.regular },
+  /**
+   * Figma: "Sub-Header Large" — node 3386:25396.
+   *
+   * ⚠ 40px line box since 2026-09-21, against the board's 1.5 (48px) — the
+   * request came from the testimonial pull-quote, which is this token, and
+   * generalised to "all headers that are 32p in size". At 1.5 a three-line
+   * quote was 24px taller than the artboard's block; 40 is the same value
+   * `h2Compact` now carries, so the two 32px styles agree.
+   */
+  subHeaderLarge: { fontSize: '32px', lineHeight: 40 / 32, fontWeight: fontWeight.regular },
   /** Figma: "Sub-Header Small" — node 3373:24762 */
   subHeaderSmall: { fontSize: '24px', lineHeight: 1.5, fontWeight: fontWeight.regular },
   /** Hero subcopy, case-study titles. Figma: "Large copy" — node 3373:24758 */
