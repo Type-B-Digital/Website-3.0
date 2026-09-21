@@ -47,11 +47,11 @@ type FooterLink = { label: string; to?: string; href?: string }
 
 const FOOTER_COLUMNS: { heading: string; to?: string; links: FooterLink[] }[] = [
   {
-    heading: 'What We Do',
+    heading: 'What we do',
     to: '/what-we-do',
     links: [
       { label: 'Advisory', to: '/advisory' },
-      { label: 'Product & AI Development', to: '/product-development' },
+      { label: 'Product & AI development', to: '/product-development' },
       { label: 'Teams', to: '/teams' },
     ],
   },
@@ -62,7 +62,7 @@ const FOOTER_COLUMNS: { heading: string; to?: string; links: FooterLink[] }[] = 
       { label: 'Healthcare', to: '/industries/healthcare' },
       { label: 'Financial', to: '/industries/financial-services' },
       { label: 'Manufacturing', to: '/industries/manufacturing' },
-      { label: 'Real Estate', to: '/industries/real-estate' },
+      { label: 'Real estate', to: '/industries/real-estate' },
       { label: 'Legal', to: '/industries/legal' },
     ],
   },
@@ -71,7 +71,7 @@ const FOOTER_COLUMNS: { heading: string; to?: string; links: FooterLink[] }[] = 
        and two named placeholders; Pelican and HireNorth have no `to` and so
        stay inert, which is what the dead-link rule at the top of this file
        already describes. */
-    heading: 'Case Studies',
+    heading: 'Case studies',
     to: '/our-work',
     links: [
       { label: 'Ferry Pay', to: '/our-work/ferry-pay' },
@@ -84,16 +84,16 @@ const FOOTER_COLUMNS: { heading: string; to?: string; links: FooterLink[] }[] = 
     /* The heading is the culture page — the same change the nav panel took, so
        the two now agree. "Our Culture" was a row underneath a heading that went
        nowhere. */
-    heading: 'Who We Are',
+    heading: 'Who we are',
     to: '/culture',
     links: [
-      { label: 'We’re Hiring!', to: '/careers' },
+      { label: 'We’re hiring!', to: '/careers' },
       { label: 'Contact', to: '/contact' },
       /* ⚠ NOT IN FIGMA. The artboard's Who We Are lists two rows; this is a
          third, added 2026-09-09. The brand system is a real page about who the
          company is, so it belongs in this section rather than under
          Publications — but nothing in the design asked for it. */
-      { label: 'Brand System', to: '/brand-guidelines' },
+      { label: 'Brand system', to: '/brand-guidelines' },
     ],
   },
   {
@@ -130,8 +130,8 @@ const FOOTER_COLUMNS: { heading: string; to?: string; links: FooterLink[] }[] = 
     heading: 'Publications',
     to: '/publications',
     links: [
-      { label: 'Linkedin', href: 'https://www.linkedin.com/company/typeb-digital/' },
-      { label: 'Privacy Policy', to: '/privacy-policy' },
+      { label: 'LinkedIn', href: 'https://www.linkedin.com/company/typeb-digital/' },
+      { label: 'Privacy policy', to: '/privacy-policy' },
     ],
   },
 ]
@@ -276,7 +276,7 @@ export function SiteFooter() {
             */}
             <ClutchRating className="mt-md" />
             <Typography variant="copyXSmall" muted className="mt-md">
-              © 2026 Type B Digital. All Rights Reserved.
+              © 2026 Type B Digital. All rights reserved.
             </Typography>
           </div>
 

@@ -173,7 +173,7 @@ export function ManufacturingPage() {
   return (
     <ContentPage faq={FAQ} ground={{ backgroundColor: colorTokens.background.surface }}>
       <IndustryHero
-        heading="AI for Manufacturing, Trade & Logistics"
+        heading="AI for manufacturing, trade & logistics"
         body="Type B moves manufacturers, trade businesses, and logistics operators off paper, spreadsheets, and tribal knowledge onto systems built around how the work actually happens, with AI applied where documents and decisions pile up."
         gradient={HERO_GRADIENT}
       />

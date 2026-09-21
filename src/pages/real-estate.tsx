@@ -184,7 +184,7 @@ export function RealEstatePage() {
     >
       <IndustryHero
         tone="onDark"
-        heading="AI for Real Estate & PropTech"
+        heading="AI for real estate & PropTech"
         body="Type B builds prop-tech products, AI automation, and investment platforms for real estate businesses, from agent-facing marketing automation to securities-compliant investing."
         gradient={HERO_GRADIENT}
       />
@@ -210,7 +210,7 @@ export function RealEstatePage() {
       <SplitFeature
         reverse
         headingLevel="h2"
-        heading="What can AI do for Real Estate & PropTech?"
+        heading="What can AI do for real estate & PropTech?"
         body="Most real estate AI is standard cloud AI and should be: content generation, lead scoring, listing automation, document extraction. Build it fast, own it outright. Where a platform touches investment money or personal financial data, the audit-first discipline from our regulated practice comes with it at no extra ceremony: lineage, human gates, and a compliance workstream running alongside the build."
         image="/images/services/product-featured.jpg"
       />

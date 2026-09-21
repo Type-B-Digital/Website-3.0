@@ -43,7 +43,7 @@ import { FEATURED, ROW_TAGS, WORK_ROWS, type Work } from './work-content'
  */
 const INDUSTRIES = [
   {
-    title: 'Fintech & Financial Services',
+    title: 'Fintech & financial services',
     to: '/industries/financial-services',
     body: 'We build AI platforms where every number is audited: payments, wealth, insurance claims, and the compliance evidence. Ferry Pay, RFL Wealth, and Dome all shipped inside real regulatory constraints.',
   },
@@ -58,7 +58,7 @@ const INDUSTRIES = [
     body: 'We map the physical process and the people behind each step before recommending software, then digitize it. UDM went from paper cards to a purpose-built ERP in eight weeks with 100% staff adoption.',
   },
   {
-    title: 'Real Estate',
+    title: 'Real estate',
     to: '/industries/real-estate',
     body: 'Proptech products and investment platforms, engineered so quality survives volume. Mave AI ships roughly 45% faster with QA coverage up from 20% to 80%.',
   },
@@ -68,7 +68,7 @@ const INDUSTRIES = [
     body: 'Cross-border compliance is a cost center that scales with every shipment unless something changes. Class.fi classifies products in seconds instead of hours, at 70% lower compliance cost.',
   },
   {
-    title: 'Legal & Professional Services',
+    title: 'Legal & professional services',
     to: '/industries/legal',
     body: 'Grounded document AI with citations a professional can verify, a privilege enforced in the architecture of what we build rather than a 50 slide deck in a drawer or a policy memo.',
   },

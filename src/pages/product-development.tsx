@@ -114,10 +114,10 @@ const STEPS = [
 ]
 
 const LEVELS = [
-  { number: '01', label: 'Data Modeling' },
-  { number: '02', label: 'Micro-Context Agents' },
+  { number: '01', label: 'Data modeling' },
+  { number: '02', label: 'Micro-context agents' },
   { number: '03', label: 'RAG' },
-  { number: '04', label: 'Agents (Most Targeted)' },
+  { number: '04', label: 'Agents (most targeted)' },
   { number: '05', label: 'Fine-Tuning' },
 ]
 
@@ -186,7 +186,7 @@ export function ProductDevelopmentPage() {
       }}
     >
       <ServiceHero
-        eyebrow="Product & AI Development"
+        eyebrow="Product & AI development"
         heading="AI that ships inside working products"
         body="Data-driven UX, engineering across web and mobile, and AI systems with guardrails around them. Agents draft code and test inside our SDLC; senior engineers review everything and own the architecture. You own the code, the data, and the IP."
         image="/images/services/product-hero.jpg"
@@ -208,7 +208,7 @@ export function ProductDevelopmentPage() {
       <EngagementSteps
         heading="How does an advisory engagement with Type B start?"
         steps={STEPS}
-        footnote="Every engagement opens with a Framing Workshop, then runs the four stages: Discovery, Solution Design, Implementation, Launch & Support, with daily stand-ups, weekly status, and working software sprint by sprint."
+        footnote="Every engagement opens with a Framing Workshop, then runs the four stages: Discovery, Solution design, Implementation, Launch & support, with daily stand-ups, weekly status, and working software sprint by sprint."
       />
 
       <LevelsList heading="Levels of AI sophistication" levels={LEVELS} />

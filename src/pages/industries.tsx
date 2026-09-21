@@ -82,28 +82,28 @@ const COL_START: Record<number, string> = {
  */
 const INDUSTRIES = [
   {
-    title: 'Healthcare & Life Sciences',
+    title: 'Healthcare & life sciences',
     to: '/industries/healthcare',
     result: 'Three AI agents in production at MatchDay Health, & conversion rose by 20%.',
     gradient: gradients.industry.healthcare,
     column: 7,
   },
   {
-    title: 'Financial Services & Insurance',
+    title: 'Financial services & insurance',
     result: 'Ferry Pay’s app rating rose from 2.0 to 4.8 while support contacts fell to 4%.',
     gradient: gradients.industry.financial,
     column: 9,
     to: '/industries/financial-services',
   },
   {
-    title: 'Real Estate & PropTech',
+    title: 'Real estate & PropTech',
     to: '/industries/real-estate',
     result: 'Mave AI ships roughly 45% faster with QA coverage up from 20% to 80%.',
     gradient: gradients.industry.realEstate,
     column: 8,
   },
   {
-    title: 'Manufacturing, Trade & Logistics',
+    title: 'Manufacturing, trade & logistics',
     to: '/industries/manufacturing',
     result:
       'Class.fi cut compliance cost 70%; UDM digitized 100% of manual workflows in eight weeks.',
@@ -111,7 +111,7 @@ const INDUSTRIES = [
     column: 7,
   },
   {
-    title: 'Legal Professional Services',
+    title: 'Legal professional services',
     to: '/industries/legal',
     result: 'Three AI agents in production at MatchDay Health, & conversion rose by 20%.',
     gradient: gradients.industry.legal,

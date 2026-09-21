@@ -214,9 +214,9 @@ const PILLARS: { title: string; crop: CardCrop }[] = [
  * a homepage card row.
  */
 const STAGES: { title: string; src: string; to: string | null }[] = [
-  { title: 'Founders & Startups', src: asset('/images/stage-founders.png'), to: null },
+  { title: 'Founders & startups', src: asset('/images/stage-founders.png'), to: null },
   { title: 'Scaleups', src: asset('/images/stage-scaleups.png'), to: null },
-  { title: 'Enterprise & Mid Market', src: asset('/images/stage-enterprise.png'), to: null },
+  { title: 'Enterprise & mid market', src: asset('/images/stage-enterprise.png'), to: null },
 ]
 
 /**

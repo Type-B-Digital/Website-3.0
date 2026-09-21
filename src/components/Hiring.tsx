@@ -56,7 +56,7 @@ export function Hiring({
         <Reveal index={1} className="lg:col-span-5 lg:col-start-8">
           <div className="flex flex-col items-start gap-2xl">
             <Typography variant="h2" className="text-h2-compact md:text-h2">
-              We’re Hiring!
+              We’re hiring!
             </Typography>
             <div className="flex flex-col gap-md">
               <Typography variant="copyMedium" muted>

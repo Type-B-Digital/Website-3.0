@@ -166,7 +166,7 @@ const FAQ = [
   {
     question: 'How do you start a healthcare engagement?',
     answer:
-      'With a Framing Workshop, then the four stages: Framing & Discovery, Solution Design, Implementation, and Launch & Support, with your privacy officer in the room from the first architecture session. Placeholder copy pending final wording.',
+      'With a Framing Workshop, then the four stages: Framing & discovery, Solution design, Implementation, and Launch & support, with your privacy officer in the room from the first architecture session. Placeholder copy pending final wording.',
   },
   {
     question: 'Who in healthcare do you work with?',
@@ -180,7 +180,7 @@ export function HealthcarePage() {
   return (
     <ContentPage faq={FAQ} ground={{ backgroundColor: colorTokens.background.surface }}>
       <IndustryHero
-        heading="AI for Healthcare & Life Sciences"
+        heading="AI for healthcare & life sciences"
         body="Type B builds AI and software for mid-market healthcare organizations, providers and clinic groups, payers and revenue-cycle vendors, and digital-health companies, with PHI constraints treated as design inputs from day one, not review-stage surprises."
         gradient={HERO_GRADIENT}
       />
@@ -204,7 +204,7 @@ export function HealthcarePage() {
       <EngagementSteps heading="How we work here" steps={INDUSTRY_STEPS} />
 
       <SplitFeature
-        eyebrow="Our Specialty"
+        eyebrow="Our specialty"
         heading="Applied to your needs"
         claim="Simply, good AI on your cloud."
         body="Scheduling agents, internal search, analytics. When PHI is in the pipeline, we build it sovereign, and that is our specialty. Sovereign AI is AI that runs inside your organization’s boundary: your jurisdiction, your cloud or data center, your controls, with a full audit trail and no dependency on someone else’s black box. In healthcare that means PHI never leaves your tenancy, nothing trains a third-party model, and every output is traceable. We warrant conformance to the controls we agree in writing; your compliance officer owns the compliance determination."

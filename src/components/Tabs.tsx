@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn'
 import Typography from './Typography'
 
 /**
- * Tabs — a filter row. Figma: the Careers "Open Roles" tabs, node 3638:9419.
+ * Tabs — a filter row. Figma: the Careers "Open roles" tabs, node 3638:9419.
  *
  * Implements the ARIA tabs pattern properly, which is the reason this is a
  * component rather than a row of buttons:
@@ -16,13 +16,13 @@ import Typography from './Typography'
  *   focusable makes a keyboard user tab through all four to reach the content.
  *
  * `variant` on an item covers the artboard's odd one out: the three category
- * tabs are pills, "View All" is drawn with no pill at all (node 3638:9427) —
+ * tabs are pills, "View all" is drawn with no pill at all (node 3638:9427) —
  * it reads as "no filter" rather than as another category.
  */
 export type TabItem = {
   id: string
   label: string
-  /** `plain` drops the pill; the artboard uses it for "View All". */
+  /** `plain` drops the pill; the artboard uses it for "View all". */
   variant?: 'pill' | 'plain'
 }
 
@@ -112,7 +112,7 @@ export function Tabs({
               !selected && !plain && tone === 'onLight' && 'border border-on-light text-on-light',
               plain && tone === 'onDark' && 'text-on-dark hover:opacity-muted',
               plain && tone === 'onLight' && 'text-on-light hover:opacity-muted',
-              // The plain variant still needs a selected state, or "View All"
+              // The plain variant still needs a selected state, or "View all"
               // gives no feedback at all when it is the active filter.
               plain && selected && 'underline underline-offset-4',
             )}

@@ -29,15 +29,15 @@ const STATS = [
 /** Node 3932:17077 ("The challenge"). */
 const CHALLENGE = [
   {
-    title: 'High Issue Rate',
+    title: 'High issue rate',
     body: 'Six of every ten customer interactions were support requests tied to bugs or usability problems, and the support team was overwhelmed.',
   },
   {
-    title: 'Low Satisfaction',
+    title: 'Low satisfaction',
     body: 'The mobile app sat at 2.0 stars, a critical liability for a product whose whole promise is that getting paid is easy.',
   },
   {
-    title: 'Scaling Limitations',
+    title: 'Scaling limitations',
     body: 'Database queries ran 200 to 300 milliseconds, infrastructure cost was climbing with no optimization path, and the go-to-market timeline was slipping.',
   },
 ]
@@ -49,7 +49,7 @@ const ROLES = [
     body: 'We bring unparalleled knowledge & specialized skills.',
   },
   {
-    title: 'Full Stack Developer',
+    title: 'Full stack developer',
     body: 'Partnering with visionary clients who push boundaries.',
   },
   {
@@ -57,15 +57,15 @@ const ROLES = [
     body: 'Committed to streamlined processes & efficient delivery.',
   },
   {
-    title: 'Quality Assurance (QA)',
+    title: 'Quality assurance (QA)',
     body: 'To establish robust quality processes & eliminate bugs.',
   },
   {
-    title: 'Product Design',
+    title: 'Product design',
     body: 'To revamp the user experience, innovative Mobile Application.',
   },
   {
-    title: 'Go-To-Market Strategy',
+    title: 'Go-to-market strategy',
     body: 'To ensure smooth project delivery and successful adoption.',
   },
 ]
@@ -73,31 +73,31 @@ const ROLES = [
 /** Node 3932:17122. Seven outcomes, in the artboard's reading order. */
 const IMPACT = [
   {
-    claim: '43% Reduction in Infrastructure Costs',
+    claim: '43% reduction in infrastructure costs',
     body: 'Monthly cloud spend fell from about $7,000 to about $4,000 through right-sizing, query optimization, and caching.',
   },
   {
-    claim: '70% Faster Database Queries',
+    claim: '70% faster database queries',
     body: 'Response times went from 200 to 300 milliseconds down to 80 milliseconds.',
   },
   {
-    claim: '$16M+ Processed in One Month',
+    claim: '$16M+ processed in one month',
     body: 'The platform handled real volume at a 98% card utilization rate.',
   },
   {
-    claim: 'Customer Issues Dropped ~60% → 4%',
+    claim: 'Customer issues dropped ~60% → 4%',
     body: 'Better product quality and clearer UX removed the reasons people were contacting support.',
   },
   {
-    claim: 'Mobile App Rating Jumped from 2 → 4.8',
+    claim: 'Mobile app rating jumped from 2 → 4.8',
     body: 'Reliability, performance, and a cleaner interface.',
   },
   {
-    claim: 'User Base Growth: 23K → 40K',
+    claim: 'User base growth: 23K → 40K',
     body: 'Scaling continued without the cost and stability problems of the legacy system.',
   },
   {
-    claim: 'Team Scalability: From 2 → 10 Experts',
+    claim: 'Team scalability: from 2 → 10 experts',
     body: 'Sprint goal completion reached 90 to 95%, making the schedule predictable.',
   },
 ]

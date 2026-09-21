@@ -66,7 +66,7 @@ import {
  * THE WATERFALL
  * ================================================================== */
 
-type Band = 'Foundation' | 'Building Blocks' | 'Unified System'
+type Band = 'Foundation' | 'Building blocks' | 'Unified system'
 
 type Tier = {
   n: number
@@ -82,19 +82,19 @@ const TIERS: readonly Tier[] = [
   {
     n: 1,
     id: 'foundations',
-    name: 'Brand Foundations',
-    sub: 'Strategy, Voice & Vision',
+    name: 'Brand foundations',
+    sub: 'Strategy, voice & vision',
     band: 'Foundation',
-    label: 'Tier 1 · Identity Root',
+    label: 'Tier 1 · Identity root',
     blurb:
       'Core strategy, positioning, verbal tone, colour philosophy and the pillars that define the personality everything below inherits. Nothing in the tiers beneath is allowed to contradict this one.',
   },
   {
     n: 2,
     id: 'tokens',
-    name: 'Design Tokens',
-    sub: 'Typography, Color, Spacing',
-    band: 'Building Blocks',
+    name: 'Design tokens',
+    sub: 'Typography, colour, spacing',
+    band: 'Building blocks',
     label: 'Tier 2 · Decisions',
     blurb:
       'The identity resolved into named, typed values — the smallest unit a component is allowed to reference. One source of truth in `src/tokens/index.ts`, mirrored to CSS custom properties and the Tailwind theme.',
@@ -102,9 +102,9 @@ const TIERS: readonly Tier[] = [
   {
     n: 3,
     id: 'components',
-    name: 'Core UI Components',
-    sub: 'Buttons, Inputs, Badges',
-    band: 'Building Blocks',
+    name: 'Core UI components',
+    sub: 'Buttons, inputs, badges',
+    band: 'Building blocks',
     label: 'Tier 3 · Atoms',
     blurb:
       'The smallest things a page composes. Each owns its shape and its states and holds no colour, size or duration literal — every value routes through Tier 2.',
@@ -112,9 +112,9 @@ const TIERS: readonly Tier[] = [
   {
     n: 4,
     id: 'patterns',
-    name: 'Pattern Library',
-    sub: 'Navbars, Heroes, Modals',
-    band: 'Building Blocks',
+    name: 'Pattern library',
+    sub: 'Navbars, heroes, modals',
+    band: 'Building blocks',
     label: 'Tier 4 · Compositions',
     blurb:
       'Recurring arrangements of atoms that carry meaning of their own — the navigation, the hero families, the closing band. A pattern owns its composition; the page still owns its ground.',
@@ -122,10 +122,10 @@ const TIERS: readonly Tier[] = [
   {
     n: 5,
     id: 'system',
-    name: 'Design System',
-    sub: 'Documentation & Code Library',
-    band: 'Unified System',
-    label: 'Tier 5 · Delivery & Governance',
+    name: 'Design system',
+    sub: 'Documentation & code library',
+    band: 'Unified system',
+    label: 'Tier 5 · Delivery & governance',
     blurb:
       'The four tiers above, shipped: where each level lives, how it is exported, how a change is made, and what is still undesigned. Governance runs back up the chain — a decision here can amend any tier above it.',
   },
@@ -147,8 +147,8 @@ const TIERS: readonly Tier[] = [
  */
 const BAND_STYLES: Record<Band, { pill: string; dot: string }> = {
   Foundation: { pill: 'border-neutral-900', dot: 'border-neutral-900' },
-  'Building Blocks': { pill: 'border-neutral-400', dot: 'border-neutral-400' },
-  'Unified System': {
+  'Building blocks': { pill: 'border-neutral-400', dot: 'border-neutral-400' },
+  'Unified system': {
     pill: 'border-accent-500 bg-accent-500 text-on-dark-muted',
     dot: 'border-accent-500 bg-accent-500',
   },
@@ -536,7 +536,7 @@ export function BrandGuidelinesPage() {
               <div className="flex max-w-[800px] flex-col items-start gap-md">
                 <Eyebrow tone="ink">Internal reference</Eyebrow>
                 <Typography variant="h1" className="text-h2 md:text-h1">
-                  Brand System
+                  Brand system
                 </Typography>
                 <Typography variant="copyLarge" muted>
                   Five tiers, each derived from the one above it — identity at the top, the shipped
@@ -1105,7 +1105,7 @@ export function BrandGuidelinesPage() {
                   items={[
                     { id: 'primary', label: 'Primary' },
                     { id: 'secondary', label: 'Secondary' },
-                    { id: 'all', label: 'View All', variant: 'plain' },
+                    { id: 'all', label: 'View all', variant: 'plain' },
                   ]}
                   active={tab}
                   onChange={setTab}

@@ -112,11 +112,11 @@ const PROFILES = [
 const LEVELS = [
   { number: '01', label: 'Source' },
   { number: '02', label: 'Screen' },
-  { number: '03', label: 'Technical Assessment' },
-  { number: '04', label: 'Technical Interview' },
-  { number: '05', label: 'Client Interview' },
+  { number: '03', label: 'Technical assessment' },
+  { number: '04', label: 'Technical interview' },
+  { number: '05', label: 'Client interview' },
   { number: '06', label: 'Contract' },
-  { number: '07', label: 'Onboard & Manage' },
+  { number: '07', label: 'Onboard & manage' },
 ]
 
 /** ⚠ Answers are placeholders — the artboard draws every row collapsed. */

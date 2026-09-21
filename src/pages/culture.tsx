@@ -46,17 +46,17 @@ const STATS = [
 /** Figma: node 3672:9671. */
 const PRINCIPLES = [
   {
-    title: 'Standard of Excellence',
+    title: 'Standard of excellence',
     copy: 'We hold every engagement to the same standard of rigor and care, from a startup MVP to an enterprise program.',
     image: '/images/culture/showup-1.jpg',
   },
   {
-    title: 'Extreme Ownership',
+    title: 'Extreme ownership',
     copy: 'Strong PMO discipline paired with real accountability. We own outcomes against an aligned vision, not just tickets.',
     image: '/images/culture/showup-2.jpg',
   },
   {
-    title: 'User-Centric Design Thinking',
+    title: 'User-centric design thinking',
     copy: 'Every solution starts by understanding the people who use it: their needs, their pains, and their goals.',
     image: '/images/culture/showup-3.jpg',
   },
@@ -71,7 +71,7 @@ const STAGES = [
   },
   {
     number: '02',
-    title: 'Solution Design',
+    title: 'Solution design',
     copy: 'Tailored strategy and design, aligned to user needs and business outcomes.',
   },
   {
@@ -81,7 +81,7 @@ const STAGES = [
   },
   {
     number: '04',
-    title: 'Launch & Support',
+    title: 'Launch & support',
     copy: 'We ship, then support and optimize for the long term.',
   },
 ]
@@ -204,7 +204,7 @@ function Hero() {
         <Container className="relative z-10 flex flex-col gap-5xl pb-5xl pt-[232px]">
           <Reveal>
             <div className="flex max-w-[834px] flex-col items-start gap-md">
-              <Eyebrow tone="ink">Why We Exist</Eyebrow>
+              <Eyebrow tone="ink">Why we exist</Eyebrow>
               <Typography variant="h1" className="text-h2 md:text-h1">
                 A full-service digital firm
               </Typography>
@@ -285,7 +285,7 @@ function OurApproach() {
           <div className="mx-auto flex max-w-[800px] flex-col items-center gap-md text-center">
             <Eyebrow tone="onAccent">Four stages</Eyebrow>
             <Typography variant="h2" className="text-h2-compact md:text-h2">
-              Our Approach
+              Our approach
             </Typography>
             <Typography variant="copyLarge" muted>
               Every week, not every milestone: daily stand-ups, weekly written status, sprint demos,

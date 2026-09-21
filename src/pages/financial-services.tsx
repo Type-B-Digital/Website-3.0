@@ -165,7 +165,7 @@ const FAQ = [
   {
     question: 'How do engagements start?',
     answer:
-      'With a Framing Workshop, then the four stages: Framing & Discovery, Solution Design, Implementation, and Launch & Support, with weekly written status throughout. Placeholder copy pending final wording.',
+      'With a Framing Workshop, then the four stages: Framing & discovery, Solution design, Implementation, and Launch & support, with weekly written status throughout. Placeholder copy pending final wording.',
   },
   {
     question: 'What results have you delivered in financial services?',
@@ -179,7 +179,7 @@ export function FinancialServicesPage() {
   return (
     <ContentPage faq={FAQ} ground={{ backgroundColor: colorTokens.background.surface }}>
       <IndustryHero
-        heading="AI for Financial Services & Insurance"
+        heading="AI for financial services & insurance"
         body="Type B builds AI systems and platforms for fintech, wealth management, and insurance companies, with auditable, data lineage, and regulatory conformance designed in from the first architecture session."
         gradient={HERO_GRADIENT}
       />
@@ -213,7 +213,7 @@ export function FinancialServicesPage() {
       <StatBand heading="Why Type B fits here" stats={STATS} />
 
       <SplitFeature
-        eyebrow="Our Specialty"
+        eyebrow="Our specialty"
         heading="Applied to your needs"
         claim="Simply, good AI on your cloud."
         body="When a regulator, a residency clause, or a client contract dictates where the data may live, we build it sovereign, and that is our specialty: canonical definition, plus mapping to GLBA, PCI, SOC 2, and provincial privacy regimes, plus the evidence pack."

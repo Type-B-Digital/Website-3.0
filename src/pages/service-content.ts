@@ -15,11 +15,11 @@ import type { PackageTier } from '@/components/sections'
 
 export const CAPABILITIES: readonly Capability[] = [
   {
-    title: 'Conversational & Voice',
+    title: 'Conversational & voice',
     body: 'We assess where agents would carry real customer or internal conversations, and what your content and data would need to be for them to be accurate. Scored on volume, sensitivity, and containment potential.',
   },
   {
-    title: 'Autonomous Agents',
+    title: 'Autonomous agents',
     body: 'We identify the workflows where an agent should take action across your tools rather than answer questions, and where a human gate belongs. Scored on decision reversibility and audit requirements.',
   },
   {
@@ -27,15 +27,15 @@ export const CAPABILITIES: readonly Capability[] = [
     body: 'We scope grounded answers over your own knowledge, leveraging repositories clean enough to ground on. The output is a scored use-case roadmap, and every later phase quotes from it.',
   },
   {
-    title: 'Document & Vision AI',
+    title: 'Document & vision AI',
     body: 'We find the document queues that consume the most hours (intake, claims, compliance research, QC) and size the extraction opportunity against error tolerance.',
   },
   {
-    title: 'Workflow Automation',
+    title: 'Workflow automation',
     body: 'We map the multi-step processes that could run end to end and the ones that should not, with the people who own each step in the room.',
   },
   {
-    title: 'Analytics & Forecast',
+    title: 'Analytics & forecast',
     body: 'We assess whether your data foundations can support predictions everyone would trust, and what has to be true first in order to achieve it.',
   },
 ]
@@ -44,7 +44,7 @@ export const TIERS: readonly PackageTier[] = [
   {
     title: 'Type B Digital',
     note: 'Build the agent workflows.',
-    items: ['Advisory', 'Product & AI Development', 'Teams'],
+    items: ['Advisory', 'Product & AI development', 'Teams'],
     lead: true,
   },
   {
@@ -85,18 +85,18 @@ export const TIERS: readonly PackageTier[] = [
 const SERVICE_CARDS = {
   advisory: { title: 'Advisory', image: '/images/services/advisory.png', to: '/advisory' },
   product: {
-    title: 'Product & AI Development',
+    title: 'Product & AI development',
     image: '/images/services/product.png',
     to: '/product-development',
   },
   teams: { title: 'Teams', image: '/images/services/teams.png', to: '/teams' },
   financial: {
-    title: 'Financial Services & Insurance',
+    title: 'Financial services & insurance',
     image: '/images/services/advisory.png',
     to: '/industries',
   },
   proptech: {
-    title: 'Real Estate & PropTech',
+    title: 'Real estate & PropTech',
     image: '/images/services/product.png',
     to: '/industries',
   },

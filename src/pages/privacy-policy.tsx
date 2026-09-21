@@ -183,7 +183,7 @@ export function PrivacyPolicyPage() {
               <div className="flex flex-col items-start gap-md">
                 <Eyebrow tone="ink">Legal</Eyebrow>
                 <Typography variant="h1" className="text-h2 md:text-h1">
-                  Privacy Policy
+                  Privacy policy
                 </Typography>
                 {/* The source's own date line. */}
                 <Typography variant="button" as="p" muted>

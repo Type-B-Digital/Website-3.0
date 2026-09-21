@@ -174,7 +174,7 @@ export function LegalPage() {
   return (
     <ContentPage faq={FAQ} ground={{ backgroundColor: colorTokens.background.surface }}>
       <IndustryHero
-        heading="AI for Legal Professional Services"
+        heading="AI for legal professional services"
         body="Type B builds AI for legal and professional services firms with the two constraints the profession cannot compromise built in: confidentiality by architecture, and answers grounded in sources a professional can verify."
         gradient={HERO_GRADIENT}
       />
@@ -201,7 +201,7 @@ export function LegalPage() {
       <SplitFeature
         reverse
         headingLevel="h2"
-        heading="What can AI do for Legal Professional Services"
+        heading="What can AI do for legal professional services"
         body="In legal the constraint is close to constant, because privilege does not have a non-sensitive tier. Firm-wide knowledge tools over public materials can run on standard cloud AI; anything touching matter files, client data, or work product gets the sovereign build, which is our specialty."
         image="/images/services/product-featured.jpg"
       />

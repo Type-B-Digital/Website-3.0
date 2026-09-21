@@ -2860,6 +2860,8 @@ on cream.
   "What we do" / "Case studies" / "Who we are", 0.2-0.4 and the whole footer say
   "What We Do" / "Case Studies" / "Who We Are". Followed the majority and the
   footer, which is where both would otherwise appear on one page.
+  ⚠ **REVERSED 2026-09-21** — sentence case sitewide, so boards 0.0 and 0.1 are
+  now the ones to compare against. See § Sentence case, sitewide.
 - **A caret only where there is a page.** The artboard draws one on all five nav
   items and all five footer headings, but Publications has no hub page. It
   renders as plain text rather than promising a destination — the same call the
@@ -4116,3 +4118,71 @@ the docs by hand. A `CLAUDE.md` would load those conventions automatically on
 every session in the repo, which is the difference between the method being
 documented and it being followed. That is the obvious next piece of the
 handoff and is deliberately not in this change.
+
+
+## Sentence case, sitewide — 2026-09-21
+
+Eduardo: "audit the navigation, footer, and every button, eyebrow, header, and
+subheader across the site and make sure that they all read in sentence case.
+Currently, there's a mix of title case and sentence case."
+
+He is right that it was a mix, and the mix was not accidental — the nav and
+footer were deliberately Title Case because the artboards are self-contradictory
+(see the deviation note under § Mobile navigation, measured). That decision is
+reversed here. The artboards still disagree; the tie is now broken the other
+way, by instruction rather than by majority.
+
+### What was audited
+
+Every `<Eyebrow>`, `<Button>`, and `<Typography>` at a heading variant
+(`display`, `h1`-`h3`, `subHeaderLarge`, `subHeaderSmall`), plus the data
+literals those render from — `heading`, `title`, `label`, `eyebrow`, `claim`,
+`question`. 485 unique strings; 136 were title case; all 136 are resolved, by
+a change or by a documented reason to keep.
+
+### The rule applied
+
+First word capitalised, everything else lower, EXCEPT:
+
+- acronyms and initialisms — AI, QA, HR, RAG, PHI, HIPAA, GDPR, BOT, ISVs,
+  MGAs, TPAs, CTOs, SOPs, BAAs, IP, MENA, CTO;
+- proper nouns — Type B Digital, Ferry Pay, FinTech Group, Pelican, HireNorth,
+  MatchDay Health, RFL Wealth, Toptal, Excel, Mumbai, India, PropTech,
+  Image Wash (a component's name), LinkedIn;
+- the first word after a full stop, which is a new sentence: "Most partners do
+  one slice. We do the whole stack.", "Bold. Brilliant. Beautiful.";
+- the segment after a `·` in the Brand System tier labels, which reads as a new
+  phrase: "Tier 2 · Decisions" keeps its capital, "Tier 1 · Identity root"
+  lowercases only the second word;
+- "GDPR - General Data Protection Regulation", the regulation's formal name.
+
+### Two things that had to move in lockstep
+
+- **`CAPABILITY_GLYPHS`** in `components/sections/sections.tsx` is keyed BY
+  TITLE — `'Conversational & Voice': 'speech'`. It is `Record<string, …>`, so a
+  stale key is not a type error: every capability would have silently fallen
+  back to the placeholder square. Keys and titles were changed together.
+- **`PublicationFilter`** is `typeof FILTERS[number]`, and every card's
+  `category` is typed against it. That one IS caught by `tsc`, which is why the
+  filter chips and the card labels could be renamed with confidence.
+
+### Body copy, which was out of scope, with one exception
+
+The brief named nav, footer, buttons, eyebrows, headers and subheaders, so
+paragraphs were left alone. The exception is three sentences that ENUMERATE the
+engagement step names — "then the four stages: Framing & Discovery, Solution
+Design, Implementation, and Launch & Support" on Product, Healthcare and
+Financial Services. Those name the very headings that moved, so leaving them
+would have put "Solution Design" in a sentence directly above a card reading
+"Solution design".
+
+⚠ "Framing Workshop" is NOT lowercased. It is a named offering rather than a
+description, it appears only in body copy plus one FAQ question, and nothing
+else on the site treats it as a common noun. Worth a decision if the service
+names are ever revisited, since "Product & AI development" went the other way.
+
+### One correction that is not a case change
+
+The footer's LinkedIn row read "Linkedin". Fixed to "LinkedIn" while in there —
+it is a capitalisation error in a nav label, but it is a misspelling of a proper
+noun, not a case convention.

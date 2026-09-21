@@ -116,7 +116,7 @@ const STEPS = [
   },
   {
     number: '02',
-    title: 'Solution Design',
+    title: 'Solution design',
     body: 'Architecture triage across standard cloud and sovereign, sequencing, effort.',
   },
   {
@@ -126,7 +126,7 @@ const STEPS = [
   },
   {
     number: '04',
-    title: 'Launch & Support',
+    title: 'Launch & support',
     body: 'Adoption, PMO cadence, the evidence pack.',
   },
 ]

@@ -103,7 +103,7 @@ const ROLE_TABS = [
   { id: 'engineering', label: 'Engineering' },
   { id: 'design', label: 'Design' },
   { id: 'sales', label: 'Sales' },
-  { id: 'all', label: 'View All', variant: 'plain' as const },
+  { id: 'all', label: 'View all', variant: 'plain' as const },
 ]
 
 const ROLES: Record<string, readonly string[]> = {
@@ -112,7 +112,7 @@ const ROLES: Record<string, readonly string[]> = {
   sales: ['Enterprise account executive'],
 }
 
-// "View All" is not a category — it is the absence of a filter.
+// "View all" is not a category — it is the absence of a filter.
 ROLES.all = [...ROLES.engineering, ...ROLES.design, ...ROLES.sales]
 
 /** Figma: nodes 3638:9375 onward. Answers are placeholders. */
@@ -399,7 +399,7 @@ function OurBench() {
         <Reveal>
           <div className="flex flex-col items-center gap-md text-center">
             <Typography variant="h2" className="text-h2-compact md:text-h2">
-              Our Bench
+              Our bench
             </Typography>
             <Typography variant="copyMedium" muted className="max-w-[720px]">
               A vetted bench of roughly 30 senior engineers, with our core delivery engine in Sri
@@ -466,7 +466,7 @@ function OpenRoles() {
           <div className="flex flex-col items-start gap-2xl">
             <div className="flex max-w-[519px] flex-col gap-md">
               <Typography variant="h2" className="text-h2-compact text-neutral-50 md:text-h2">
-                Open Roles
+                Open roles
               </Typography>
               <Typography variant="copyMedium" muted>
                 We hire when we find people we would put in front of a client on day one. Explore

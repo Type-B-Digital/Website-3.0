@@ -46,11 +46,11 @@ const STATS = [
 /** "Things were already complex when we came in" — the three points, verbatim. */
 const CHALLENGE = [
   {
-    title: 'A Crisis of Trust from a Previous Employer',
+    title: 'A crisis of trust from a previous employer',
     body: 'Many potential hires were still affected by a fraudulent former employer, legal threats, and fear of joining another company, leaving morale low and making trust-led, sensitive hiring essential.',
   },
   {
-    title: 'India Is a Complicated Market to Enter',
+    title: 'India is a complicated market to enter',
     body: 'FinTech Group needed to navigate complex regulations, legal processes, and tax setup in India while rapidly building a full workforce without any local presence.',
   },
   {
@@ -73,7 +73,7 @@ const ROLES = [
     body: 'Helped secure necessary spaces.',
   },
   {
-    title: 'HR Policies',
+    title: 'HR policies',
     body: 'Formulated necessary HR policies, training, and workforce roadmap.',
   },
   {
@@ -81,7 +81,7 @@ const ROLES = [
     body: 'Recruited all team members including contracting and negotiations.',
   },
   {
-    title: 'Payroll & Compliance',
+    title: 'Payroll & compliance',
     body: 'Implemented compliant payroll and statutory processes to ensure smooth operations.',
   },
   {
@@ -99,19 +99,19 @@ const ROLES = [
  */
 const IMPACT = [
   {
-    claim: 'Bridging Two Companies, Two Cultures, and High Pressure',
+    claim: 'Bridging two companies, two cultures, and high pressure',
     body: 'Merging new employees into a new company — while addressing trauma from a former employer — required empathy and strong communication. HR and Finance leaders worked day and night to build internal structure, set up contracts and payroll, ensure legal protection, create stability, and hit hiring targets without the company stalling.',
   },
   {
-    claim: 'Building the HR and Finance Leadership from Type B’s Own Team',
+    claim: 'Building the HR and finance leadership from Type B’s own team',
     body: 'Two of FinTech Group’s most critical leaders came directly from Type B: a Head of HR who personally hired 100 people for FinTech Group India, and a Head of Finance responsible for building all financial operations. These leaders became the backbone of the entire India operation.',
   },
   {
-    claim: 'Hiring 85 People in 2.5 Months — Despite Resistance',
+    claim: 'Hiring 85 people in 2.5 months — despite resistance',
     body: 'Due to the previous employer’s legal threats and misconduct, many candidates were scared. Type B held counseling sessions, provided transparency and reassurance, built trust one conversation at a time, and extended HR support well beyond normal hours.',
   },
   {
-    claim: 'Finding and Securing the Mumbai Office',
+    claim: 'Finding and securing the Mumbai office',
     body: 'We sourced the office space, vetted options, and helped FinTech Group establish their physical presence in India — the headquarters they operate from today.',
   },
 ]
@@ -127,7 +127,7 @@ export function FinTechGroupPage() {
       }}
     >
       <CaseHero
-        sector="Financial Services"
+        sector="Financial services"
         name="FinTech Group"
         claim="Shaping future financial solutions."
         description="A Dutch powerhouse serving some of the largest banks across Europe, Canada, the U.S., and the Middle East. As demand increased, they needed to scale rapidly — particularly in India, one of the world’s most talent-rich yet legally complex engineering hubs."

@@ -54,7 +54,7 @@ const SERVICES = [
     },
   },
   {
-    title: 'Product & AI Development',
+    title: 'Product & AI development',
     to: '/product-development',
     body:
       'Brilliant product thinking coupled with end-to-end AI systems: the data ' +
@@ -135,7 +135,7 @@ const PACKAGES = [
   {
     title: 'Type B Digital',
     note: 'Build the agent workflows.',
-    items: ['Advisory', 'Product & AI Development', 'Teams'],
+    items: ['Advisory', 'Product & AI development', 'Teams'],
     lead: true,
   },
   {
@@ -169,8 +169,8 @@ const PROCESS = [
   { label: 'Source', gradient: gradients.b1 },
   { label: 'Screen', gradient: gradients.b2 },
   { label: 'Assess', gradient: gradients.b3 },
-  { label: 'Tech Interview', gradient: gradients.b4 },
-  { label: 'Client Interview', gradient: gradients.b5 },
+  { label: 'Tech interview', gradient: gradients.b4 },
+  { label: 'Client interview', gradient: gradients.b5 },
   { label: 'Contract', gradient: gradients.b6 },
   { label: 'Onboard', gradient: gradients.b7 },
 ]
@@ -209,7 +209,7 @@ function Hero() {
           <Reveal>
             <div className="flex max-w-[720px] flex-col gap-md text-on-light">
               <Typography variant="h1" className="text-h2 md:text-h1">
-                What We Do
+                What we do
               </Typography>
               <Typography variant="copyLarge" muted className="tracking-[-0.01em]">
                 We work three ways: Advisory for the plan, Product &amp; AI Development for the

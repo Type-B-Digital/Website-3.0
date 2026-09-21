@@ -78,10 +78,14 @@ import { layout, motion as motionTokens } from '@/tokens'
  * one flag. Hover and focus still open the panel either way, so nothing in
  * the dropdown becomes unreachable.
  *
- * Labels are Title Case throughout. The section is inconsistent with itself —
- * boards 0.0 and 0.1 carry "What we do" / "Case studies" / "Who we are" while
- * 0.2-0.4 and the whole footer update carry Title Case — so this follows the
- * majority and the footer, the one place both appear side by side.
+ * ⚠ Labels are SENTENCE CASE throughout, and were Title Case until
+ * 2026-09-21. The artboards disagree with each other — boards 0.0 and 0.1
+ * carry "What we do" / "Case studies" / "Who we are" while 0.2-0.4 and the
+ * footer update carry Title Case — and this file used to follow the
+ * majority. Eduardo settled it the other way: sentence case everywhere, nav,
+ * footer, buttons, eyebrows and headings alike. So the minority boards are
+ * the ones to compare against now, and the footer's labels move with these —
+ * the two lists are separate literals and have to be edited together.
  */
 /**
  * `to` is an internal route; `href` is an external destination and opens in a
@@ -116,11 +120,11 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   {
-    label: 'What We Do',
+    label: 'What we do',
     to: '/what-we-do',
     links: [
       { label: 'Advisory', to: '/advisory' },
-      { label: 'Product & AI Development', to: '/product-development' },
+      { label: 'Product & AI development', to: '/product-development' },
       { label: 'Teams', to: '/teams' },
       /* Industries was here and is not any more: it is its own top-level
          section with its own panel, and listing it inside What We Do gave one
@@ -135,7 +139,7 @@ const NAV_ITEMS: NavItem[] = [
       { label: 'Healthcare', to: '/industries/healthcare' },
       { label: 'Financial', to: '/industries/financial-services' },
       { label: 'Manufacturing', to: '/industries/manufacturing' },
-      { label: 'Real Estate', to: '/industries/real-estate' },
+      { label: 'Real estate', to: '/industries/real-estate' },
       /* The footer has listed all five since the nav update; the panel had
          four. Legal is a live page, so the omission was the divergence. */
       { label: 'Legal', to: '/industries/legal' },
@@ -147,7 +151,7 @@ const NAV_ITEMS: NavItem[] = [
        HireNorth are named placeholders with no `to`, and stay inert until
        their pages exist. The footer's column took the same change, and
        `work-content.ts` is the list both pages render. */
-    label: 'Case Studies',
+    label: 'Case studies',
     to: '/our-work',
     links: [
       { label: 'Ferry Pay', to: '/our-work/ferry-pay' },
@@ -164,16 +168,16 @@ const NAV_ITEMS: NavItem[] = [
       it reads like the other four: the heading takes you to the section, and
       the list is what else is in it.
     */
-    label: 'Who We Are',
+    label: 'Who we are',
     to: '/culture',
     links: [
-      { label: 'We’re Hiring!', to: '/careers' },
+      { label: 'We’re hiring!', to: '/careers' },
       { label: 'Contact', to: '/contact' },
       /* ⚠ NOT IN FIGMA. The artboard's Who We Are lists two rows; this is a
          third, added 2026-09-09. The brand system is a real page about who the
          company is, so it belongs in this section rather than under
          Publications — but nothing in the design asked for it. */
-      { label: 'Brand System', to: '/brand-guidelines', noCurrentState: true },
+      { label: 'Brand system', to: '/brand-guidelines', noCurrentState: true },
     ],
   },
   {
@@ -190,8 +194,8 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Publications',
     to: '/publications',
     links: [
-      { label: 'Linkedin', href: 'https://www.linkedin.com/company/typeb-digital/' },
-      { label: 'Privacy Policy', to: '/privacy-policy' },
+      { label: 'LinkedIn', href: 'https://www.linkedin.com/company/typeb-digital/' },
+      { label: 'Privacy policy', to: '/privacy-policy' },
     ],
   },
 ]

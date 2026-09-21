@@ -15,12 +15,12 @@ import type { EngagementStep } from '@/components/sections'
 export const INDUSTRY_STEPS: readonly EngagementStep[] = [
   {
     number: '01',
-    title: 'Framing & Discovery',
+    title: 'Framing & discovery',
     body: 'Data estate, workflows, shadow-AI audit, control gaps.',
   },
   {
     number: '02',
-    title: 'Solution Design',
+    title: 'Solution design',
     body: 'Architecture triage across standard cloud and sovereign, sequencing, effort.',
   },
   {
@@ -30,7 +30,7 @@ export const INDUSTRY_STEPS: readonly EngagementStep[] = [
   },
   {
     number: '04',
-    title: 'Launch & Support',
+    title: 'Launch & support',
     body: 'Adoption, PMO cadence, the evidence pack.',
   },
 ]

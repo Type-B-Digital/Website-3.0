@@ -41,7 +41,7 @@ export type CustomerProfile = {
  * Rows are 278 tall on a 326 pitch.
  */
 export function IdealCustomerProfiles({
-  heading = 'Ideal Customer Profiles',
+  heading = 'Ideal customer profiles',
   profiles,
 }: {
   heading?: string
@@ -130,12 +130,12 @@ export type Capability = {
  * and the gap is what tells the next person to come here and choose one.
  */
 const CAPABILITY_GLYPHS: Record<string, GlyphName> = {
-  'Conversational & Voice': 'speech',
-  'Autonomous Agents': 'agent',
+  'Conversational & voice': 'speech',
+  'Autonomous agents': 'agent',
   'Search & RAG': 'search',
-  'Document & Vision AI': 'scan',
-  'Workflow Automation': 'flow',
-  'Analytics & Forecast': 'chart',
+  'Document & vision AI': 'scan',
+  'Workflow automation': 'flow',
+  'Analytics & forecast': 'chart',
 }
 
 /**
@@ -417,7 +417,7 @@ export function LevelsList({
  * One block, four uses. On the service pages it is the Featured case study;
  * the Financial Services artboard draws it three times — once with the image
  * on the left ("What can AI do for a mid-market insurer?", no eyebrow and no
- * claim), once with an eyebrow and a claim line ("Our Specialty"), and once as
+ * claim), once with an eyebrow and a claim line ("Our specialty"), and once as
  * the same Featured case. So eyebrow, claim and side are all props, and the
  * geometry — which is identical on all four — is not.
  *
@@ -429,7 +429,7 @@ export function LevelsList({
  * to 48px for all Featured sections across all pages." h2 is the 48px style,
  * so every block with the Featured eyebrow passes `headingLevel="h2"`
  * (FeaturedCase does it for the service pages). The one remaining `h1` use is
- * the "Our Specialty" block on Healthcare and Financial Services, which was not
+ * the "Our specialty" block on Healthcare and Financial Services, which was not
  * part of the request.
  */
 export function SplitFeature({
@@ -562,7 +562,7 @@ export function RelatedServices({ services }: { services: readonly RelatedServic
       <div className="flex flex-col gap-3xl">
         <Reveal>
           <Typography variant="h2" className="text-h2-compact md:text-h2">
-            Related Services
+            Related services
           </Typography>
         </Reveal>
         <div className="grid gap-lg md:grid-cols-3">
