@@ -4,6 +4,7 @@ import { cn } from '@/lib/cn'
 import Button from './Button'
 import Reveal from './Reveal'
 import Section from './Section'
+import TiltCard from './TiltCard'
 import Typography from './Typography'
 
 /**
@@ -42,11 +43,13 @@ export function Hiring({
     <Section tone={tone} spacing="none" className={cn('text-on-light', className ?? 'py-5xl')}>
       <div className="grid items-start gap-lg lg:grid-cols-12">
         <Reveal className="lg:col-span-6">
-          <img
-            src={asset('/images/hiring.jpg')}
-            alt="A Type B engineer working from a plant-filled studio"
-            className="aspect-square w-full rounded-md object-cover"
-          />
+          <TiltCard>
+            <img
+              src={asset('/images/hiring.jpg')}
+              alt="A Type B engineer working from a plant-filled studio"
+              className="aspect-square w-full rounded-md object-cover"
+            />
+          </TiltCard>
         </Reveal>
 
         {/* Copy column starts at x=845 of the content width — column 8. */}

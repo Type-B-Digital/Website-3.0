@@ -51,6 +51,7 @@ import {
   ScrollTrack,
   Section,
   Tag,
+  TiltCard,
   Typography,
   VALUES,
 } from '@/components'
@@ -1207,20 +1208,27 @@ function StageCard({ stage }: { stage: (typeof STAGES)[number] }) {
     </Card>
   )
 
-  if (!stage.to) return card
+  /*
+    The tilt wraps the link rather than sitting inside it: the link clips to
+    its own rounded box, and a card rotating inside that box has its near
+    corner cut off by the very edge it is supposed to be leaning over.
+  */
+  if (!stage.to) return <TiltCard>{card}</TiltCard>
 
   return (
-    <Link
-      to={stage.to}
-      className={cn(
-        'group block overflow-hidden rounded-md',
-        // The image lifts inside the card's own `overflow-hidden` box.
-        '[&_img]:transition-transform [&_img]:duration-slow [&_img]:ease-out',
-        'hover:[&_img]:scale-105 focus-visible:[&_img]:scale-105',
-      )}
-    >
-      {card}
-    </Link>
+    <TiltCard>
+      <Link
+        to={stage.to}
+        className={cn(
+          'group block overflow-hidden rounded-md',
+          // The image lifts inside the card's own `overflow-hidden` box.
+          '[&_img]:transition-transform [&_img]:duration-slow [&_img]:ease-out',
+          'hover:[&_img]:scale-105 focus-visible:[&_img]:scale-105',
+        )}
+      >
+        {card}
+      </Link>
+    </TiltCard>
   )
 }
 
@@ -1585,7 +1593,12 @@ function Partner() {
           outgrowing the copy column on a very wide screen. Below `lg` the row
           stacks and the square goes back to the artboard's 302.
         */}
-        <div className="relative aspect-square w-full max-w-[302px] shrink-0 lg:w-[clamp(240px,24vw,420px)] lg:max-w-none">
+        {/*
+          `TiltCard` IS the square rather than a wrapper around it: the box is
+          a flex child carrying its own width and `shrink-0`, and an extra div
+          between it and the row would be the thing the row sized instead.
+        */}
+        <TiltCard className="relative aspect-square w-full max-w-[302px] shrink-0 lg:w-[clamp(240px,24vw,420px)] lg:max-w-none">
           <AnimatePresence>
             <fm.img
               key={`image-${index}`}
@@ -1599,7 +1612,7 @@ function Partner() {
               transition={swap}
             />
           </AnimatePresence>
-        </div>
+        </TiltCard>
       </div>
     </Container>
   )

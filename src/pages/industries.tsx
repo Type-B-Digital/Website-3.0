@@ -6,6 +6,7 @@ import {
   HeroIntro,
   Reveal,
   Section,
+  TiltCard,
   Typography,
   ValuesMarquee,
 } from '@/components'
@@ -219,11 +220,13 @@ function IndustryRow({ industry }: { industry: (typeof INDUSTRIES)[number] }) {
             411x320 artboard fill is 1.284:1, held as an aspect ratio so the
             block scales with the column rather than fixing a height.
           */}
-          <div
-            aria-hidden
-            className="aspect-[411/320] w-full rounded-md"
-            style={{ backgroundImage: industry.gradient }}
-          />
+          <TiltCard>
+            <div
+              aria-hidden
+              className="aspect-[411/320] w-full rounded-md"
+              style={{ backgroundImage: industry.gradient }}
+            />
+          </TiltCard>
         </Reveal>
       </div>
     </Section>

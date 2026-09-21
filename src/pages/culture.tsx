@@ -12,6 +12,7 @@ import {
   Reveal,
   Section,
   Testimonial,
+  TiltCard,
   type DivergeStage,
   type GlobeLocation,
   Typography,
@@ -237,12 +238,14 @@ function HowWeShowUp() {
           {PRINCIPLES.map((p, i) => (
             <Reveal key={p.title} index={i}>
               <div className="flex flex-col gap-2xl">
-                <img
-                  src={asset(p.image)}
-                  alt=""
-                  aria-hidden="true"
-                  className="aspect-[411/280] w-full rounded-md object-cover"
-                />
+                <TiltCard>
+                  <img
+                    src={asset(p.image)}
+                    alt=""
+                    aria-hidden="true"
+                    className="aspect-[411/280] w-full rounded-md object-cover"
+                  />
+                </TiltCard>
                 <div className="flex max-w-[346px] flex-col gap-md">
                   <Typography variant="copyLarge" as="h3">
                     {p.title}
@@ -301,20 +304,23 @@ function OurApproach() {
           <StaggeredBackdrop />
           {STAGES.map((stage, i) => (
             <Reveal key={stage.number} index={i} className={cn(i % 2 === 1 && 'lg:mt-[243px]')}>
-              {/* Square from md; on a phone a square card is mostly empty, so it sizes to its copy. */}
-              <div className="flex min-h-[200px] flex-col justify-between gap-2xl rounded-md bg-neutral-50 p-lg md:aspect-square md:min-h-0">
-                <div className="flex items-baseline gap-sm">
-                  <Typography variant="copyLarge" as="span" className="opacity-subtle">
-                    {stage.number}
-                  </Typography>
-                  <Typography variant="copyLarge" as="h3">
-                    {stage.title}
+              {/* Same lean as the Product page's copy of these cards — see TiltCard. */}
+              <TiltCard>
+                {/* Square from md; on a phone a square card is mostly empty, so it sizes to its copy. */}
+                <div className="flex min-h-[200px] flex-col justify-between gap-2xl rounded-md bg-neutral-50 p-lg md:aspect-square md:min-h-0">
+                  <div className="flex items-baseline gap-sm">
+                    <Typography variant="copyLarge" as="span" className="opacity-subtle">
+                      {stage.number}
+                    </Typography>
+                    <Typography variant="copyLarge" as="h3">
+                      {stage.title}
+                    </Typography>
+                  </div>
+                  <Typography variant="copyMedium" muted>
+                    {stage.copy}
                   </Typography>
                 </div>
-                <Typography variant="copyMedium" muted>
-                  {stage.copy}
-                </Typography>
-              </div>
+              </TiltCard>
             </Reveal>
           ))}
         </div>

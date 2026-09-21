@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Eyebrow, Reveal, Section, Typography } from '@/components'
+import { Eyebrow, Reveal, Section, TiltCard, Typography } from '@/components'
 import type { EyebrowTone } from '@/components'
 import { cn } from '@/lib/cn'
 import Glyph, { type GlyphName } from '@/components/icons/Glyph'
@@ -300,22 +300,25 @@ export function StaggeredCards({
           <StaggeredBackdrop rings={rings} glow={glow} />
           {cards.map((card, i) => (
             <Reveal key={card.title} index={i} className={cn(i % 2 === 1 && 'lg:mt-[243px]')}>
-              {/* Square from md; on a phone a square card is mostly empty, so it sizes to its copy. */}
-              <div className="flex min-h-[200px] flex-col justify-between gap-2xl rounded-md bg-neutral-50 p-lg md:aspect-square md:min-h-0">
-                <div className="flex items-baseline gap-sm">
-                  {card.number && (
-                    <Typography variant="copyLarge" as="span" className="opacity-subtle">
-                      {card.number}
+              {/* Leans towards the pointer — see TiltCard. */}
+              <TiltCard>
+                {/* Square from md; on a phone a square card is mostly empty, so it sizes to its copy. */}
+                <div className="flex min-h-[200px] flex-col justify-between gap-2xl rounded-md bg-neutral-50 p-lg md:aspect-square md:min-h-0">
+                  <div className="flex items-baseline gap-sm">
+                    {card.number && (
+                      <Typography variant="copyLarge" as="span" className="opacity-subtle">
+                        {card.number}
+                      </Typography>
+                    )}
+                    <Typography variant="copyLarge" as="h3">
+                      {card.title}
                     </Typography>
-                  )}
-                  <Typography variant="copyLarge" as="h3">
-                    {card.title}
+                  </div>
+                  <Typography variant="copyMedium" muted>
+                    {card.body}
                   </Typography>
                 </div>
-                <Typography variant="copyMedium" muted>
-                  {card.body}
-                </Typography>
-              </div>
+              </TiltCard>
             </Reveal>
           ))}
         </div>

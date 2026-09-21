@@ -7,6 +7,7 @@ import {
   Reveal,
   Section,
   Testimonial,
+  TiltCard,
   Typography,
   ValuesMarquee,
   type HeroStat,
@@ -217,16 +218,24 @@ export function CaseGallery({ images }: { images: readonly { src: string; alt: s
  * Inset figure — Figma node 3932:17076
  * ------------------------------------------------------------------ */
 
-/** A 1280x711 frame in the content column rather than full-bleed. */
+/**
+ * A 1280x711 frame in the content column rather than full-bleed.
+ *
+ * This one leans towards the pointer; `CaseBand` deliberately does not. A tilt
+ * needs an edge to rotate about, and a full-bleed image has none on-screen —
+ * the near corner would simply grow past the viewport.
+ */
 export function CaseFigure({ image, alt }: { image: string; alt: string }) {
   return (
     <Section tone="none" spacing="none" className="py-4xl text-on-light">
       <Reveal>
-        <img
-          src={asset(image)}
-          alt={alt}
-          className="aspect-[1280/711] w-full rounded-md object-cover"
-        />
+        <TiltCard>
+          <img
+            src={asset(image)}
+            alt={alt}
+            className="aspect-[1280/711] w-full rounded-md object-cover"
+          />
+        </TiltCard>
       </Reveal>
     </Section>
   )

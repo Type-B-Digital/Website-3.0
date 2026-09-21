@@ -17,7 +17,7 @@
  */
 import { Fragment } from 'react'
 import { Link } from 'react-router-dom'
-import { Button, Eyebrow, HeroIntro, Reveal, Section, Typography } from '@/components'
+import { Button, Eyebrow, HeroIntro, Reveal, Section, TiltCard, Typography } from '@/components'
 import { Packaging } from '@/components/sections'
 import Glyph, { type GlyphName } from '@/components/icons/Glyph'
 import { PageShell } from '@/components/layout'
@@ -371,14 +371,16 @@ function ServiceBlock({ service }: { service: (typeof SERVICES)[number] }) {
               were measured at 1440; if a page's content changes length a lot,
               re-measure `groundAspect`.
             */}
-            <div
-              aria-hidden
-              className="aspect-[628/375] w-full rounded-md bg-top bg-no-repeat"
-              style={{
-                backgroundImage: service.ground,
-                backgroundSize: `100% ${service.groundAspect * (628 / 375) * 100}%`,
-              }}
-            />
+            <TiltCard>
+              <div
+                aria-hidden
+                className="aspect-[628/375] w-full rounded-md bg-top bg-no-repeat"
+                style={{
+                  backgroundImage: service.ground,
+                  backgroundSize: `100% ${service.groundAspect * (628 / 375) * 100}%`,
+                }}
+              />
+            </TiltCard>
           </Reveal>
 
           {/*

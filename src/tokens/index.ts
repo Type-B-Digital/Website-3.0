@@ -1238,6 +1238,40 @@ export const motion = {
     /** Travel distance for an entering image, as % of its own width. */
     imageEnter: 170,
   },
+
+  /**
+   * Pointer tilt on cards and inline photographs (see components/TiltCard).
+   *
+   * ⚠ Authored — the board draws every one of these blocks flat, so this is a
+   * proposal like the rest of `motion`.
+   *
+   * `maxTilt` is the rotation at the very edge of the box, so a card only ever
+   * reaches it in a corner; the middle two thirds of a card stay under 5deg.
+   * 15 is enough to read as a lean on a 302px square and still shallow enough
+   * that a 737px thumbnail does not throw its far edge out of focus.
+   *
+   * `perspective` is deliberately short. A long perspective flattens the
+   * rotation into a skew — the card leans but nothing about it looks nearer —
+   * and 500px against boxes of 300-750px is what gives the near edge its
+   * visible growth.
+   *
+   * `depth` is negative: the card retreats a little under the pointer rather
+   * than lifting towards it. The design has no shadows (see `elevation`), and
+   * a card rising off a ground it casts nothing onto reads as a sticker.
+   *
+   * The spring is stiffer and less damped than `scrollLag`: this one is
+   * chasing a pointer that can cross the card in a few frames, and anything
+   * softer lags far enough behind to feel like a delay rather than weight.
+   */
+  tilt: {
+    /** Degrees at the edge of the box. */
+    maxTilt: 15,
+    /** px of z-travel on enter; negative pushes away. */
+    depth: -10,
+    /** px. See the note above — short on purpose. */
+    perspective: 500,
+    spring: { stiffness: 200, damping: 20 },
+  },
 } as const
 
 /* ------------------------------------------------------------------ *

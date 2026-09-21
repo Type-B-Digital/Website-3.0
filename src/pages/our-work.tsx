@@ -7,6 +7,7 @@ import {
   Section,
   Tag,
   Testimonial,
+  TiltCard,
   Typography,
   ValuesMarquee,
 } from '@/components'
@@ -198,16 +199,18 @@ function WorkRow({ work }: { work: Work }) {
       <Reveal index={1} className="lg:col-span-7">
         {/* 737 x 441 on the artboard. Art is borrowed for now — see the note in
             work-content.ts; a row without one keeps the flat block. */}
-        {work.thumb ? (
-          <img
-            src={asset(work.thumb)}
-            alt=""
-            aria-hidden="true"
-            className="aspect-[737/441] w-full rounded-md object-cover"
-          />
-        ) : (
-          <Placeholder className="aspect-[737/441] w-full" />
-        )}
+        <TiltCard>
+          {work.thumb ? (
+            <img
+              src={asset(work.thumb)}
+              alt=""
+              aria-hidden="true"
+              className="aspect-[737/441] w-full rounded-md object-cover"
+            />
+          ) : (
+            <Placeholder className="aspect-[737/441] w-full" />
+          )}
+        </TiltCard>
       </Reveal>
     </>
   )

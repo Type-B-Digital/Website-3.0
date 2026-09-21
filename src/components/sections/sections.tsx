@@ -1,7 +1,7 @@
 import { Fragment, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { cn } from '@/lib/cn'
-import { Eyebrow, HeroIntro, Reveal, Section, Tag, Typography } from '@/components'
+import { Eyebrow, HeroIntro, Reveal, Section, Tag, TiltCard, Typography } from '@/components'
 import type { EyebrowTone } from '@/components'
 import ArrowRight from '@/components/icons/ArrowRight'
 import Glyph, { type GlyphName } from '@/components/icons/Glyph'
@@ -364,12 +364,14 @@ export function LevelsList({
               </Typography>
             )}
             {image && (
-              <img
-                src={asset(image)}
-                alt=""
-                aria-hidden="true"
-                className="aspect-[628/375] w-full rounded-md object-cover"
-              />
+              <TiltCard>
+                <img
+                  src={asset(image)}
+                  alt=""
+                  aria-hidden="true"
+                  className="aspect-[628/375] w-full rounded-md object-cover"
+                />
+              </TiltCard>
             )}
           </div>
         </Reveal>
@@ -488,12 +490,14 @@ export function SplitFeature({
       index={reverse ? 0 : 1}
       className={cn('lg:col-span-5', reverse ? 'lg:col-start-1' : 'lg:col-start-8')}
     >
-      <img
-        src={asset(image)}
-        alt=""
-        aria-hidden="true"
-        className="aspect-[519/560] w-full rounded-md object-cover"
-      />
+      <TiltCard>
+        <img
+          src={asset(image)}
+          alt=""
+          aria-hidden="true"
+          className="aspect-[519/560] w-full rounded-md object-cover"
+        />
+      </TiltCard>
     </Reveal>
   )
 

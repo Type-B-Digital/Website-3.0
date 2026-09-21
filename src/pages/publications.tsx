@@ -6,6 +6,7 @@ import {
   HeroIntro,
   Reveal,
   Section,
+  TiltCard,
   Typography,
   ValuesMarquee,
 } from '@/components'
@@ -117,23 +118,26 @@ function PublicationTile({ card, index }: { card: PublicationCard; index: number
 
   return (
     <Reveal index={index}>
-      {card.slug ? (
-        <Link
-          to={`/publications/${card.slug}`}
-          className={cn(
-            shell,
-            'transition-opacity duration-fast ease-out hover:opacity-80 focus-visible:opacity-80',
-          )}
-        >
-          {body}
-        </Link>
-      ) : (
-        /*
-         * No article behind it yet, so it is not a link. An inert card beats
-         * one that 404s — the rule the nav and footer have followed all along.
-         */
-        <div className={shell}>{body}</div>
-      )}
+      {/* The whole tile leans towards the pointer — see TiltCard. */}
+      <TiltCard>
+        {card.slug ? (
+          <Link
+            to={`/publications/${card.slug}`}
+            className={cn(
+              shell,
+              'transition-opacity duration-fast ease-out hover:opacity-80 focus-visible:opacity-80',
+            )}
+          >
+            {body}
+          </Link>
+        ) : (
+          /*
+           * No article behind it yet, so it is not a link. An inert card beats
+           * one that 404s — the rule the nav and footer have followed all along.
+           */
+          <div className={shell}>{body}</div>
+        )}
+      </TiltCard>
     </Reveal>
   )
 }
