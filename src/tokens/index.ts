@@ -1245,15 +1245,29 @@ export const motion = {
    * ⚠ Authored — the board draws every one of these blocks flat, so this is a
    * proposal like the rest of `motion`.
    *
+   * ⚠ HALVED on 2026-09-21 — Eduardo, "decrease the cards and images hover
+   * state movement by 50% so that it's more subtle." Both travel values are
+   * exactly half what shipped that morning (15deg and -10px), so the shape of
+   * the gesture is unchanged and only its amplitude moves.
+   *
+   * Note which values that is. `perspective` and the spring are NOT travel:
+   * shortening the perspective would make the same rotation read as MORE
+   * movement, not less, and slowing the spring would make the tilt late
+   * rather than subtle. This is the opposite case to `scene`, where halving
+   * the movement meant doubling the durations — there the numbers were times,
+   * here they are distances.
+   *
    * `maxTilt` is the rotation at the very edge of the box, so a card only ever
-   * reaches it in a corner; the middle two thirds of a card stay under 5deg.
-   * 15 is enough to read as a lean on a 302px square and still shallow enough
-   * that a 737px thumbnail does not throw its far edge out of focus.
+   * reaches it in a corner; the middle two thirds of a card now stay under
+   * 2.5deg. At 7.5 the lean is something the eye catches rather than watches,
+   * which is what "more subtle" asks for, and a 737px thumbnail keeps its far
+   * edge well inside focus.
    *
    * `perspective` is deliberately short. A long perspective flattens the
    * rotation into a skew — the card leans but nothing about it looks nearer —
    * and 500px against boxes of 300-750px is what gives the near edge its
-   * visible growth.
+   * visible growth. It matters MORE at the shallower angle: this is what
+   * keeps 7.5deg from reading as a flat skew.
    *
    * `depth` is negative: the card retreats a little under the pointer rather
    * than lifting towards it. The design has no shadows (see `elevation`), and
@@ -1264,11 +1278,11 @@ export const motion = {
    * softer lags far enough behind to feel like a delay rather than weight.
    */
   tilt: {
-    /** Degrees at the edge of the box. */
-    maxTilt: 15,
-    /** px of z-travel on enter; negative pushes away. */
-    depth: -10,
-    /** px. See the note above — short on purpose. */
+    /** Degrees at the edge of the box. Was 15 — see the note above. */
+    maxTilt: 7.5,
+    /** px of z-travel on enter; negative pushes away. Was -10. */
+    depth: -5,
+    /** px. See the note above — short on purpose, and more so at 7.5deg. */
     perspective: 500,
     spring: { stiffness: 200, damping: 20 },
   },
