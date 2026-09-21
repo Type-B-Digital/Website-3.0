@@ -3890,3 +3890,90 @@ titled for that. Real numbers belong there if they exist.
 
 `tsc --noEmit` and `vite build` clean. Not driven in a browser — the Chrome
 extension was not connected on this machine at the time.
+
+---
+
+## Mobile navigation, measured — 2026-09-20
+
+The file finally has an artboard narrower than 1440: **node 3973:636**, a
+360×780 frame of the drawer, open. What was in `NavDrawer` before it was the
+desktop panel stacked — an honest guess made when there was nothing to trace.
+Every number in it is now the board's.
+
+Eduardo: "Use this figma artboard to size things exactly as they are designed.
+I did not include Who We Are or Publications because they are below the fold.
+The idea is that users would scroll down to view those nav elements while the
+Let's talk! button remains static at the bottom of the screen."
+
+### What was traced
+
+The Figma API token in this environment has expired, so the board was measured
+off the 360×780 PNG export instead — a 1:1 raster, which for a flat frame of
+type is as exact as the API would have been. Type sizes were resolved by
+rendering the same strings in Reddit Sans in headless Chrome and matching ink
+widths to the pixel: "Product & AI Development" is 236px wide on the board and
+236px at 20px/400, "Case Studies" 134 and 134 at 24px/**400**. The headings are
+regular, not semibold.
+
+| | |
+|---|---|
+| page margin | 16 (`Container`'s own below `lg`) |
+| logo | 97×32 at y=40 — `TypeBLogo` at native size |
+| close | 24px icon, ink flush to the margin, centred on the logo |
+| section heading | 24px regular → `subHeaderSmall` |
+| heading arrow | 24px box, 8 from the label → `ArrowRight` |
+| link | 20px, ink at 80% → `copyLarge` / `neutral.800` |
+| link pitch | 42 |
+| heading → links | 16 |
+| section → section | 32 |
+| logo row → nav | 40 |
+| CTA | 328×40 pill, full width, 32 clear of the bottom |
+
+Nothing needed a new component. The CTA is `Button variant="primary"
+tone="onLight"` exactly as it stands — 40 tall, pill radius, 16px semibold
+label, 24px arrow — widened to `w-full`.
+
+### Line height is the board's, not the scale's
+
+Both sizes are drawn on Figma's AUTO leading, which is Reddit Sans's own
+metric: 1.30, so 26px at 20 and 31px at 24. The type scale carries 1.5 on both
+steps, and building it that way walks each row about 4px further down than the
+board per section — 20px out by Case Studies. So the leading is set inline,
+the same call `WorkRow` already makes for the 24px/1.2 rows on Our Work.
+
+One related trap: left as a plain `li`, the list item's own strut is a pixel
+taller than the 26px line box inside it and the 42 pitch comes out at 43 —
+13px of drift by the bottom. The drawer's items are `flex`, so the row is
+exactly its child.
+
+### Two departures, both deliberate
+
+1. **The ground stays cream.** The export is `#FFFFFF` with `#363E47` links,
+   which is this site's ink at 80% over white — the same colour pair, drawn on
+   a white frame. Everything light here is `neutral.50` cream, desktop panel
+   included, and `neutral.800` is that same ink-at-80% over it. A white drawer
+   over a cream site reads as a bug. One line to flip if the white is meant.
+2. **Case Studies lists four rows, not the board's two.** Pelican and HireNorth
+   were added as placeholders earlier the same day; the board predates that.
+
+### Verified
+
+Driven over CDP at 360×780 — drawer opened for real, screenshot captured, and
+its ink bands compared against the export row by row. All **15 bands match
+within 1px vertically and 0px horizontally**; the CTA's box lands on
+`x16 y708 328×40`, which is the board's pill exactly. Scrolled to the bottom:
+Who We Are and Publications read normally and "Let's talk!" stays pinned.
+`tsc --noEmit` and `vite build` clean. The desktop panel was re-shot at 1440
+and is untouched.
+
+⚠ **Open, for Eduardo.** Two things the board does not cover:
+
+- The CLOSED bar's logo sits at y=36 and the drawer's at y=40, and the menu
+  icon's ink is 8px left of where the close icon's lands — so both shift
+  slightly as the drawer opens. The closed bar cannot match without moving:
+  its row is 40 tall because the "Let's talk!" pill is in it, which puts the
+  32px logo at pt+4. Fixing it means either an off-scale 36px top inset or
+  dropping the pill from the mobile bar, and both are design calls.
+- 640–1023px is still unspecified. The drawer now renders phone-sized type
+  across the whole range; only the CTA is guarded, keeping the natural width
+  it shipped with above `sm` rather than stretching to a 700px pill.

@@ -226,13 +226,15 @@ function NavPanelContent({
   return (
     <Frame className={bare ? 'flex flex-col' : 'pt-5xl'}>
       <Typography
-        variant="h2"
+        /*
+          48px is the artboard's at 1440. The mobile board (node 3973:636)
+          draws the same heading at 24px REGULAR — `subHeaderSmall` exactly —
+          on the font's own leading rather than the scale's 1.5. See the
+          measurement table above `NavDrawer`.
+        */
+        variant={bare ? 'subHeaderSmall' : 'h2'}
         as="h2"
-        /* 48px is the artboard's, and it is the artboard's at 1440. Five of
-           them stacked in a 390px drawer is not the same design decision, so
-           the drawer takes the h3 step the rest of the site already uses for
-           this. */
-        className={cn('text-on-light', bare && 'text-h2-compact md:text-h2')}
+        className={cn('text-on-light', bare && 'leading-[1.3]')}
       >
         {item.to ? (
           <Link
@@ -240,7 +242,9 @@ function NavPanelContent({
             className="inline-flex w-max items-center gap-sm transition-opacity duration-fast ease-out hover:opacity-muted"
           >
             {item.label}
-            <ArrowRight className="size-2xl shrink-0" />
+            {/* 40px box on the desktop panel; the mobile board draws the icon
+                at its native 24 (12x11 of ink), 8 from the label. */}
+            <ArrowRight className={cn('shrink-0', bare ? 'size-lg' : 'size-2xl')} />
           </Link>
         ) : (
           /* Nothing to navigate to, so no arrow promising that there is. */
@@ -249,10 +253,11 @@ function NavPanelContent({
       </Typography>
 
       {/*
-        In the drawer: 16px links on a 24px pitch (Eduardo, 2026-09-16). The
+        In the drawer: 20px links on a 42px pitch — 26px line box (the font's
+        own leading, which is what the board is drawn on) plus a 16px gap. The
         desktop panel keeps the artboard's 32px on 8.
       */}
-      <ul className={cn('mt-lg flex flex-col', bare ? 'gap-lg' : 'gap-sm')}>
+      <ul className={cn('flex flex-col', bare ? 'mt-md gap-md' : 'mt-lg gap-sm')}>
         {item.links.map((link) => {
           /*
             Two separate things. `isCurrent` is a fact about the route and
@@ -265,13 +270,19 @@ function NavPanelContent({
           const showCurrent = isCurrent && !link.noCurrentState
           const classes = cn(
             'w-max transition-colors duration-fast ease-out',
-            bare ? 'text-copy-medium' : 'text-nav-panel-link',
+            bare ? 'text-copy-large leading-[1.3]' : 'text-nav-panel-link',
             showCurrent
               ? 'text-on-light underline decoration-from-font'
               : 'text-neutral-800 hover:text-on-light hover:underline hover:decoration-from-font',
           )
           return (
-            <li key={link.label}>
+            /*
+              `flex` in the drawer so the row is exactly the link's 26px line
+              box. Left as a plain list item, the `li`'s own strut is a pixel
+              taller than its child and the 42px pitch comes out at 43 — which
+              is 13px of drift by the bottom of the five sections.
+            */
+            <li key={link.label} className={cn(bare && 'flex')}>
               {link.to ? (
                 <Link
                   to={link.to}
@@ -303,19 +314,58 @@ function NavPanelContent({
  * ================================================================== */
 
 /**
- * Navigation below `lg`.
+ * Navigation below `lg` — Figma node 3973:636
+ * https://www.figma.com/design/LASrWn0jXyj5nBaphi2jgI/TypeB-Creative-Exploration?node-id=3973-636
  *
- * ⚠ NOT IN FIGMA — the file has no artboard narrower than 1440, so there is no
- * drawn mobile navigation to reproduce. Until this, the site had none at all:
- * under 1024px the five nav items were `hidden` and nothing replaced them, so
- * a phone could reach the logo and "Let's talk!" and none of the other fifteen
- * pages.
+ * ⚠ This was NOT IN FIGMA and is now the one mobile artboard in the file: a
+ * 360x780 frame, drawn open, which Eduardo supplied on 2026-09-20. What was
+ * here before was the desktop panel stacked — an engineering guess made when
+ * the file had nothing narrower than 1440. Every number below is now measured
+ * off the board rather than chosen.
  *
- * Rather than invent a visual language, this is the desktop panel's, stacked:
- * the same cream ground, the same section heading with its arrow, the same
- * 32px links. Five dropdowns that cannot hover become five sections you scroll,
- * which is also why there is no accordion here — collapsing them would hide
- * the fourteen destinations this exists to expose, to save a swipe.
+ * The board stops at Case Studies: Who We Are and Publications are below the
+ * fold, and scrolling to them is the design. "Let's talk!" does not scroll —
+ * it is pinned to the bottom of the viewport the whole way down.
+ *
+ * ── Measured off the 360x780 export, in device pixels ────────────────────
+ *
+ *   page margin          16          (Container's own below `lg`)
+ *   logo                 97x32 at y=40           (TypeBLogo, native size)
+ *   close                24px icon, right edge flush to the 16 margin,
+ *                        centred on the logo (14x14 of ink)
+ *   section heading      24px REGULAR, ink            -> `subHeaderSmall`
+ *   heading arrow        24px box, 8 from the label   -> `ArrowRight`
+ *   link                 20px, ink at 80%             -> `copyLarge`
+ *   link pitch           42
+ *   heading -> links     16
+ *   section -> section   32
+ *   logo row -> nav      40
+ *   CTA                  328x40 pill, full width, 32 clear of the bottom
+ *
+ * ── Line height: the board's, not the scale's ────────────────────────────
+ *
+ * Both type sizes are drawn on Figma's AUTO leading, which is Reddit Sans's
+ * own metric — 1.30, so 26px at 20 and 31px at 24. The scale carries 1.5 on
+ * both steps, and using it walks the rows about 4px further apart each
+ * section: by Case Studies the board and the build are 20px out. So the
+ * leading is set inline here, the same call `WorkRow` on Our Work already
+ * makes for the 24px/1.2 rows on that artboard. With it, every row lands
+ * within ~1.5px of the board, which is Figma's own rounding of 31.2 to 31.
+ *
+ * ⚠ TWO DEPARTURES, both deliberate:
+ *
+ * 1. THE GROUND IS CREAM, NOT WHITE. The export is #FFFFFF and its links are
+ *    #363E47, which is the site's ink at 80% over white — so the board is the
+ *    site's own colour pair drawn on a white frame rather than a new palette.
+ *    Everything light on this site is `neutral.50` cream, the desktop panel
+ *    included, and a white drawer over a cream site reads as a bug. Kept
+ *    cream; `neutral.800` is that same ink-at-80% over it. One line to flip if
+ *    the white is meant.
+ *
+ * 2. THE BOARD'S CASE STUDIES LISTS TWO ROWS, Ferry Pay and Fintech Group.
+ *    `NAV_ITEMS` carries four — Pelican and HireNorth were added as
+ *    placeholders on Eduardo's instruction earlier the same day. The later
+ *    instruction wins; the board predates it.
  */
 function NavDrawer({
   open,
@@ -353,7 +403,10 @@ function NavDrawer({
           exit={{ opacity: prefersReduced ? 1 : 0 }}
           transition={{ duration: prefersReduced ? 0 : navPanel.close, ease: [...easing.out] }}
         >
-          <Container className="flex flex-col gap-2xl pt-xl">
+          {/* 40 above the logo and 40 under the row — both the board's. */}
+          <Container className="flex flex-col gap-2xl pt-2xl">
+            {/* 32 tall, the logo's own height: the close button below keeps a
+                40px target without adding to it. */}
             <div className="flex items-center justify-between">
               <Link to="/" className="shrink-0 text-neutral-900" aria-label="Type B Digital — home">
                 <TypeBLogo />
@@ -362,31 +415,54 @@ function NavDrawer({
                 type="button"
                 onClick={onClose}
                 aria-label="Close menu"
-                className="flex size-2xl items-center justify-center rounded-full text-neutral-900 transition-opacity duration-fast ease-out hover:opacity-muted"
+                /*
+                  `-m-sm p-sm` is the tap-target trick: the button measures
+                  24x24 in the layout, so the icon sits flush to the 16px
+                  margin and on the logo's centre line exactly as the board
+                  draws it, while the thing a thumb actually hits is 40x40.
+                */
+                className="-m-sm flex rounded-full p-sm text-neutral-900 transition-opacity duration-fast ease-out hover:opacity-muted"
               >
                 <CloseIcon />
               </button>
             </div>
 
-            {/* 40 between sections, not the panel's 80: five of them stacked
-                in a 390px viewport is 2.5 screens of scroll at 80, and the h3
-                headings already separate them clearly. */}
-            <nav className="flex flex-col gap-2xl" aria-label="Primary, mobile">
+            {/* 32 between sections — node 3973:636. */}
+            <nav className="flex flex-col gap-xl" aria-label="Primary, mobile">
               {NAV_ITEMS.map((item) => (
                 <NavPanelContent key={item.label} item={item} currentPath={currentPath} bare />
               ))}
             </nav>
 
             {/*
-              The CTA is in the bar on desktop. In the drawer it is STICKY at the
-              bottom with 40px under it (Eduardo, 2026-09-16), so it is always in
-              reach however far down the five sections you are. The links scroll
-              under a cream fade (the panel ground is flat neutral.50) rather than
-              colliding with the button. The wrapper's own bottom padding is the
-              40 — the Container no longer pads its bottom.
+              The CTA is in the bar on desktop. In the drawer it is STICKY at
+              the bottom, which is the board's own behaviour — Who We Are and
+              Publications are below the fold and you scroll to them while this
+              stays put. 32 under it, and FULL WIDTH: 328 on a 360 frame is the
+              page margin on both sides, so it is the Container's width rather
+              than a measurement of its own. The links scroll under a cream
+              fade (the panel ground is flat neutral.50) rather than colliding
+              with the button.
+
+              Geometry needed nothing new — the board's pill is 40 tall on a
+              pill radius with a 16px semibold label and a 24px arrow, which is
+              `Button variant="primary" tone="onLight"` as it already stands.
             */}
-            <div className="sticky bottom-0 -mx-md bg-gradient-to-t from-neutral-50 from-60% to-neutral-50/0 px-md pb-2xl pt-xl">
-              <Button as={Link} to="/contact" variant="primary" tone="onLight" className="w-max">
+            <div className="sticky bottom-0 -mx-md bg-gradient-to-t from-neutral-50 from-60% to-neutral-50/0 px-md pb-xl pt-xl">
+              {/*
+                Full width is the 360 board's. Above `sm` the drawer is a
+                tablet and the board says nothing about it, so the button keeps
+                the natural width it had before rather than stretching to 700px
+                of pill — the one place this file guesses, and it guesses at
+                what already shipped.
+              */}
+              <Button
+                as={Link}
+                to="/contact"
+                variant="primary"
+                tone="onLight"
+                className="w-full sm:w-max"
+              >
                 Let’s talk!
               </Button>
             </div>
