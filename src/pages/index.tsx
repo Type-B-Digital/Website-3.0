@@ -639,38 +639,60 @@ function Manifesto() {
   const prefersReduced = useReducedMotion()
 
   const stack = (
-    <fm.div
-      data-scene="manifesto-stack"
-      /*
-        Fluid below 422px: the box keeps the artboard's aspect and each image is
-        placed as a percentage of it (see `stackStyle`), so on a 390 phone the
-        stack scales down inside the margins instead of running 64px past them.
-      */
-      className="relative w-full shrink-0"
-      style={{ maxWidth: STACK_BOX.width, aspectRatio: `${STACK_BOX.width} / ${STACK_BOX.height}` }}
-      /* The trigger for all three images — see the note on StackImage. */
-      initial={prefersReduced ? undefined : 'hidden'}
-      whileInView={prefersReduced ? undefined : 'visible'}
-      viewport={motionTokens.viewport}
+    /*
+      The whole stack leans as ONE object, not three.
+
+      These are three overlapping images, so per-image tilts would be wrong
+      twice over: the top image covers the other two, so their own
+      pointer-enter would almost never fire, and three independent rotations
+      would slide the composition apart at the overlaps — the stack is a
+      single picture in the artboard ("Image-stack-right", node 3431:27215),
+      and it should lean like one.
+
+      `TiltCard` IS the flex child here, carrying the row's sizing, for the
+      same reason as the How we partner square: an extra div between it and
+      the row would become the thing the row measured.
+
+      At rest the transform is identity, so the slide-in entrance below is
+      unaffected — the stack only leaves the plane once a pointer is on it.
+    */
+    <TiltCard
+      className="w-full shrink-0"
+      style={{ maxWidth: STACK_BOX.width }}
     >
-      {MANIFESTO_STACK.map((image, i) =>
-        prefersReduced ? (
-          <img
-            key={image.src}
-            src={image.src}
-            alt=""
-            aria-hidden="true"
-            className="absolute max-w-none rounded-md"
-            style={{
-              ...stackStyle(image),
-              zIndex: i,
-            }}
-          />
-        ) : (
-          <StackImage key={image.src} image={image} index={i} />
-        ),
-      )}
-    </fm.div>
+      <fm.div
+        data-scene="manifesto-stack"
+        /*
+          Fluid below 422px: the box keeps the artboard's aspect and each image is
+          placed as a percentage of it (see `stackStyle`), so on a 390 phone the
+          stack scales down inside the margins instead of running 64px past them.
+        */
+        className="relative w-full"
+        style={{ aspectRatio: `${STACK_BOX.width} / ${STACK_BOX.height}` }}
+        /* The trigger for all three images — see the note on StackImage. */
+        initial={prefersReduced ? undefined : 'hidden'}
+        whileInView={prefersReduced ? undefined : 'visible'}
+        viewport={motionTokens.viewport}
+      >
+        {MANIFESTO_STACK.map((image, i) =>
+          prefersReduced ? (
+            <img
+              key={image.src}
+              src={image.src}
+              alt=""
+              aria-hidden="true"
+              className="absolute max-w-none rounded-md"
+              style={{
+                ...stackStyle(image),
+                zIndex: i,
+              }}
+            />
+          ) : (
+            <StackImage key={image.src} image={image} index={i} />
+          ),
+        )}
+      </fm.div>
+    </TiltCard>
   )
 
   // 1240px is the artboard's introduction-component width: 640 text + 178 gap
