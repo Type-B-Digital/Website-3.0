@@ -4120,6 +4120,151 @@ documented and it being followed. That is the obvious next piece of the
 handoff and is deliberately not in this change.
 
 
+---
+
+## Cards and images lean towards the pointer — 2026-09-21
+
+Eduardo supplied a reference implementation — a `TiltCard` from an external
+library — and a list of places to put it: the homepage stage cards
+and the How we partner square, the three What We Do panels, Featured and Our
+Specialty and "How we frame `<industry>`", the Industries fills, the Our Work
+thumbnails, each case study's inset figure, How we show up, the four stage
+cards, We're Hiring! and the publication tiles.
+
+### Two departures from the reference
+
+**It is a WRAPPER, not a card.** The reference is a 340x340 box with its own
+border, radius, gradient scrim and a stock photograph baked in. Every target
+here already has geometry — a `Card`, an `img`, a `Link`, a gradient panel —
+so `components/TiltCard.tsx` owns no ground, no radius and no aspect ratio.
+It is dropped around a thing and the thing keeps the box it had.
+
+**It runs on framer-motion, not `motion`.** The reference imports the
+`motion` package. This repo already ships framer-motion 11, which is the same
+library under its older name — `useSpring` and the `motion` proxy are
+identical — so installing the second would have put two animation runtimes in
+one bundle for no new capability.
+
+### What makes it read as a lean rather than a wobble
+
+- rotation follows where in the box the pointer is, so the card tracks the
+  hand instead of animating along a fixed path;
+- both axes run through springs, so it trails slightly and settles;
+- `z` pushes the card AWAY on enter, not towards the viewer. The design has
+  no shadows (see § ELEVATION in the tokens), and a card rising off a ground
+  it casts nothing onto reads as a sticker.
+
+⚠ **Mouse pointers only.** On a touch screen the gesture that would drive the
+tilt is the one scrolling the page, and claiming it means taking
+`touch-action` off an image the visitor is trying to swipe past — for a hover
+state that device does not have. `prefers-reduced-motion` gets a plain `div`:
+no transform, no listeners, no perspective.
+
+### Two placements that are not obvious
+
+**On the homepage stage cards the tilt wraps the `Link`, not the reverse.**
+The link clips to its own rounded box, so a card rotating inside it loses its
+near corner to the very edge it is leaning over.
+
+**In How we partner, and later in the introduction stack, `TiltCard` IS the
+flex child.** Those boxes carry their own width and `shrink-0`, so an extra
+div between them and the row would have become the thing the row measured.
+
+⚠ `CaseBand` and the two-up `CaseGallery` are deliberately untouched. The
+brief scoped the inline image and excluded the full-bleed ones, and a
+full-bleed photograph has no on-screen edge to rotate about.
+
+### Halved the same day
+
+Eduardo, a few hours later: "decrease the cards and images hover state
+movement by 50% so that it's more subtle." Rotation went 15deg to 7.5 at the
+edge of the box and the z-travel -10px to -5. Both are exactly half, so the
+gesture keeps its shape and only its amplitude moves.
+
+⚠ `perspective` and the spring were deliberately NOT touched, and the reason
+is worth keeping: neither is travel. Shortening the perspective makes the
+same rotation read as MORE movement, and softening the spring makes the tilt
+late rather than subtle. This is the mirror image of `motion.scene`, where
+halving the movement meant DOUBLING the numbers — there they are durations,
+here they are distances. The short 500px perspective in fact earns its keep
+more at 7.5deg than it did at 15: without it the shallower angle flattens
+into a plain skew.
+
+### The introduction stack, added after
+
+The homepage introduction's three right-side images lean as ONE object.
+They are overlapping absolute layers, so the top one covers the other two and
+their own `pointerenter` would almost never fire, and three independent
+rotations would slide the composition apart at the overlaps. The artboard
+draws it as a single picture (node 3431:27215).
+
+At rest the transform is identity, so the images still enter from 170% of
+their own width and the section's `overflow-x-clip` still does the clipping.
+
+### Verified
+
+Numbers in `motion.tilt`, one token driving all 15 call sites across 10
+files, with no per-call `maxTilt` override anywhere. Driven over CDP at 1440x900 with a real
+`mouseMoved`: at 85% across and 20% down the introduction stack's computed
+matrix decodes to rotateY 2.63deg, rotateX 2.25deg, z -4.99px — exactly
+7.5 x (0.85 - 0.5), 7.5 x (0.5 - 0.2) and the depth token. Identity at rest
+and again after the pointer leaves. `tsc --noEmit` and `vite build` clean.
+
+---
+
+## Healthcare and Financial row fills follow their heroes — 2026-09-21
+
+Eduardo: the two Industries thumbnails "should reflect the gradient used in
+the hero for their respective pages."
+
+They were the only two that did not, which is the finding rather than the
+instruction. Real Estate, Manufacturing and Legal were already b4, b5 and b6
+— the ramps their own hero bands draw — re-fitted to the 411x320 box. So this
+is three-out-of-five becoming five-out-of-five, not a new idea.
+
+### The re-fit rule, which the other three already followed
+
+Divide every stop offset by the last one, so a ramp that overruns its own
+frame terminates exactly at the box edge:
+
+    b4   0 / 75.52 / 115.50    ->  0 / 65.38 / 100     Real Estate
+    b5   0 / 63.82 / 127.63    ->  0 / 50 / 100        Manufacturing
+    b6   0 / 53.37 / 100       ->  unchanged           Legal
+    b8   0 / 30.73 / 63.94 / 100  ->  unchanged        Healthcare   (new)
+    b7   0 / 53.34 / 106.67    ->  0 / 50 / 100        Financial    (new)
+
+b8 already ends at 100%, so Healthcare's offsets are its hero's untouched.
+b7 overruns, so Financial lands on the same 0/50/100 as Manufacturing.
+
+**Angles are unchanged.** 122.8 and 302.8 are this box's pair, shared by all
+five rows; the heroes' 129.39 and 309.32 are fitted to an 880px band, and
+adopting them would tilt two rows a few degrees off the other three for
+nothing.
+
+⚠ **Departure from the board** on those two fills, nodes 3276:21593 and
+21597. What the artboard draws is recorded on the token itself so a future
+comparison against the Figma file does not read as a bug:
+
+    healthcare  cream -> amber.500 -> orange.500 -> turquoise.500, first stop
+                at 15%. Far more saturated than the b8 hero, and the only fill
+                in the group whose ramp started off 0.
+    financial   ink -> turquoise.500 -> cream: the b3 ramp, i.e. Real Estate's
+                cool counterpart, against a b7 hero that is warm end to end.
+
+### Verified
+
+Over CDP at 1440x900: both fills now carry their hero's exact stop colours,
+and the five boxes still land on the documented column starts — 732, 949,
+841, 732, 949.
+
+⚠ The Financial card's top-left corner softens into the page ground (delta
+RGB 17 of a possible 441). That is NOT new: 302.8deg puts the ramp's cream
+end in that corner, the old b3 fill ended cream there too, and Manufacturing
+still does. An edge on these fills would be a change to all five, not a fix
+to one.
+
+---
+
 ## Sentence case, sitewide — 2026-09-21
 
 Eduardo: "audit the navigation, footer, and every button, eyebrow, header, and
