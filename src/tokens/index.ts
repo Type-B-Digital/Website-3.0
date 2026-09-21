@@ -259,9 +259,31 @@ export const gradients = {
    * shipped as images: `download_assets` returns no `rawImages` for them, only
    * an SVG whose `<linearGradient>` carries the stops.
    *
-   * Three of the five are the b3-b6 ramps re-fitted to this 411x320 box, which
-   * is why their stop offsets differ from the token board's (b3 runs to
-   * 127.63% there because that gradient overruns its own frame).
+   * Every one of the five is the ramp its own sub-page's hero band draws,
+   * re-fitted to this 411x320 box, which is why the stop offsets differ from
+   * the token board's (b5 runs to 127.63% there because that gradient
+   * overruns its own frame). The re-fit is one rule: divide every offset by
+   * the last one, so a ramp that overran its frame terminates exactly at the
+   * box edge instead.
+   *
+   * ⚠ HEALTHCARE AND FINANCIAL DEPART FROM THE ARTBOARD — Eduardo,
+   * 2026-09-21: the two thumbnails "should reflect the gradient used in the
+   * hero for their respective pages." They were the only two that did not.
+   * Real Estate, Manufacturing and Legal were already b4, b5 and b6 re-fitted
+   * — the same ramps as their heroes — so those three are untouched and the
+   * page now follows one rule rather than three-out-of-five.
+   *
+   * What the artboard drew, for anyone comparing against it:
+   *
+   *   healthcare  cream -> amber.500 -> orange.500 -> turquoise.500, first
+   *               stop at 15%. Far more saturated than the b8 hero, and the
+   *               only fill in the group whose ramp started off 0.
+   *   financial   ink -> turquoise.500 -> cream: the b3 ramp, i.e. Real
+   *               Estate's cool counterpart, against a b7 hero that is warm
+   *               end to end.
+   *
+   * The angles are unchanged — 122.8 and 302.8 are this box's, not the hero
+   * band's 129.39 and 309.32, and all five rows share the pair.
    *
    * ⚠ Two things the SVG export gets wrong, both verified against the
    * artboard's own pixels rather than trusted:
@@ -281,23 +303,35 @@ export const gradients = {
    * would double it.
    */
   industry: {
-    /** Cream -> amber -> orange -> deep turquoise. Node 3276:21593. */
+    /**
+     * Cream -> sand -> warm grey -> turquoise. The b8 ramp, which is the
+     * Healthcare hero (node 3614:5645); b8 already ends at 100%, so the
+     * re-fit leaves its offsets alone. Replaces node 3276:21593 — see above.
+     */
     healthcare:
-      `linear-gradient(122.8deg, ${palette.neutral[50]} 15%, ${palette.amber[500]} 50%, ` +
-      `${palette.orange[500]} 75%, ${palette.turquoise[500]} 100%)`,
-    /** Ink -> turquoise -> cream. The b3 ramp refitted. Node 3276:21597. */
+      `linear-gradient(122.8deg, ${palette.neutral[50]} 0%, ${palette.amber[200]} 30.73%, ` +
+      `${palette.neutral[200]} 63.94%, ${palette.turquoise[300]} 100%)`,
+    /**
+     * Burnt amber -> bright amber -> cream. The b7 ramp, which is the
+     * Financial Services hero (node 3614:6576), re-fitted: b7 overruns to
+     * 106.67%, so 53.34 becomes 50 and 106.67 becomes 100. Replaces node
+     * 3276:21597 — see above.
+     */
     financial:
-      `linear-gradient(302.8deg, ${palette.neutral[900]} 0%, ${palette.turquoise[500]} 50%, ` +
+      `linear-gradient(302.8deg, ${palette.amber[700]} 0%, ${palette.amber[500]} 50%, ` +
       `${palette.neutral[50]} 100%)`,
-    /** Ink -> coral -> amber. The b4 ramp refitted. Node 3276:21601. */
+    /** Ink -> coral -> amber. The b4 ramp (Real Estate hero) refitted: 115.50
+     *  becomes 100 and 75.52 becomes 65.38. Node 3276:21601. */
     realEstate:
       `linear-gradient(122.8deg, ${palette.neutral[900]} 0%, ${palette.orange[400]} 65.38%, ` +
       `${palette.amber[300]} 100%)`,
-    /** Deep turquoise -> pale turquoise -> cream. The b5 ramp. Node 3276:21605. */
+    /** Deep turquoise -> pale turquoise -> cream. The b5 ramp (Manufacturing
+     *  hero) refitted: 127.63 becomes 100 and 63.82 becomes 50. Node 3276:21605. */
     manufacturing:
       `linear-gradient(302.8deg, ${palette.turquoise[500]} 0%, ${palette.turquoise[100]} 50%, ` +
       `${palette.neutral[50]} 100%)`,
-    /** Cream -> coral -> amber. The b6 ramp, same offsets. Node 3276:21609. */
+    /** Cream -> coral -> amber. The b6 ramp (Legal hero), which already ends
+     *  at 100%, so the offsets are untouched. Node 3276:21609. */
     legal:
       `linear-gradient(122.8deg, ${palette.neutral[50]} 0%, ${palette.orange[300]} 53.37%, ` +
       `${palette.amber[400]} 100%)`,
