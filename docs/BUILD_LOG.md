@@ -4020,3 +4020,50 @@ the bottom**, exactly the two stops, with a clean linear ramp between. The
 entry crossfade still reads as one wash rather than a travelling band, and the
 release meets the cream tail with no seam. `tsc --noEmit` and `vite build`
 clean.
+
+---
+
+## The footer wordmark fits the phone — 2026-09-20
+
+Eduardo: "The small tablet and mobile footer needs to resize the word Type B
+Digital at the bottom so it fills the width of the screen."
+
+The oversized "Type B Digital" at the foot of every page sat in a box with
+`min-w-[1408px]` at every width — 1440 less the 16px margins, so the artwork
+is its artboard size at the designed width. Below that the box kept the
+minimum, overflowed, and `overflow-hidden` on the footer cropped it to the
+left end. On a 360px phone the box was nearly four viewports wide and what
+showed was "Typ" and the start of an "e".
+
+The floor is now `lg` and up. Below it the box is simply the padded width and
+the artwork scales into it:
+
+| viewport | box | artwork |
+|---|---|---|
+| 360 | 328 | 328 × 51, cropped to 40 |
+| 768 | 736 | 736 × 114, cropped to 89 |
+| 1024 | 1408 | unchanged |
+| 1440 | 1408 | unchanged |
+
+Two things this deliberately did NOT need. The baseline crop still works
+untouched — the image is `w-full` with auto height inside a box with a fixed
+`aspect-ratio`, so both scale together and the descenders of y, p and g fall
+below the box at every width. And there is no second asset: it is the one
+SVG, fitted.
+
+The 16px margins are the page's own, the same ones the columns above it use,
+which is also the relationship the artwork has to the frame at 1440.
+
+⚠ NOT IN FIGMA. The file's only artboard below 1440 is the mobile drawer
+(node 3973:636), so this is instruction and inference, not a traced
+measurement.
+
+⚠ 1024–1439 still crops, and was left alone: the note named small tablet and
+mobile, which is `lg` and below in this build (see `Container`). A laptop at
+1280 draws the same overflowing 1408 it always has. Worth a decision
+separately — the same argument probably applies there.
+
+### Verified
+
+Driven over CDP at 360, 768, 1024 and 1440, footer scrolled into view and the
+artwork's box measured at each. `tsc --noEmit` and `vite build` clean.

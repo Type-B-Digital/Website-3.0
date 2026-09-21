@@ -335,10 +335,31 @@ export function SiteFooter() {
 
         1408 = the 1440 frame less the 16px margins the old `px-md` gave it, so
         the artwork is the same size it was.
+
+        ⚠ THE FLOOR IS `lg` AND UP ONLY — Eduardo, 2026-09-20: "the small
+        tablet and mobile footer needs to resize the word Type B Digital at the
+        bottom so it fills the width of the screen."
+
+        With the 1408 minimum applied at every width, a 360px phone was drawing
+        the artwork at its desktop size inside a box eleven pixels short of four
+        times the viewport, and `overflow-hidden` on the footer cropped it to
+        the left end: "Typ" and the start of an "e". Below `lg` the minimum is
+        gone, so the box is just the padded width and the whole wordmark scales
+        into it — the same 16px margins as everything above it in the footer,
+        which is the relationship it has at 1440 too.
+
+        The baseline crop survives the change without touching it: the image is
+        `w-full` with auto height against a box whose `aspect-ratio` is fixed,
+        so both scale together and the descenders fall below the box at any
+        width. Nothing here is a second size — it is the one artwork, fitted.
+
+        ⚠ NOT IN FIGMA. The file has one artboard below 1440 (the mobile
+        drawer, node 3973:636) and it is not the footer, so the fit is
+        instruction and inference rather than a traced measurement.
       */}
       <div className="relative mt-4xl px-md">
         <div
-          className="relative w-full min-w-[1408px] overflow-hidden"
+          className="relative w-full overflow-hidden lg:min-w-[1408px]"
           style={{ aspectRatio: '1386.39 / 167.36' }}
         >
           <img
