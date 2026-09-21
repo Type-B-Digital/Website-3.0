@@ -4067,3 +4067,52 @@ separately — the same argument probably applies there.
 
 Driven over CDP at 360, 768, 1024 and 1440, footer scrolled into view and the
 artwork's box measured at each. `tsc --noEmit` and `vite build` clean.
+
+---
+
+## README rewritten for handoff — 2026-09-20
+
+Eduardo: "Write a read me file which will help once it's in the client's repo
+with instructions for anyone in the organization to connect their Claude Code
+to the repo and be able to make changes to the site the same way I've been
+doing. I want to start preparing the site of client hand-off delivery."
+
+The file it replaced was written at homepage-v1 and had not moved since. It
+opened "Personal staging repo — **not** the client handoff repo", described
+"the remaining 19 pages" as unbuilt and the component library as ten
+components, and said nothing about branches, deploys or how any of this gets
+worked on. All of that is now wrong in a file that is about to be the first
+thing a client reads.
+
+The new one is eight sections: what you need, getting it running, connecting
+Claude Code, the conventions, shipping, a map of the repo, the docs, and the
+known gaps. It is written for someone at Type B on their first day with the
+repository, not for us.
+
+### What it commits us to in writing
+
+Things that were true but only findable in this log, a git config or a
+workflow comment, and are now stated where a newcomer will see them:
+
+- `staging` deploys and `main` does not; the default branch is `main`, so a
+  fresh clone has to switch.
+- `main` has no branch protection — the release gate is a habit, not a guard.
+- The Pages site is PUBLIC. A shareable preview, not a private one.
+- Deep links return HTTP 404 while rendering the right page, which is
+  inherent to an SPA on project Pages.
+- The conventions themselves: trace to the artboard, tokens over literals,
+  comments carry the why, log the change here, one change per commit, and
+  `typecheck` + `build` clean before pushing.
+
+⚠ The release command is written as `git push origin staging:main`, which is
+right in a fresh clone of the client repo. It is NOT right in this working
+copy, where `origin` is Eduardo's personal repository and the client is
+`client` — see § Branches and where a push goes. The README says to check
+`git remote -v`; anyone working from this clone should read that section
+instead.
+
+⚠ **No CLAUDE.md yet.** The README tells a newcomer to point their session at
+the docs by hand. A `CLAUDE.md` would load those conventions automatically on
+every session in the repo, which is the difference between the method being
+documented and it being followed. That is the obvious next piece of the
+handoff and is deliberately not in this change.
