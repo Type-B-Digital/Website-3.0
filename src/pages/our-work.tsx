@@ -13,18 +13,23 @@ import {
 import { PageShell } from '@/components/layout'
 import { asset } from '@/lib/asset'
 import { cn } from '@/lib/cn'
-import { FEATURED, ROW_TAGS, WORK } from './work-content'
+import { FEATURED, ROW_TAGS, WORK_ROWS, type Work } from './work-content'
 
 /**
  * Our Work — Figma node 2865:5797
  * https://www.figma.com/design/LASrWn0jXyj5nBaphi2jgI/TypeB-Creative-Exploration?node-id=2865-5797
  *
  * No page title: the artboard opens straight into the featured case study on a
- * full-bleed 880px band, then runs nine work rows, the industries grid, and the
+ * full-bleed 880px band, then runs the work rows, the industries grid, and the
  * shared testimonial.
  *
- * ⚠ The nine row thumbnails are grey placeholder blocks — the artboard's are
- * unfinished exports. The hero photograph is real (node 3707:10655).
+ * ⚠ The board draws NINE rows; this page now runs three. Eduardo, 2026-09-20,
+ * cut the selection to four studies — Ferry Pay (the hero), FinTech Group,
+ * and Pelican and HireNorth as placeholders. See `work-content.ts`.
+ *
+ * ⚠ The row thumbnails on the artboard are grey placeholder blocks — unfinished
+ * exports. What the rows carry now is borrowed art, again per work-content.ts.
+ * The hero photograph is real (node 3707:10655).
  */
 
 /**
@@ -114,8 +119,15 @@ function Hero() {
         <Container className="relative z-10 flex min-h-[880px] flex-col justify-center">
           <div className="flex max-w-[628px] flex-col items-start gap-md">
             <Eyebrow tone="onAccent">Featured</Eyebrow>
+            {/*
+              The hero IS Ferry Pay's row on this page, so it carries the link
+              to the study — it was the one entry in the selection with a page
+              and no way to reach it from here.
+            */}
             <Typography variant="h1" className="text-h2 text-neutral-50 md:text-h1">
-              {FEATURED.name}
+              <Link to={FEATURED.to} className="hover:underline">
+                {FEATURED.name}
+              </Link>
             </Typography>
             {/* 40 between the paragraph and the tag row, as on every row below. */}
             <div className="flex flex-col items-start gap-2xl">
@@ -151,12 +163,16 @@ function Hero() {
  * Four of the nine rows draw it 2px taller on the artboard; built at one size,
  * since that reads as authoring drift rather than intent.
  */
-function WorkRow({ work }: { work: (typeof WORK)[number] }) {
-  return (
-    <div className="grid items-start gap-lg lg:grid-cols-12">
+function WorkRow({ work }: { work: Work }) {
+  const content = (
+    <>
       <Reveal className="lg:col-span-5">
         <div className="flex max-w-[519px] flex-col items-start gap-md">
-          <Typography variant="subHeaderSmall" as="h3" className="leading-[1.2]">
+          <Typography
+            variant="subHeaderSmall"
+            as="h3"
+            className={cn('leading-[1.2]', work.to && 'group-hover:underline')}
+          >
             {work.name}
           </Typography>
           <div className="flex flex-col items-start gap-2xl">
@@ -180,8 +196,8 @@ function WorkRow({ work }: { work: (typeof WORK)[number] }) {
       </Reveal>
 
       <Reveal index={1} className="lg:col-span-7">
-        {/* 737 x 441 on the artboard. Six of the nine rows have art; the rest
-            keep the flat block so the empty slots stay obvious. */}
+        {/* 737 x 441 on the artboard. Art is borrowed for now — see the note in
+            work-content.ts; a row without one keeps the flat block. */}
         {work.thumb ? (
           <img
             src={asset(work.thumb)}
@@ -193,11 +209,32 @@ function WorkRow({ work }: { work: (typeof WORK)[number] }) {
           <Placeholder className="aspect-[737/441] w-full" />
         )}
       </Reveal>
-    </div>
+    </>
+  )
+
+  const grid = 'grid items-start gap-lg lg:grid-cols-12'
+
+  /*
+    ⚠ A row is a link only where the study exists. Pelican and HireNorth are
+    placeholders and render as plain rows — no href, no pointer, nothing to
+    click — rather than as links to a page that would 404.
+  */
+  return work.to ? (
+    <Link to={work.to} className={cn(grid, 'group')}>
+      {content}
+    </Link>
+  ) : (
+    <div className={grid}>{content}</div>
   )
 }
 
-/** Nine rows on a 465 pitch: 441 tall with a 24 gap. */
+/**
+ * The rows below the hero, on a 465 pitch: 441 tall with a 24 gap.
+ *
+ * ⚠ Three rows, not the artboard's nine — Eduardo, 2026-09-20. `WORK_ROWS` is
+ * the four-study list minus Ferry Pay, which is the hero above and would
+ * otherwise appear twice on the one page.
+ */
 function Work() {
   return (
     <Section
@@ -207,7 +244,7 @@ function Work() {
       className="pb-4xl pt-[calc(theme(spacing.4xl)*2)] text-on-light"
     >
       <div className="flex flex-col gap-lg">
-        {WORK.map((work) => (
+        {WORK_ROWS.map((work) => (
           <WorkRow key={work.name} work={work} />
         ))}
       </div>

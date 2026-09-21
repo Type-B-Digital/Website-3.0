@@ -142,13 +142,18 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
+    /* ⚠ Cut to the four studies the site actually carries — Eduardo,
+       2026-09-20. Class-fi, MatchDay Health and Mave AI are gone; Pelican and
+       HireNorth are named placeholders with no `to`, and stay inert until
+       their pages exist. The footer's column took the same change, and
+       `work-content.ts` is the list both pages render. */
     label: 'Case Studies',
     to: '/our-work',
     links: [
       { label: 'Ferry Pay', to: '/our-work/ferry-pay' },
-      { label: 'Class-fi' },
-      { label: 'MatchDay Health' },
-      { label: 'Mave AI' },
+      { label: 'FinTech Group', to: '/our-work/fintech-group' },
+      { label: 'Pelican' },
+      { label: 'HireNorth' },
     ],
   },
   {

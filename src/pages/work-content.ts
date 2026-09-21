@@ -7,9 +7,23 @@
  * ⚠ These were two unrelated datasets. The homepage carried six placeholder
  * entries — "Medtronic", "Ferry", then "Project Name" four times, each with
  * "Project description and details here." and tags literally reading "Tag 1",
- * "Tag 2", "Tag 3" — while Our Work carried the nine real ones. A reader
- * moving from one page to the other saw a different body of work. One list
- * now: the homepage shows the first six, Our Work shows all nine.
+ * "Tag 2", "Tag 3" — while Our Work carried nine real ones. A reader moving
+ * from one page to the other saw a different body of work. One list now, and
+ * both pages read it.
+ *
+ * ⚠ CUT TO FOUR — Eduardo, 2026-09-20: "only Ferry Pay and FinTech Group are
+ * clickable and viewable, and include 2 other placeholder items
+ * (non-clickable) for Pelican and HireNorth. Remove all others."
+ *
+ * So the nine rows the board draws are down to four, and the list is no longer
+ * the artboard's. All nine went — MatchDay Health, Class.fi, Sensor Bio, Mave
+ * AI, Ande AI, RFL Wealth, Dome, Eezee Assist, UDM — none of them had a case
+ * study page or a prospect of one this round. Pelican and HireNorth are new
+ * entries, not survivors: named placeholders for studies that are coming.
+ *
+ * The removed names still appear in prose elsewhere (the industry cards on Our
+ * Work, the healthcare and industries pages, the publications) — that is copy
+ * about the work, not a work selection, and was left alone.
  *
  * Copy gaps below are the artboard's own and are reproduced, as everywhere
  * else in this build.
@@ -45,6 +59,13 @@ export type Work = {
   thumb?: string
   /** Drawn on five of the nine rows. */
   stat?: string
+  /**
+   * The case study page, where one is built. A row WITHOUT `to` is a
+   * placeholder: it renders exactly like the others and does nothing when
+   * clicked, because the study behind it does not exist yet. Two of the four
+   * are in that state deliberately — see the note at the top of the file.
+   */
+  to?: string
 }
 
 /** Figma: node 3707:10695. Four tags here against three on every row below. */
@@ -60,94 +81,62 @@ export const FEATURED = {
 export const ROW_TAGS = ['Platform Expansion', 'UX/UI Design', 'Fractional CTO'] as const
 
 /**
- * In the order Our Work draws them, which is the order the homepage now takes
- * its six from.
+ * In the order Our Work draws them, which is the order the homepage takes
+ * its rows from.
  *
- * ⚠ Two copy gaps reproduced as drawn: Class.fi's body is MatchDay Health's
- * paragraph verbatim, and the `stat` on the last four rows repeats "500K users
- * supported." / "~45% faster delivery." from rows three and four. Both read as
- * unfinished copy rather than layout decisions.
+ * ⚠ Ferry Pay leads the list AND is the Our Work hero. Our Work therefore
+ * skips it in the rows below the hero rather than printing the same study
+ * twice on one page; the homepage, which has no hero, lists all four.
  *
- * ⚠ Six thumbnails exist (`case-1` to `case-6`, the homepage's own art). The
- * last three rows have none, so they keep the grey placeholder block on Our
- * Work and are below the homepage's cut of six either way.
+ * ⚠ THUMBNAILS ARE BORROWED. `case-1` to `case-4` were exported for four of
+ * the studies that have just been removed, and are reused here on Eduardo's
+ * instruction (2026-09-20) so no row ships with the grey placeholder block.
+ * None of this art is of the client it now sits beside — it is stand-in
+ * imagery and should be replaced as each study's own photography arrives.
  */
 export const WORK: readonly Work[] = [
   {
-    name: 'MatchDay Health',
-    short: 'Agents that onboard clinicians.',
+    name: 'Ferry Pay',
+    short: 'Daily payout on autopilot.',
     description:
-      'Healthcare career platform for doctors, nurses, and pharmacists; conversational agents took over onboarding and sales.',
+      'A payroll and tipping platform for hospitality workers, rebuilt while it kept processing $16M+ in payments every month.',
     thumb: '/images/work/case-1.png',
+    stat: '$16M+ processed in one month.',
+    to: '/our-work/ferry-pay',
   },
   {
-    name: 'Class.fi',
-    short: 'Compliance classified in seconds.',
+    name: 'FinTech Group',
+    short: 'An India operation, from zero.',
     description:
-      'Healthcare career platform for doctors, nurses, and pharmacists; conversational agents took over onboarding and sales.',
+      'A Dutch fintech serving Europe’s largest banks needed an India operation: incorporation, office, and a full workforce built from nothing.',
     thumb: '/images/work/case-2.png',
-    stat: '70% lower compliance cost.',
+    stat: '85 people hired in 2.5 months.',
+    to: '/our-work/fintech-group',
   },
   {
-    name: 'Sensor Bio',
-    short: 'Medical wearables off legacy tech.',
-    description:
-      'Medical-grade wearable platform re-architected off a decade of legacy technology.',
+    /* Placeholder — no `to`. The study is real work (the KOAT Capital
+       acquisition and the 100-person BOT operation, written up in the
+       publications), but the page has not been built. */
+    name: 'Pelican',
+    short: 'Case study coming soon.',
+    description: 'Case study coming soon.',
     thumb: '/images/work/case-3.png',
-    stat: '500K users supported.',
   },
   {
-    name: 'Mave AI',
-    short: 'AI marketing for real-estate agents.',
-    description:
-      'AI marketing automation for real-estate agents, with the delivery operation rebuilt around it.',
+    /* Placeholder — no `to`. */
+    name: 'HireNorth',
+    short: 'Case study coming soon.',
+    description: 'Case study coming soon.',
     thumb: '/images/work/case-4.png',
-    stat: '~45% faster delivery.',
-  },
-  {
-    name: 'Ande AI',
-    short: 'A pod embedded in one week.',
-    description:
-      'A dedicated pod embedded in one week to unblock an AI platform after a stalled vendor.',
-    thumb: '/images/work/case-5.png',
-  },
-  {
-    name: 'RFL Wealth',
-    short: 'Brand, site, and CRM in ten weeks.',
-    description:
-      'Wealth advisory for physicians: new brand, new site, and a custom CRM in ten weeks.',
-    thumb: '/images/work/case-6.png',
-    stat: '500K users supported.',
-  },
-  {
-    name: 'Dome',
-    short: 'Fractional investing, web and app.',
-    description:
-      'Fractional real-estate investing across web, iOS, and Android, rescued from a stalled build.',
-    stat: '~45% faster delivery.',
-  },
-  {
-    name: 'Eezee Assist',
-    short: 'Support staff train the agent.',
-    description:
-      'AI-augmented franchise support platform, designed so non-technical staff can train the agent.',
-    stat: '500K users supported.',
-  },
-  {
-    name: 'UDM',
-    short: 'Steel-drum making, off paper.',
-    description: 'Steel-drum manufacturing moved off paper cards onto a purpose-built ERP.',
-    stat: '~45% faster delivery.',
   },
 ]
 
 /**
- * The six the homepage lists — the first six of the nine, which are exactly
- * the six with artwork.
- *
- * ⚠ None of them links yet. Ferry Pay is the only case study with a page, and
- * it is the Our Work hero rather than a row. Once the remaining case studies
- * are built, the per-row links here and on Our Work get their destinations —
- * see docs/BUILD_LOG.md.
+ * The homepage lists all four, Ferry Pay included — it has no featured band of
+ * its own, so leaving it out would have hidden the one finished study from the
+ * front page.
  */
-export const HOMEPAGE_WORK = WORK.slice(0, 6)
+export const HOMEPAGE_WORK = WORK
+
+/** Our Work's rows: everything the hero above them is not. */
+export const WORK_ROWS = WORK.filter((work) => work.name !== FEATURED.name)

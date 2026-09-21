@@ -19,6 +19,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type ReactNode,
   type RefObject,
 } from 'react'
 import {
@@ -232,6 +233,12 @@ const STAGES: { title: string; src: string; to: string | null }[] = [
  * times, all sharing "Project description and details here." and tags reading
  * "Tag 1"/"Tag 2"/"Tag 3" — while Our Work carried the nine real ones. The two
  * pages showed a different body of work. Both now read `work-content.ts`.
+ */
+/**
+ * ⚠ Four rows, not six — Eduardo, 2026-09-20. Two live studies (Ferry Pay,
+ * FinTech Group) and two named placeholders (Pelican, HireNorth). A row with
+ * no `to` renders as a plain row: same layout, no link, and no "Learn more"
+ * over the thumbnail, because there is nothing to learn more from yet.
  */
 const CASE_STUDIES = HOMEPAGE_WORK.map((work) => ({
   ...work,
@@ -1272,6 +1279,55 @@ function Stages() {
  * Focus drives the same state as hover, so the preview works for anyone moving
  * through the list with a keyboard rather than a pointer.
  */
+/**
+ * One row's outer element.
+ *
+ * A study with a page is a `Link`; a placeholder is a plain `div` carrying the
+ * same hover handlers, so the preview on the left still works while the row
+ * itself is inert. The row used to be `<a href="#">` on all six — a link that
+ * scrolled to the top of the page when clicked.
+ *
+ * `onFocus`/`onBlur` go on the link only: a div is not in the tab order, and
+ * putting them there would suggest it is.
+ */
+function Row({
+  to,
+  className,
+  children,
+  onMouseEnter,
+  onMouseLeave,
+  onFocus,
+  onBlur,
+}: {
+  to?: string
+  className?: string
+  children: ReactNode
+  onMouseEnter: () => void
+  onMouseLeave: () => void
+  onFocus: () => void
+  onBlur: () => void
+}) {
+  if (!to) {
+    return (
+      <div className={className} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+        {children}
+      </div>
+    )
+  }
+  return (
+    <Link
+      to={to}
+      className={className}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onFocus={onFocus}
+      onBlur={onBlur}
+    >
+      {children}
+    </Link>
+  )
+}
+
 function Work() {
   const [active, setActive] = useState<number | null>(null)
   const prefersReduced = useReducedMotion()
@@ -1336,8 +1392,8 @@ function Work() {
             return (
               <li key={`${project.name}-${i}`} className="border-b border-divider">
                 <Reveal index={i}>
-                  <a
-                    href="#"
+                  <Row
+                    to={project.to}
                     onMouseEnter={() => setActive(i)}
                     onMouseLeave={() => clear(i)}
                     onFocus={() => setActive(i)}
@@ -1385,19 +1441,22 @@ function Work() {
                         aria-hidden="true"
                         className="absolute inset-0 size-full object-cover"
                       />
-                      {/* Scrim + CTA. `as="span"` because this sits inside the row link. */}
-                      <fm.div
-                        className="absolute inset-0 flex items-center justify-center bg-scrim-strong"
-                        initial={false}
-                        animate={{ opacity: isActive ? 1 : 0 }}
-                        transition={transition}
-                      >
-                        <Button as="span" variant="tertiary" tone="onDark">
-                          Learn more
-                        </Button>
-                      </fm.div>
+                      {/* Scrim + CTA. `as="span"` because this sits inside the
+                          row link — and only on a row that HAS one. */}
+                      {project.to && (
+                        <fm.div
+                          className="absolute inset-0 flex items-center justify-center bg-scrim-strong"
+                          initial={false}
+                          animate={{ opacity: isActive ? 1 : 0 }}
+                          transition={transition}
+                        >
+                          <Button as="span" variant="tertiary" tone="onDark">
+                            Learn more
+                          </Button>
+                        </fm.div>
+                      )}
                     </div>
-                  </a>
+                  </Row>
                 </Reveal>
               </li>
             )

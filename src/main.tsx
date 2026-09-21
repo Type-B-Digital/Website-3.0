@@ -19,6 +19,7 @@ import PrivacyPolicyPage from '@/pages/privacy-policy'
 import BrandGuidelinesPage from '@/pages/brand-guidelines'
 import IndustriesPage from '@/pages/industries'
 import FerryPayPage from '@/pages/ferry-pay'
+import FinTechGroupPage from '@/pages/fintech-group'
 import OurWorkPage from '@/pages/our-work'
 import TeamsPage from '@/pages/teams'
 import WhatWeDoPage from '@/pages/what-we-do'
@@ -54,6 +55,9 @@ createRoot(container).render(
         <Route path="/industries/legal" element={<LegalPage />} />
         <Route path="/our-work" element={<OurWorkPage />} />
         <Route path="/our-work/ferry-pay" element={<FerryPayPage />} />
+        {/* The second built study — see the note at the top of the page file
+            for where its copy came from and which images are borrowed. */}
+        <Route path="/our-work/fintech-group" element={<FinTechGroupPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/careers" element={<CareersPage />} />
         <Route path="/culture" element={<CulturePage />} />

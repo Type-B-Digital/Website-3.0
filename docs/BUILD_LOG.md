@@ -3830,3 +3830,63 @@ photograph under the *Deep* ramp lands in olive — the honest result of mixing
 teal into orange at half strength, and it resolves either way as the slider
 moves. Whether 45 is the right default per ramp, or whether Deep should start
 lower, is a judgement call for Eduardo rather than something to tune blind.
+
+---
+
+## Work selection cut to four — 2026-09-20
+
+Eduardo: "update the work selections in the navigation, footer, homepage and
+case studies landing so that only Ferry Pay and FinTech Group are clickable and
+viewable, and include 2 other placeholder items (non-clickable) for Pelican and
+HireNorth. Remove all others."
+
+`src/pages/work-content.ts` is still the one list four surfaces read, and it is
+now four entries: **Ferry Pay** and **FinTech Group** with a `to`, **Pelican**
+and **HireNorth** without one. The nine the artboard draws are gone — MatchDay
+Health, Class.fi, Sensor Bio, Mave AI, Ande AI, RFL Wealth, Dome, Eezee Assist,
+UDM. This is a deliberate DEPARTURE FROM THE BOARD: nodes 3707:10710 ff. still
+draw nine rows, and the nav and footer artboards still list Class-fi, MatchDay
+Health and Mave AI. Anyone reconciling the two later should change the boards.
+
+Those names have NOT been scrubbed from prose. They remain in the industry
+cards on Our Work, on the healthcare and industries pages, and throughout the
+publications — that is copy *about* the work, not a work selection, and the
+note asked for the latter.
+
+### What "non-clickable" renders as
+
+A row without `to` keeps the full row — name, line, tags, thumbnail — and drops
+only the link. On the homepage it is a `div` with the hover handlers still on
+it (the left-hand preview works) and no "Learn more" scrim; on Our Work it is a
+`div` instead of a `Link`. Every row on the homepage used to be `<a href="#">`,
+which scrolled to the top of the page when clicked; that is gone too.
+
+`WORK_ROWS` is the new export Our Work renders: the four minus Ferry Pay, which
+is the featured hero on that page and would otherwise be printed twice. The
+hero heading now carries `FEATURED.to` — it was the one entry in the selection
+with a page and no way to reach it from this page.
+
+### FinTech Group
+
+`src/pages/fintech-group.tsx`, route `/our-work/fintech-group`. No artboard for
+it: Eduardo pointed at the live site,
+`https://www.typeb.digital/works/fintech-group`, and the copy is that page's,
+as close to verbatim as the Ferry Pay template's slots allow. The six
+"Full-Stack Market Entry Execution" capabilities land exactly on the roles
+grid's two rows of three.
+
+⚠ **Every image on the page is borrowed** — Ferry Pay's `/images/case/*` set,
+on instruction, because empty blocks were not wanted. None of it is FinTech
+Group's. Same for the four row thumbnails across the site: `case-1` to `case-4`
+were exported for four of the studies that have just been removed. `alt` text
+is written for what each photograph actually shows, so nothing describes a
+picture that is not there.
+
+⚠ **No results block.** The live page states one figure, the 85 hires, so
+`CaseImpact` carries its four narrative blocks rather than metrics and is
+titled for that. Real numbers belong there if they exist.
+
+### Verified
+
+`tsc --noEmit` and `vite build` clean. Not driven in a browser — the Chrome
+extension was not connected on this machine at the time.

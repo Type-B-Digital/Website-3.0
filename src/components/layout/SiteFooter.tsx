@@ -67,13 +67,17 @@ const FOOTER_COLUMNS: { heading: string; to?: string; links: FooterLink[] }[] = 
     ],
   },
   {
+    /* ⚠ Same cut the nav panel took — Eduardo, 2026-09-20. Two live studies
+       and two named placeholders; Pelican and HireNorth have no `to` and so
+       stay inert, which is what the dead-link rule at the top of this file
+       already describes. */
     heading: 'Case Studies',
     to: '/our-work',
     links: [
       { label: 'Ferry Pay', to: '/our-work/ferry-pay' },
-      { label: 'Class-fi' },
-      { label: 'MatchDay Health' },
-      { label: 'Mave AI' },
+      { label: 'FinTech Group', to: '/our-work/fintech-group' },
+      { label: 'Pelican' },
+      { label: 'HireNorth' },
     ],
   },
   {
