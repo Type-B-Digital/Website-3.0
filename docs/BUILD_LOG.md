@@ -3977,3 +3977,46 @@ and is untouched.
 - 640–1023px is still unspecified. The drawer now renders phone-sized type
   across the whole range; only the CTA is guarded, keeping the natural width
   it shipped with above `sm` rather than stretching to a 700px pill.
+
+---
+
+## Global by design — the footer's ramp — 2026-09-20
+
+Eduardo: "Update the Global by design section so that the background is a; top
+#040E19 to bottom #081F2A gradient (like the footer gradient minus the glow)."
+
+Those two hexes ARE `gradients.footer` — `linear-gradient(180deg,
+neutral.900, turquoise.900)` — so Talent takes the same token, and "minus the
+glow" costs nothing: the glow is the separate `.footer-glow` layer the footer
+paints over the ramp, not part of it.
+
+⚠ **Departure from the board.** Node 3679:10315 fills this band with a flat
+`turquoise.500`. That is what `background.accentDeep` exists for, and nothing
+uses it any more — flagged on the token rather than deleted, since the board
+still specifies it.
+
+### Two things that were not obvious
+
+**The gradient goes on the PANEL, not the section.** Talent is a pinned scene:
+a 200vh section with a `sticky top-0 h-screen` panel inside it. On the section
+the ramp would stretch over two viewports and the pinned scene would sit in the
+top half of it, never reaching the far end. On the panel it is exactly one
+viewport — ink at the top of the screen, turquoise at the bottom — and it holds
+still for the length of the pin, which is what the footer does down its own
+height.
+
+**The crossfade had to land somewhere else.** `DesignToTalent` animates the
+page ground cream -> X as the boundary crosses the viewport, and Talent's panel
+now paints itself on top of that. The two have to agree at the seam, so `to` is
+`background.canvas` (#040E19), the gradient's first stop, rather than the deep
+accent. Left on turquoise.500 it would have shown as a band of the old colour
+above and below the panel.
+
+### Verified
+
+Driven over CDP at 1440x900 with real scroll gestures, five stops through the
+scene. At the pin the ground samples **#040E19 at the top row and #081F2A at
+the bottom**, exactly the two stops, with a clean linear ramp between. The
+entry crossfade still reads as one wash rather than a travelling band, and the
+release meets the cream tail with no seam. `tsc --noEmit` and `vite build`
+clean.

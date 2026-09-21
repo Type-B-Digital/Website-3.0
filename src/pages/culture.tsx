@@ -374,6 +374,22 @@ function DesignThinking() {
  * lives here rather than inside `Globe` so the chip and the pin can never
  * disagree about which city is current.
  */
+/**
+ * Talent's ground — Eduardo, 2026-09-20: "the background is a top #040E19 to
+ * bottom #081F2A gradient (like the footer gradient minus the glow)".
+ *
+ * That IS the footer gradient: `gradients.footer` is
+ * `linear-gradient(180deg, neutral.900, turquoise.900)`, which is those two
+ * hexes exactly. So this is the same token, and the glow is simply the
+ * `.footer-glow` layer the footer paints over it — a separate element, not
+ * part of the ramp, so leaving it out needs nothing but not adding it.
+ *
+ * ⚠ DEPARTURE FROM THE BOARD. Node 3679:10315 fills this band with a flat
+ * `turquoise.500`, which is what `background.accentDeep` exists for and what
+ * this section carried until now. Nothing else uses that token any more.
+ */
+const TALENT_GROUND = 'bg-gradient-footer'
+
 function Talent() {
   const [active, setActive] = useState(0)
   const prefersReduced = useReducedMotion()
@@ -466,7 +482,10 @@ function Talent() {
         tone="none"
         spacing="none"
         bare
-        className="relative flex min-h-screen flex-col justify-between overflow-hidden text-on-dark"
+        className={cn(
+          'relative flex min-h-screen flex-col justify-between overflow-hidden text-on-dark',
+          TALENT_GROUND,
+        )}
       >
         {panel}
       </Section>
@@ -481,7 +500,19 @@ function Talent() {
       className="relative text-on-dark"
       style={{ height: `${motionTokens.talentScene.pinLength * 100}vh` }}
     >
-      <div className="sticky top-0 flex h-screen flex-col justify-between overflow-hidden">
+      {/*
+        The gradient is on the PANEL, not on the 200vh section: the panel is
+        exactly one viewport, so the ramp runs ink at the top of the screen to
+        turquoise at the bottom and then holds still for the length of the pin.
+        On the section it would be stretched over two viewports and the pinned
+        scene would sit in the top half of it, never reaching the far end.
+      */}
+      <div
+        className={cn(
+          'sticky top-0 flex h-screen flex-col justify-between overflow-hidden',
+          TALENT_GROUND,
+        )}
+      >
         {panel}
       </div>
     </Section>
@@ -489,15 +520,23 @@ function Talent() {
 }
 
 /**
- * Design Thinking -> Talent. Cream ground to deep accent, with Talent held at
- * zero until the ink arrives. See `GroundCrossfade`.
+ * Design Thinking -> Talent. Cream ground to ink, with Talent held at zero
+ * until the ink arrives. See `GroundCrossfade`.
+ *
+ * ⚠ `to` lands on `canvas` (#040E19) rather than on the deep accent it used
+ * to, because that is the FIRST STOP of Talent's gradient. The crossfade
+ * paints the page ground and Talent's panel paints itself on top of it, so
+ * the two have to agree at the seam: the panel's top edge and the ground
+ * behind it are now the same colour, and the panel's own ramp does the rest
+ * of the travel down the viewport. Landing on turquoise.500 here would put a
+ * band of the old accent above and below the panel instead.
  */
 function DesignToTalent() {
   const { fade, contentFade } = motionTokens.talentScene
   return (
     <GroundCrossfade
       from={colorTokens.background.surface}
-      to={colorTokens.background.accentDeep}
+      to={colorTokens.background.canvas}
       fade={fade}
       contentFade={contentFade}
       above={<DesignThinking />}

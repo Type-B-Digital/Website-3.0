@@ -451,6 +451,12 @@ export const colors = {
      * The deeper accent band — Culture's Talent section, where the globe sits.
      * Sampled at exactly `#17616E` (turquoise.500), a step lighter than
      * `accent`. Figma: node 3679:10315.
+     *
+     * ⚠ UNUSED since 2026-09-20. Talent now carries the footer's vertical
+     * ramp (#040E19 -> #081F2A) on Eduardo's instruction, so the one band this
+     * token existed for no longer paints it. Kept rather than deleted because
+     * the board still specifies it here; it wants the same decision the flat
+     * `navPanel` gradient does — restore it, or retire both.
      */
     accentDeep: palette.turquoise[500],
     /** Eyebrow chip on accent grounds — #13505D. Figma: 3390:26567 */
