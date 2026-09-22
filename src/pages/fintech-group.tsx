@@ -22,12 +22,15 @@ import {
  * (node 2887:7099) is what defines a case study here, and everything
  * structural lives in `@/components/sections/case-study`.
  *
- * ⚠ THE GALLERY, THE FIRST BAND AND THE CLOSING FIGURE ARE BORROWED. The live
- * page's own photography was not exported into this build, so those reuse
+ * ⚠ THE GALLERY AND THE CLOSING FIGURE ARE BORROWED. The live page's own
+ * photography was not exported into this build, so those three frames reuse
  * Ferry Pay's `/images/case/*` set as placeholders — per Eduardo, 2026-09-20,
  * borrowed art beats an empty block for now. None of that art is FinTech
- * Group's and it should be swapped as the real assets arrive. The hero and
- * the SECOND band are this study's own, both added 2026-09-21.
+ * Group's and it should be swapped as the real assets arrive.
+ *
+ * The hero and BOTH bands are this study's own as of 2026-09-21. ⚠ The two
+ * bands are the same photograph at two ratios — see the note at the first
+ * one.
  *
  * The `alt` text is written for what the photographs actually show, not for
  * what the slot is meant to hold, so nothing here describes a picture that
@@ -180,9 +183,20 @@ export function FinTechGroupPage() {
         points={CHALLENGE}
       />
 
+      {/*
+        ⚠ THE SAME PHOTOGRAPH AS THE SECOND BAND, at this slot's own 1440/800
+        rather than 1440/804 — Eduardo, 2026-09-21, "change it in the previous
+        full bleed image too". It is the only frame supplied for either band.
+
+        So this page now shows one picture full-bleed twice, about a section
+        apart. That is what was asked for and it is a deliberate placement,
+        not an oversight — but it is the kind of thing that reads as a bug to
+        anyone who finds it later, so: if a second frame arrives, this is the
+        slot to give it to.
+      */}
       <CaseBand
-        image="/images/case/band-solution.jpg"
-        alt="A card details screen on a phone, on a desk in afternoon light"
+        image="/images/case/fintech-band-solution.jpg"
+        alt="The Fintech Group's benefits screen on a phone, on a pale teal ground"
       />
 
       <CaseSolution
