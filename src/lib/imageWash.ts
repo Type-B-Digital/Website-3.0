@@ -2,8 +2,12 @@ import { moods, palette } from '@/tokens'
 import type { MoodName } from '@/tokens'
 
 /**
- * Image Wash — the tone and colour engine behind the studio tool on the Brand
- * System page.
+ * Image Wash — the tone and colour engine behind the `ImageWash` studio tool.
+ *
+ * ⚠ The tool's only call site, a demo on the Brand System page, was removed on
+ * 2026-09-21, so nothing on the site reaches this at runtime. Kept because the
+ * colour architecture below is the systemic part and is unaffected; see the
+ * note on `components/ImageWash.tsx`.
  *
  * ⚠ NOT IN FIGMA. There is no artboard for an image treatment; this is the
  * brand's colour architecture applied to photography rather than a drawn

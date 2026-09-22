@@ -10,11 +10,18 @@ import type { Adjustments, WashRamp } from '@/lib/imageWash'
 /**
  * Image Wash — drop any photograph in, get it back in Type B's colour.
  *
- * ⚠ NOT IN FIGMA, and not an atom either. It sits in Tier 3 because that is
- * where the team looks for the things they use, but it is a studio tool rather
- * than a component a page composes: nothing on the site renders it except this
- * one demo. The engine it drives — `@/lib/imageWash` — is the systemic part,
- * and every colour it can produce comes from `palette` by way of `moods`.
+ * ⚠ NOT RENDERED ANYWHERE since 2026-09-21. It had one call site, a demo on
+ * the Brand System page, and Eduardo asked for that section to be removed.
+ * The component and its engine are kept rather than deleted — the engine is
+ * the systemic part and nothing about it has been retired — but there is now
+ * no route that reaches this, so treat it as a library, not as a page.
+ * Re-mount it by dropping `<ImageWash />` into a `Sub` on
+ * `src/pages/brand-guidelines.tsx`, which is where it used to live.
+ *
+ * ⚠ NOT IN FIGMA, and not an atom either. It is a studio tool rather than a
+ * component a page composes. The engine it drives — `@/lib/imageWash` — is
+ * the systemic part, and every colour it can produce comes from `palette` by
+ * way of `moods`.
  *
  * What it does, in order:
  *

@@ -109,9 +109,11 @@ why it sits on the site's grounds without fighting them:
 | Deep shadow, navy UI | `neutral.900 #040E19` / `turquoise.900 #081F2A` |
 | Cream knitwear, plaster, paper | `neutral.50 #F6F2EC` |
 
-⚠ Do not post-tint generated images to the ramp. The `ImageWash` tool at
-`/brand-guidelines` exists for that and does it properly, holding luminance
-while it moves colour. A flat overlay muddies the shadows.
+⚠ Do not post-tint generated images to the ramp with a flat colour overlay —
+it muddies the shadows. The right treatment holds luminance while it moves
+colour, which is what `src/lib/imageWash.ts` does. ⚠ The `ImageWash` tool that
+drove it was removed from the Brand System page on 2026-09-21, so there is no
+longer a UI for this; the engine is still in the repo if it is wanted back.
 
 ---
 

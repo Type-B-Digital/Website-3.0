@@ -7,7 +7,6 @@ import {
   Field,
   HeroIntro,
   HIRING_TRAITS,
-  ImageWash,
   Reveal,
   Section,
   Tabs,
@@ -1133,13 +1132,6 @@ export function BrandGuidelinesPage() {
                 ]}
               />
             </div>
-          </Sub>
-
-          <Sub
-            title="Image Wash"
-            note="A studio tool, not an atom. Reads a photograph's histogram, corrects it onto the brand's tonal targets, then maps it onto a mood ramp. Runs entirely in the browser — nothing is uploaded."
-          >
-            <ImageWash />
           </Sub>
 
           <Sub title="Rules">

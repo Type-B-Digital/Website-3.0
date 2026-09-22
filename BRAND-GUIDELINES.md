@@ -724,8 +724,11 @@ numbers line up as a column of **right edges**. Parses its display strings
 ("30+", "25%") into `CountUp` parts.
 
 #### `ImageWash`
-`className`. A studio tool rather than a component a page composes — only the
-Brand System page renders it. Takes any image a designer drops in, reads its
+`className`. A studio tool rather than a component a page composes. ⚠ **Not
+rendered anywhere since 2026-09-21** — its one call site was a demo on the
+Brand System page and that section was removed. The component and the engine
+are kept; there is simply no route to it. Takes any image a designer drops in,
+reads its
 histogram, and sets exposure, contrast, highlights, shadows, whites, blacks and
 saturation to bring it onto the brand's tonal targets; then maps the corrected
 tone onto one of the three mood ramps and exports at full resolution.
@@ -876,7 +879,7 @@ through `asset()`, which normalises both sides of the join.
 | **Atoms** | `src/components/*.tsx` | `Typography`, `Button`, `Eyebrow`, `Tag`, `Card`, `Container`, `Section`, `icons/*` |
 | **Molecules** | `src/components/*.tsx` | `Field`, `Captcha`, `Toast`, `Tabs`, `Accordion`, `CountUp`, `HeroStats`, `Marquee`, `Reveal`, `ParallaxSection`, `ScrollTrack`, `GroundCrossfade`, `ScrollFillText`, `GlowText`, `Intro`, `ScrollToTop` |
 | **Organisms** | `src/components/layout/*`, `src/components/sections/*` | `SiteHeader`, `SiteFooter`, `ClosingCta`, `Testimonial`, `Hiring`, `ValuesMarquee`, `FaqSection`, `Globe`, `DivergeConverge`, and the section library |
-| **Tools** | `src/components/ImageWash.tsx`, `src/lib/imageWash.ts` | `ImageWash` — not an atom, molecule or organism; a studio utility the system colours rather than a thing a page composes |
+| **Tools** | `src/components/ImageWash.tsx`, `src/lib/imageWash.ts` | `ImageWash` — not an atom, molecule or organism; a studio utility the system colours rather than a thing a page composes. ⚠ Unmounted since 2026-09-21 |
 | **Templates** | `src/components/layout/PageShell.tsx`, `src/components/sections/ContentPage.tsx`, `case-study.tsx` | `PageShell`, `ContentPage`, `CaseStudyPage` |
 | **Pages** | `src/pages/*.tsx` | one file per route; content data lives beside it in `*-content.ts` |
 
