@@ -99,15 +99,17 @@ export const ROW_TAGS = ['Platform Expansion', 'UX/UI Design', 'Fractional CTO']
  * skips it in the rows below the hero rather than printing the same study
  * twice on one page; the homepage, which has no hero, lists all four.
  *
- * ⚠ THUMBNAILS WERE BORROWED, and two of the four no longer are. `case-1` to
+ * ⚠ THUMBNAILS WERE BORROWED, and none of them are any more. `case-1` to
  * `case-4` were exported for studies that have since been removed, and were
  * reused here on Eduardo's instruction (2026-09-20) so no row shipped with
- * the grey placeholder block.
+ * the grey placeholder block. All four rows carry their OWN art as of
+ * 2026-09-21, so that caveat is closed.
  *
- * Ferry Pay and FinTech Group now carry their OWN photography (2026-09-21),
- * so the caveat below applies only to Pelican and HireNorth, which are still
- * on `case-3` and `case-4` — art that is not of the client it sits beside,
- * and should be replaced as each study's own photography arrives.
+ * ⚠ Pelican and HireNorth still have no `to`. Their artwork being real does
+ * not make the studies real — both rows remain deliberately inert until the
+ * pages exist. A finished-looking thumbnail on a row that does nothing is
+ * exactly the trap the `to`-or-nothing rule exists to avoid, so do not read
+ * the new art as a signal that these are ready to link.
  */
 export const WORK: readonly Work[] = [
   {
@@ -138,14 +140,14 @@ export const WORK: readonly Work[] = [
     name: 'Pelican',
     short: 'Case study coming soon.',
     description: 'Case study coming soon.',
-    thumb: '/images/work/case-3.png',
+    thumb: '/images/work/pelican.jpg',
   },
   {
     /* Placeholder — no `to`. */
     name: 'HireNorth',
     short: 'Case study coming soon.',
     description: 'Case study coming soon.',
-    thumb: '/images/work/case-4.png',
+    thumb: '/images/work/hirenorth.jpg',
   },
 ]
 
