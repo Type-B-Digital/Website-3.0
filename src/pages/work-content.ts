@@ -55,8 +55,19 @@ export type Work = {
    * made to stop.
    */
   short: string
-  /** Artboard thumbnail, where one exists. */
+  /** Artboard thumbnail, where one exists. Drawn by the HOMEPAGE. */
   thumb?: string
+  /**
+   * Our Work's row thumbnail, where it differs from the homepage's.
+   *
+   * ⚠ Added 2026-09-21. The two pages drew one file until then, which is
+   * fine while the art is a stand-in and wrong once a study has real
+   * photography: Eduardo gave FinTech Group a different frame for each — the
+   * monitor on teal for the homepage, the laptop over the shoulder for Our
+   * Work. Falls back to `thumb`, so a study with one image still needs only
+   * one field.
+   */
+  rowThumb?: string
   /** Drawn on five of the nine rows. */
   stat?: string
   /**
@@ -88,11 +99,15 @@ export const ROW_TAGS = ['Platform Expansion', 'UX/UI Design', 'Fractional CTO']
  * skips it in the rows below the hero rather than printing the same study
  * twice on one page; the homepage, which has no hero, lists all four.
  *
- * ⚠ THUMBNAILS ARE BORROWED. `case-1` to `case-4` were exported for four of
- * the studies that have just been removed, and are reused here on Eduardo's
- * instruction (2026-09-20) so no row ships with the grey placeholder block.
- * None of this art is of the client it now sits beside — it is stand-in
- * imagery and should be replaced as each study's own photography arrives.
+ * ⚠ THUMBNAILS WERE BORROWED, and two of the four no longer are. `case-1` to
+ * `case-4` were exported for studies that have since been removed, and were
+ * reused here on Eduardo's instruction (2026-09-20) so no row shipped with
+ * the grey placeholder block.
+ *
+ * Ferry Pay and FinTech Group now carry their OWN photography (2026-09-21),
+ * so the caveat below applies only to Pelican and HireNorth, which are still
+ * on `case-3` and `case-4` — art that is not of the client it sits beside,
+ * and should be replaced as each study's own photography arrives.
  */
 export const WORK: readonly Work[] = [
   {
@@ -100,7 +115,7 @@ export const WORK: readonly Work[] = [
     short: 'Daily payout on autopilot.',
     description:
       'A payroll and tipping platform for hospitality workers, rebuilt while it kept processing $16M+ in payments every month.',
-    thumb: '/images/work/case-1.png',
+    thumb: '/images/work/ferry-pay.jpg',
     stat: '$16M+ processed in one month.',
     to: '/our-work/ferry-pay',
   },
@@ -109,7 +124,10 @@ export const WORK: readonly Work[] = [
     short: 'An India operation, from zero.',
     description:
       'A Dutch fintech serving Europe’s largest banks needed an India operation: incorporation, office, and a full workforce built from nothing.',
-    thumb: '/images/work/case-2.png',
+    /* Homepage: the marketing site on a monitor. Our Work: the same site on a
+       laptop, over the shoulder — see `rowThumb`. */
+    thumb: '/images/work/fintech-group.jpg',
+    rowThumb: '/images/work/fintech-group-row.jpg',
     stat: '85 people hired in 2.5 months.',
     to: '/our-work/fintech-group',
   },

@@ -230,12 +230,14 @@ function WorkRow({ work }: { work: Work }) {
         the whole row is one link.
       */}
       <Reveal index={1} className="order-first lg:order-none lg:col-span-7">
-        {/* 737 x 441 on the artboard. Art is borrowed for now — see the note in
-            work-content.ts; a row without one keeps the flat block. */}
+        {/* 737 x 441 on the artboard. `rowThumb` where this page's frame
+            differs from the homepage's, falling back to the one image a study
+            with a single frame has — see the note in work-content.ts. A row
+            without either keeps the flat block. */}
         <TiltCard>
-          {work.thumb ? (
+          {work.rowThumb ?? work.thumb ? (
             <img
-              src={asset(work.thumb)}
+              src={asset(work.rowThumb ?? work.thumb ?? '')}
               alt=""
               aria-hidden="true"
               className="aspect-[737/441] w-full rounded-md object-cover"
