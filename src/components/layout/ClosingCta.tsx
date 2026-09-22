@@ -65,7 +65,21 @@ export function ClosingCta() {
                 <br />
                 what you’re building
               </Typography>
-              <Button as={Link} to="/contact" variant="secondary" tone="onLight">
+              {/*
+                ⚠ `tone="onDark"` on a LIGHT band, which reads backwards and is
+                correct. `tone` is which ground a button sits on, and `variant`
+                is its weight; the pair that renders a cream fill with an ink
+                label is `primary`/`onDark` (see the table in Button). Eduardo,
+                2026-09-21, asked for exactly that here: "light background with
+                dark text".
+
+                So this is the one call site on the site where the name does
+                not describe its surroundings. Changing it to `onLight` would
+                give an INK fill with a cream label — the inverse of what was
+                asked — and renaming the tones to say "cream"/"ink" would touch
+                every button on the site. Noted rather than refactored.
+              */}
+              <Button as={Link} to="/contact" variant="primary" tone="onDark">
                 Let’s talk!
               </Button>
             </div>
