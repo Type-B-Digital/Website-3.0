@@ -35,6 +35,24 @@ export type ScrollTrackProps = {
   gapClassName?: string
   /** Fraction of the row's viewport pass spent moving. */
   range?: [number, number]
+  /**
+   * Below `lg`, lay the items out as a grid instead of a sliding row — one
+   * column on a phone, two on a small tablet.
+   *
+   * ⚠ Added 2026-09-21 (Eduardo, for "What sets us apart"). The slide is a
+   * desktop gesture: it is driven by VERTICAL scroll and the overflow past the
+   * right edge is the point, which on a 390px phone meant four 410px cards
+   * mostly off-screen with no scrollbar and no way to reach them except by
+   * scrolling the page to exactly the right place. A grid shows all four.
+   *
+   * `lg` is the boundary because that is what this build means by "small
+   * tablet and mobile" — see the footer wordmark note in the build log.
+   *
+   * The transform stays wired at every width and simply resolves to zero when
+   * stacked: `travel` is `scrollWidth + inset - innerWidth` clamped at 0, and
+   * a grid that fits its wrapper can never exceed that.
+   */
+  stack?: boolean
   className?: string
 }
 
@@ -59,6 +77,7 @@ export function ScrollTrack({
   inset,
   gapClassName = 'gap-lg',
   range = [0.2, 0.8],
+  stack = false,
   className,
 }: ScrollTrackProps) {
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -98,7 +117,14 @@ export function ScrollTrack({
   if (prefersReduced) {
     return (
       <div className={cn('w-full px-md lg:px-lg xl:px-4xl', className)}>
-        <ul className={cn('flex flex-wrap', gapClassName)}>{children}</ul>
+        <ul
+          className={cn(
+            stack ? 'grid grid-cols-1 md:grid-cols-2 lg:flex lg:flex-wrap' : 'flex flex-wrap',
+            gapClassName,
+          )}
+        >
+          {children}
+        </ul>
       </div>
     )
   }
@@ -115,8 +141,15 @@ export function ScrollTrack({
       <fm.ul
         ref={trackRef}
         className={cn(
-          'flex w-max will-change-transform',
+          'will-change-transform',
+          /*
+            Stacked, this is an ordinary grid and needs a RIGHT margin too —
+            the sliding row deliberately has none, because it runs off that
+            edge. Both are dropped at `lg`, where the row takes over.
+          */
+          stack ? 'grid grid-cols-1 md:grid-cols-2 lg:flex lg:w-max' : 'flex w-max',
           inset === undefined && 'pl-md lg:pl-lg xl:pl-4xl',
+          stack && inset === undefined && 'pr-md md:pr-md lg:pr-0',
           gapClassName,
         )}
         style={{ x, ...(inset === undefined ? null : { paddingLeft: inset }) }}

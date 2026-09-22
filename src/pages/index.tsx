@@ -1163,9 +1163,13 @@ function Pillars() {
           1440 frame. The row starts on the left margin and slides left as the
           page scrolls; no scroll container, so no scrollbar.
         */}
-        <ScrollTrack>
+        <ScrollTrack stack>
           {PILLARS.map((pillar, i) => (
-            <li key={pillar.title} className="w-[min(410px,85vw)] shrink-0">
+            /*
+              410px fixed once the row slides; full-width inside its grid cell
+              below `lg`, or each card would overflow the column it is in.
+            */
+            <li key={pillar.title} className="w-full lg:w-[min(410px,85vw)] lg:shrink-0">
               <Reveal index={i}>
                 <Card
                   src={asset('/images/scene.png')}
