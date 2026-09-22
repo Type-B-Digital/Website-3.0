@@ -195,18 +195,38 @@ export function CaseBand({
  * Two-up gallery — Figma node 3932:17164
  * ------------------------------------------------------------------ */
 
-/** Two 628x515 frames side by side inside the content column. */
+/**
+ * Two 628x515 frames side by side inside the content column.
+ *
+ * ⚠ These tilt as of 2026-09-21 — Eduardo, after the Ferry photography was
+ * updated. They were left out of the original tilt pass because that brief
+ * named "the inline image" and excluded the full-bleed ones, and this block
+ * sat between the two definitions: inset like `CaseFigure`, but a pair rather
+ * than the single image the note described. It is inset, so it tilts.
+ *
+ * No `maxTilt` override. "The more subtle version" is what `motion.tilt`
+ * already holds since it was halved to 7.5deg — a bare `TiltCard` IS the
+ * subtle one, and passing the number here would fork it from every other
+ * image on the site the next time it moves.
+ *
+ * ⚠ Shared with FinTech Group, whose gallery gains the same hover. That is
+ * deliberate: both are inset case-study artwork, and the page already holds
+ * one idea of what a hover on a piece of artwork does. `CaseBand` still does
+ * not tilt — a full-bleed photograph has no on-screen edge to rotate about.
+ */
 export function CaseGallery({ images }: { images: readonly { src: string; alt: string }[] }) {
   return (
     <Section tone="none" spacing="none" className="py-4xl text-on-light">
       <div className="grid gap-lg md:grid-cols-2">
         {images.map((image, i) => (
           <Reveal key={image.src} index={i}>
-            <img
-              src={asset(image.src)}
-              alt={image.alt}
-              className="aspect-[628/515] w-full rounded-md object-cover"
-            />
+            <TiltCard>
+              <img
+                src={asset(image.src)}
+                alt={image.alt}
+                className="aspect-[628/515] w-full rounded-md object-cover"
+              />
+            </TiltCard>
           </Reveal>
         ))}
       </div>
