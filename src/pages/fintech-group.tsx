@@ -22,12 +22,12 @@ import {
  * (node 2887:7099) is what defines a case study here, and everything
  * structural lives in `@/components/sections/case-study`.
  *
- * ⚠ EVERY IMAGE EXCEPT THE HERO IS BORROWED. The live page's own photography
- * was not exported into this build, so the gallery, both bands and the closing
- * figure reuse Ferry Pay's `/images/case/*` set as placeholders — per Eduardo,
- * 2026-09-20, borrowed art beats an empty block for now. None of it is FinTech
- * Group's; all of it should be swapped when the real assets arrive. The hero
- * IS this study's own, added 2026-09-21.
+ * ⚠ THE GALLERY, THE FIRST BAND AND THE CLOSING FIGURE ARE BORROWED. The live
+ * page's own photography was not exported into this build, so those reuse
+ * Ferry Pay's `/images/case/*` set as placeholders — per Eduardo, 2026-09-20,
+ * borrowed art beats an empty block for now. None of that art is FinTech
+ * Group's and it should be swapped as the real assets arrive. The hero and
+ * the SECOND band are this study's own, both added 2026-09-21.
  *
  * The `alt` text is written for what the photographs actually show, not for
  * what the slot is meant to hold, so nothing here describes a picture that
@@ -192,9 +192,18 @@ export function FinTechGroupPage() {
         roles={ROLES}
       />
 
+      {/*
+        ⚠ Its OWN file, like the hero. `band-impact.jpg` is FERRY PAY's, and
+        this page borrows Ferry's set, so writing over it would have changed
+        the Ferry study instead of this one.
+
+        Keeps the `1440/804` ratio the artboard gives this second band, four
+        pixels taller than the first — see CaseBand. The source is 1999x1451,
+        so the crop is deep; centred, the phone stays whole.
+      */}
       <CaseBand
-        image="/images/case/band-impact.jpg"
-        alt="Cash back earned in a payments app, on a phone propped on a desk"
+        image="/images/case/fintech-band-impact.jpg"
+        alt="The Fintech Group's benefits screen on a phone, on a pale teal ground"
         ratio="1440/804"
       />
 
