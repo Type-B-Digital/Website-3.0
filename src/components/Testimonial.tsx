@@ -115,28 +115,41 @@ export function Testimonial({
               {quote}
             </Typography>
             {/*
-              The portrait sits between the quote and the attribution rather
-              than beside the name, which is where the block's own centre line
-              already is — the quote, the face and the name read as one
-              stacked column. 40x40, circular; see the note on `avatar`.
+              ⚠ The portrait and the attribution are ONE group, 24px apart —
+              Eduardo, 2026-09-21: "the name and role is closer to the circle
+              profile thumbnail with a vertical gap of 24p."
+
+              They were three siblings on a flat 40px column, which spaced the
+              face from its own caption exactly as far as it sat from the
+              quote, so the portrait read as a third item rather than as the
+              head of the attribution. Nesting is what lets the two gaps
+              differ: 40 from the quote to the group, 24 inside it. A single
+              `gap` cannot express that, and a margin on one child would have
+              been added to the parent's gap rather than replacing it.
+
+              The portrait still sits above the name rather than beside it —
+              the block is centred, so the quote, the face and the name read
+              as one stacked column. 40x40, circular; see the note on `avatar`.
             */}
-            {avatar ? (
-              <img
-                src={avatar}
-                alt=""
-                aria-hidden="true"
-                className="size-2xl shrink-0 rounded-full object-cover"
-              />
-            ) : (
-              <span aria-hidden className="size-2xl shrink-0 rounded-full bg-neutral-900/10" />
-            )}
-            <div className="text-ink-soft">
-              <Typography variant="copyMedium" as="p" className="font-semibold">
-                {name}
-              </Typography>
-              <Typography variant="copyMedium" as="p">
-                {role}
-              </Typography>
+            <div className="flex flex-col items-center gap-lg">
+              {avatar ? (
+                <img
+                  src={avatar}
+                  alt=""
+                  aria-hidden="true"
+                  className="size-2xl shrink-0 rounded-full object-cover"
+                />
+              ) : (
+                <span aria-hidden className="size-2xl shrink-0 rounded-full bg-neutral-900/10" />
+              )}
+              <div className="text-ink-soft">
+                <Typography variant="copyMedium" as="p" className="font-semibold">
+                  {name}
+                </Typography>
+                <Typography variant="copyMedium" as="p">
+                  {role}
+                </Typography>
+              </div>
             </div>
           </div>
         </div>
