@@ -125,7 +125,7 @@ export function FerryPayPage() {
         description="Ferry, a leading payroll platform for the hospitality industry, was facing critical roadblocks that threatened its growth. Their existing system was struggling with a fragmented and insecure legacy codebase that created technical bottlenecks. This instability was costly, driving infrastructure expenses to an average of $7,000/mo."
         stats={STATS}
         image="/images/case/hero.jpg"
-        imageAlt="The Ferry Pay payroll app on a phone, held in one hand"
+        imageAlt="A Ferry Pay transaction detail screen on a phone, held in both hands at a desk"
       />
 
       <Statement>
@@ -139,8 +139,14 @@ export function FerryPayPage() {
 
       <CaseGallery
         images={[
-          { src: '/images/case/gallery-1.jpg', alt: 'Ferry Pay transaction detail screens' },
-          { src: '/images/case/gallery-2.jpg', alt: 'Ferry Pay payout and earnings screens' },
+          {
+            src: '/images/case/gallery-1.jpg',
+            alt: 'A customer moving money in the Ferry Pay app at a café counter',
+          },
+          {
+            src: '/images/case/gallery-2.jpg',
+            alt: 'The Ferry Pay Express Pay balance and pay-period summary on a phone',
+          },
         ]}
       />
 
@@ -152,7 +158,7 @@ export function FerryPayPage() {
 
       <CaseBand
         image="/images/case/band-solution.jpg"
-        alt="A hospitality worker checking a payout on their phone"
+        alt="The Ferry Pay card details screen on a phone, on a desk in afternoon light"
       />
 
       <CaseSolution
@@ -164,7 +170,7 @@ export function FerryPayPage() {
 
       <CaseBand
         image="/images/case/band-impact.jpg"
-        alt="The Ferry Pay team reviewing the rebuilt platform"
+        alt="Cash back earned in the Ferry Pay app, on a phone propped on a desk"
         ratio="1440/804"
       />
 
@@ -174,9 +180,15 @@ export function FerryPayPage() {
         outcomes={IMPACT}
       />
 
+      {/*
+        ⚠ Its OWN image since 2026-09-21. This slot used to borrow
+        `/images/services/product-hero.jpg`, which six other pages also
+        draw — updating Ferry from the artboard would have changed all of
+        them, so the new frame (node 4008:2576) is a Ferry-specific file.
+      */}
       <CaseFigure
-        image="/images/services/product-hero.jpg"
-        alt="The rebuilt Ferry Pay platform across devices"
+        image="/images/case/ferry-figure.jpg"
+        alt="The Ferry Pay account balance and latest transactions, on a phone on a marble desk"
       />
     </CaseStudyPage>
   )
