@@ -22,13 +22,19 @@ import {
  * (node 2887:7099) is what defines a case study here, and everything
  * structural lives in `@/components/sections/case-study`.
  *
- * ⚠ EVERY IMAGE IS BORROWED. The live page's own photography was not exported
- * into this build, so this page reuses Ferry Pay's `/images/case/*` set as
- * placeholders — per Eduardo, 2026-09-20, borrowed art beats an empty block
- * for now. None of it is FinTech Group's; all of it should be swapped when the
- * real assets arrive. The `alt` text is written for what the photographs
- * actually show, not for what the slot is meant to hold, so nothing here
- * describes a picture that does not exist.
+ * ⚠ EVERY IMAGE EXCEPT THE HERO IS BORROWED. The live page's own photography
+ * was not exported into this build, so the gallery, both bands and the closing
+ * figure reuse Ferry Pay's `/images/case/*` set as placeholders — per Eduardo,
+ * 2026-09-20, borrowed art beats an empty block for now. None of it is FinTech
+ * Group's; all of it should be swapped when the real assets arrive. The hero
+ * IS this study's own, added 2026-09-21.
+ *
+ * The `alt` text is written for what the photographs actually show, not for
+ * what the slot is meant to hold, so nothing here describes a picture that
+ * does not exist. ⚠ That means it has to be re-read whenever Ferry Pay's set
+ * changes: those files were replaced from the artboard on 2026-09-21 and this
+ * page's descriptions went stale in the same change, because only Ferry's own
+ * copy was updated with them. They are correct again as of that date.
  *
  * ⚠ The source page carries no numbered results block — the only figure it
  * states is the 85 hires. `CaseImpact` below is therefore its four narrative
@@ -132,8 +138,19 @@ export function FinTechGroupPage() {
         claim="Shaping future financial solutions."
         description="A Dutch powerhouse serving some of the largest banks across Europe, Canada, the U.S., and the Middle East. As demand increased, they needed to scale rapidly — particularly in India, one of the world’s most talent-rich yet legally complex engineering hubs."
         stats={STATS}
-        image="/images/case/hero.jpg"
-        imageAlt="A payments app on a phone, held in one hand"
+        /*
+          ⚠ Its OWN hero since 2026-09-21. This page pointed at
+          `/images/case/hero.jpg`, which is FERRY PAY's hero — every image on
+          this page is still Ferry's (see the note below), so replacing that
+          file would have changed the Ferry study instead of this one.
+
+          Same frame as this study's row thumbnail on Our Work, cropped to
+          16:9 rather than 5:3. That is deliberate rather than a duplication:
+          the row is a preview of the study, so landing on the hero it
+          promised is the point.
+        */
+        image="/images/case/fintech-hero.jpg"
+        imageAlt="The Fintech Group's claims site open on a laptop at a café table"
       />
 
       <Statement>
@@ -146,8 +163,14 @@ export function FinTechGroupPage() {
 
       <CaseGallery
         images={[
-          { src: '/images/case/gallery-1.jpg', alt: 'Transaction detail screens' },
-          { src: '/images/case/gallery-2.jpg', alt: 'Payout and earnings screens' },
+          {
+            src: '/images/case/gallery-1.jpg',
+            alt: 'A customer moving money in a payments app at a café counter',
+          },
+          {
+            src: '/images/case/gallery-2.jpg',
+            alt: 'An express-pay balance and pay-period summary on a phone',
+          },
         ]}
       />
 
@@ -159,7 +182,7 @@ export function FinTechGroupPage() {
 
       <CaseBand
         image="/images/case/band-solution.jpg"
-        alt="A worker checking a payment on their phone"
+        alt="A card details screen on a phone, on a desk in afternoon light"
       />
 
       <CaseSolution
@@ -171,7 +194,7 @@ export function FinTechGroupPage() {
 
       <CaseBand
         image="/images/case/band-impact.jpg"
-        alt="A team reviewing work together"
+        alt="Cash back earned in a payments app, on a phone propped on a desk"
         ratio="1440/804"
       />
 
