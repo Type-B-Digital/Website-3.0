@@ -8,11 +8,26 @@ import { asset } from '@/lib/asset'
  */
 export function ClosingCta() {
   return (
-    <Section tone="dark" spacing="none" bare id="contact">
+    /*
+      ⚠ `light`, not `dark`, since 2026-09-21. The band's artwork was replaced
+      with a pale teal-and-pink sky (Eduardo), and the copy and CTA went ink
+      with it. `tone` here is the ground BEHIND the photograph — it shows for
+      the frame before the image paints, and on the sliver the parallax can
+      expose — so it has to be the light one now, or the band flashes ink and
+      then turns pale on every page.
+    */
+    <Section tone="light" spacing="none" bare id="contact">
       <div className="relative isolate flex min-h-screen items-center justify-center overflow-hidden">
         {/*
-          Replaced 2026-08-31 with the artwork Eduardo supplied at the band's own
-          1440x720, so it needs no crop transform — just object-cover.
+          Replaced 2026-08-31, and again 2026-09-21, with artwork Eduardo
+          supplied at the band's own 1440x720, so it needs no crop transform —
+          just object-cover.
+
+          ⚠ JPEG, where the old one was a 692KB PNG. This artwork is a smooth
+          gradient, which is the worst case for PNG and close to the best case
+          for JPEG: at q88 it is 116KB, and measured against the source the
+          worst per-channel deviation is 5/255 with a mean of 0.63. That is
+          under the page grain's own variance, and the grain sits on top of it.
         */}
         <ParallaxSection speed="base" className="absolute inset-0 -z-10">
           {/*
@@ -27,14 +42,20 @@ export function ClosingCta() {
               lets the section's dark ground show as a band along one edge.
             */}
             <img
-              src={asset('/images/cta-band.png')}
+              src={asset('/images/cta-band.jpg')}
               alt=""
               aria-hidden="true"
               className="size-full scale-125 object-cover"
             />
           </div>
         </ParallaxSection>
-        <div aria-hidden className="absolute inset-0 -z-10 bg-scrim" />
+        {/*
+          ⚠ NO SCRIM. `bg-scrim` is ink at 40% and existed to hold WHITE type
+          on artwork that was darker in some places than others. Ink type wants
+          the opposite, and leaving the ink scrim would have pushed the pale
+          sky toward the type rather than away from it. Measured instead —
+          see the note on the heading.
+        */}
 
         <Container>
           <Reveal>
@@ -44,7 +65,7 @@ export function ClosingCta() {
                 <br />
                 what you’re building
               </Typography>
-              <Button as={Link} to="/contact" variant="secondary" tone="onDark">
+              <Button as={Link} to="/contact" variant="secondary" tone="onLight">
                 Let’s talk!
               </Button>
             </div>
