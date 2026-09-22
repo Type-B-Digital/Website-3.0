@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import {
+  Button,
   Container,
   Eyebrow,
   HeroIntro,
@@ -121,14 +122,20 @@ function Hero() {
           <div className="flex max-w-[628px] flex-col items-start gap-md">
             <Eyebrow tone="onAccent">Featured</Eyebrow>
             {/*
-              The hero IS Ferry Pay's row on this page, so it carries the link
-              to the study — it was the one entry in the selection with a page
-              and no way to reach it from here.
+              Plain text, not a link — Eduardo, 2026-09-21, "remove the click
+              state from the header". The hero IS Ferry Pay's row on this
+              page, and it used to carry the link itself because it was the
+              one entry in the selection with a page and no way to reach it
+              from here. The CTA below is that way now, so the heading is back
+              to being a label.
+
+              This is the call What We Do and Industries already made, for the
+              same reason: a heading and a CTA pointing at one destination is
+              two controls for one target, and the heading's hover underline
+              was the only thing announcing the larger of them.
             */}
             <Typography variant="h1" className="text-h2 text-neutral-50 md:text-h1">
-              <Link to={FEATURED.to} className="hover:underline">
-                {FEATURED.name}
-              </Link>
+              {FEATURED.name}
             </Typography>
             {/* 40 between the paragraph and the tag row, as on every row below. */}
             <div className="flex flex-col items-start gap-2xl">
@@ -143,6 +150,23 @@ function Hero() {
                   </li>
                 ))}
               </ul>
+              {/*
+                ⚠ NOT IN FIGMA. The artboard draws no CTA in this hero; it is
+                here because the heading stopped being the link and the study
+                still has to be reachable from the page that features it.
+
+                `secondary`/`onDark` — outlined cream, which is the treatment
+                every CTA on a dark ground already uses, and secondary rather
+                than primary because the page's own job is the list below: a
+                solid pill here would outrank three real rows.
+
+                It sits inside the 40px column with the paragraph and the
+                tags, so the block keeps one rhythm rather than introducing a
+                third gap.
+              */}
+              <Button as={Link} to={FEATURED.to} variant="secondary" tone="onDark">
+                View full case study
+              </Button>
             </div>
           </div>
         </Container>
