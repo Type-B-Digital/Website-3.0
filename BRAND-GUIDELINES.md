@@ -86,7 +86,8 @@ unfinished the site says so rather than filling the space.
   except dividers and outlined buttons.
 - **Photography is always cropped and rounded.** 8px radius on every thumbnail
   and inline image; only genuinely full-bleed bands meet the viewport edge
-  square.
+  square. What goes *inside* the crop — the lighting, the grade, the staging,
+  and how to generate a new frame that matches — is **`BRAND-IMAGERY.md`**.
 - **Motion is slow and settles.** Long durations on symmetric easing, a blur
   that resolves, and a lag before anything moves. Nothing pops.
 

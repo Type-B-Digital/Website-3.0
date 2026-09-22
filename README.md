@@ -72,6 +72,10 @@ for a change, give it the map:
 > docs/BUILD_LOG.md for anything about the part of the site I'm changing.
 > Follow the conventions you find there.
 
+Add `BRAND-IMAGERY.md` to that list if the change involves photography — it is
+the house style for the images themselves, and the prompt kit for generating
+new ones.
+
 `docs/BUILD_LOG.md` is long (4,000 lines) and worth pointing at specifically
 rather than in full — "read what BUILD_LOG says about the footer" is a better
 instruction than "read BUILD_LOG".
