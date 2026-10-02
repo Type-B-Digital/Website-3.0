@@ -4442,3 +4442,67 @@ Do. Re-run at 1440x900 for regressions: stats back to 12 columns, cities
 interactive, flags 52px, Our Work side by side on a 24px gap, select hidden,
 the vertical figure hidden and the horizontal row drawn. `tsc --noEmit` and
 `vite build` clean.
+
+## Core offerings gets a photograph per offering — 2026-10-02
+
+Eduardo supplied one image each for Product, Advisory and Teams. Until now all
+three shared `offering-1.png`, because the artboard draws only one — see the
+note on `OFFERINGS`. That note is now the other way round: **the board is no
+longer the reference for this row's imagery**, since none of the three are on
+it.
+
+`offering-1.png` had no other call site and was deleted.
+
+### JPEG, because that is what the repo does with photography
+
+The sources arrived as PNG — 2.0 MB for the three. Every photograph already in
+`public/images` is JPEG (`hiring.jpg`, `careers/bench-*.jpg`, `work/*.jpg`) and
+every flat-colour or screenshot-like asset is PNG, which is the right split.
+Re-encoded at quality 88: **2.0 MB -> 396 KB**, no visible difference at the
+size the slot renders.
+
+| | source | shipped |
+|---|---|---|
+| `offering-product.jpg` | 1145×843 | 168 KB |
+| `offering-advisory.jpg` | 1120×670 | 112 KB |
+| `offering-teams.jpg` | 891×668 | 116 KB |
+
+### `focus`, because one of the three does not centre
+
+The slot is a square with `object-cover`, and all three sources are landscape,
+so each is cropped to its own height with the sides trimmed evenly. Product and
+Teams survive that: both subjects sit near the middle.
+
+Advisory does not. The figure sits right of centre in that frame and the laptop
+runs off the left edge, so a centre crop **cut the machine in half** — on an
+image whose whole subject is someone working.
+
+Rather than re-cropping the file and losing the full frame, `OFFERINGS` gained
+an optional `focus` that moves the crop, defaulting to the `object-bottom`
+every image used before. Only Advisory sets it, to `object-[35%_100%]`.
+
+35% was chosen by rendering the real slot at 50 / 35 / 25 / 15 / 0% and
+comparing: 50 cuts the laptop, 25 and below push the figure to the right edge
+and drop the teal block, and 35 is the only one that holds the whole machine,
+the figure near centre, and the block — the single accent colour in the
+photograph.
+
+### Verified
+
+Driven in a real browser over CDP, scrolled into the pinned scene with a
+genuine gesture, clicking through all three names:
+
+- each name loads its own file, `complete: true`, at its natural size
+  (1145×843 / 1120×670 / 891×668) in a 384×384 slot at 1600px wide.
+- computed `object-position` is `35% 100%` on Advisory and `50% 100%` on the
+  other two — the default is untouched.
+- 390px: the row stacks, the slot is 302×302, the crop is unchanged, no
+  horizontal overflow.
+- no console errors. (The 404 seen mid-change was the deleted `offering-1.png`
+  still being requested by a stale module; it is gone after reload.)
+- `tsc --noEmit` and `vite build` clean.
+
+⚠ Two of the three sources are screen captures at 670px and 668px tall. The
+slot renders up to 420 CSS px, so at 2× they are a little under native — fine
+at the size drawn, short if this image is ever reused larger. Worth replacing
+with the originals if they exist.

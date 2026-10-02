@@ -257,7 +257,14 @@ const CASE_STUDIES = HOMEPAGE_WORK.map((work) => ({
  * (~130 characters): the copy column is 302px with a 72px minimum height, and
  * much longer would push the row taller on every switch.
  *
- * All three still share one image — the board draws only one.
+ * ⚠ The board draws ONE image and all three shared it until 2026-10-02, when
+ * Eduardo supplied a photograph per offering. They are off-board, so the
+ * artboard is no longer the reference for this row's imagery.
+ *
+ * The slot is a square with `object-cover`, and all three sources are
+ * landscape, so each is cropped to its own height. `focus` moves that crop
+ * where the default centre does not hold the subject; it defaults to the
+ * `object-bottom` every image used before, so only Advisory sets it.
  */
 const OFFERINGS = [
   {
@@ -265,21 +272,28 @@ const OFFERINGS = [
     copy:
       'An honest technical read and a plan you can execute: AI strategy, diligence ' +
       'for deals, and the change management that makes it stick.',
-    image: asset('/images/partner/offering-1.png'),
+    image: asset('/images/partner/offering-advisory.jpg'),
+    /*
+     * A centre crop cuts the laptop in half: the subject sits right of centre
+     * in this frame and the screen runs off the left edge. 35% brings the
+     * whole machine in and still keeps the teal block on the right, which is
+     * the only accent colour in the photograph.
+     */
+    focus: 'object-[35%_100%]',
   },
   {
     label: 'Product',
     copy:
       'End-to-end AI products, from the data underneath to the agents people use. ' +
       'Sovereign AI when your data cannot leave your boundary.',
-    image: asset('/images/partner/offering-1.png'),
+    image: asset('/images/partner/offering-product.jpg'),
   },
   {
     label: 'Teams',
     copy:
       'Senior engineers, designers, and data talent who ship with agents every day, ' +
       'fully managed by us and accountable for the outcome.',
-    image: asset('/images/partner/offering-1.png'),
+    image: asset('/images/partner/offering-teams.jpg'),
   },
 ]
 
@@ -656,10 +670,7 @@ function Manifesto() {
       At rest the transform is identity, so the slide-in entrance below is
       unaffected — the stack only leaves the plane once a pointer is on it.
     */
-    <TiltCard
-      className="w-full shrink-0"
-      style={{ maxWidth: STACK_BOX.width }}
-    >
+    <TiltCard className="w-full shrink-0" style={{ maxWidth: STACK_BOX.width }}>
       <fm.div
         data-scene="manifesto-stack"
         /*
@@ -811,7 +822,10 @@ function IntroToHighlight() {
     const el = wrapperRef.current
     if (!el) return
     // Last known cursor, in viewport pixels. Starts as the virtual rest cursor.
-    const client = { x: window.innerWidth * glowScene.rest.x, y: window.innerHeight * glowScene.rest.y }
+    const client = {
+      x: window.innerWidth * glowScene.rest.x,
+      y: window.innerHeight * glowScene.rest.y,
+    }
     let jumped = false
     const place = () => {
       const rect = el.getBoundingClientRect()
@@ -856,10 +870,7 @@ function IntroToHighlight() {
         of stopping on a line. The bottom needs no feather: by the time the
         wrapper ends, the highlight's cream crossfade overlay is opaque over it.
       */}
-      <div
-        aria-hidden
-        className="glow-field pointer-events-none absolute inset-0 overflow-hidden"
-      >
+      <div aria-hidden className="glow-field pointer-events-none absolute inset-0 overflow-hidden">
         <fm.div
           className="bbb-blob bbb-blob--ambient absolute left-0 top-0"
           style={{
@@ -1072,17 +1083,18 @@ function BoldBrilliantBeautiful({
       IntroToHighlight. A listener on the words panel never fired (the stats
       layer covers it), and one on this section stopped at its top edge.
     */
-    <section id={HIGHLIGHT_ID} ref={sceneRef} className="relative w-full overflow-clip text-on-dark">
+    <section
+      id={HIGHLIGHT_ID}
+      ref={sceneRef}
+      className="relative w-full overflow-clip text-on-dark"
+    >
       {/*
         Zero-height sticky host. It pins to the top and adds nothing to the
         flow, so the `h-screen` child below it holds the words on screen while
         the stats — which start at this same flow position — scroll over them.
       */}
       <div className="sticky top-0 z-0 h-0">
-        <div
-          ref={panelRef}
-          className="relative h-screen w-full overflow-hidden"
-        >
+        <div ref={panelRef} className="relative h-screen w-full overflow-hidden">
           <fm.div className="absolute inset-0" style={{ opacity: contentOpacity }}>
             {words}
           </fm.div>
@@ -1454,7 +1466,11 @@ function Work() {
                     <div className="flex min-w-0 flex-1 flex-col gap-lg">
                       <div className="flex flex-col gap-sm">
                         {/* 16px on phones (Eduardo, 2026-09-16), 20 from sm. */}
-                        <Typography variant="copyLarge" as="h3" className="text-copy-medium sm:text-copy-large">
+                        <Typography
+                          variant="copyLarge"
+                          as="h3"
+                          className="text-copy-medium sm:text-copy-large"
+                        >
                           {project.name}
                         </Typography>
                         {/*
@@ -1636,7 +1652,10 @@ function Partner() {
               src={active.image}
               alt=""
               aria-hidden="true"
-              className="absolute inset-0 size-full rounded-md object-cover object-bottom"
+              className={cn(
+                'absolute inset-0 size-full rounded-md object-cover',
+                active.focus ?? 'object-bottom',
+              )}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -1660,7 +1679,12 @@ function Partner() {
       {/* Same colour as an unselected offering, so the band reads as one family. */}
       <Marquee speed="marqueeSlow" gapClassName="gap-lg" className="relative pb-md text-accent-400">
         {VALUES.map((value) => (
-          <Typography key={value} variant="h1" as="span" className="whitespace-nowrap text-h2 md:text-h1">
+          <Typography
+            key={value}
+            variant="h1"
+            as="span"
+            className="whitespace-nowrap text-h2 md:text-h1"
+          >
             {value}
             <span aria-hidden className="pl-lg opacity-muted">
               ·
