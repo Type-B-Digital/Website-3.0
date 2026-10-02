@@ -272,7 +272,7 @@ const OFFERINGS = [
     copy:
       'An honest technical read and a plan you can execute: AI strategy, diligence ' +
       'for deals, and the change management that makes it stick.',
-    image: asset('/images/partner/offering-advisory.jpg'),
+    image: asset('/images/offerings/offering-advisory.jpg'),
     /*
      * A centre crop cuts the laptop in half: the subject sits right of centre
      * in this frame and the screen runs off the left edge. 35% brings the
@@ -286,14 +286,14 @@ const OFFERINGS = [
     copy:
       'End-to-end AI products, from the data underneath to the agents people use. ' +
       'Sovereign AI when your data cannot leave your boundary.',
-    image: asset('/images/partner/offering-product.jpg'),
+    image: asset('/images/offerings/offering-product.jpg'),
   },
   {
     label: 'Teams',
     copy:
       'Senior engineers, designers, and data talent who ship with agents every day, ' +
       'fully managed by us and accountable for the outcome.',
-    image: asset('/images/partner/offering-teams.jpg'),
+    image: asset('/images/offerings/offering-teams.jpg'),
   },
 ]
 

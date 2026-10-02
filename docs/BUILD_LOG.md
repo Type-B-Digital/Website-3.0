@@ -4506,3 +4506,61 @@ genuine gesture, clicking through all three names:
 slot renders up to 420 CSS px, so at 2× they are a little under native — fine
 at the size drawn, short if this image is ever reused larger. Worth replacing
 with the originals if they exist.
+
+## What We Do's service panels become photographs — 2026-10-02
+
+Eduardo: the same three images, on the large panel under Advisory, Product and
+Teams. They now serve two pages, so `public/images/partner/` — named for the
+homepage section — became **`public/images/offerings/`**, and both pages point
+at one copy of each file rather than two.
+
+### ⚠ This reverses a decision from three weeks ago
+
+That panel held each service page's own **hero gradient**, put there on
+2026-09-16 at Eduardo's instruction: the three blocks should match "the hero
+gradients of their respective pages". It was not a placeholder — it carried a
+measured `groundAspect` per service (7425/1440, 9120/1440, 7496/1440) so the
+panel showed the same band the real hero shows rather than the whole gradient
+squeezed into 628×375.
+
+That machinery is gone with the gradient. The newer instruction wins, but the
+reversal is deliberate rather than overlooked, and `git show` on this commit's
+parent has the panel intact if the gradient is ever wanted back.
+
+The page's header comment also claimed "the three service photographs ARE the
+real exports", which had been false since September — the panel was a gradient.
+It now says what is actually true: the photographs are Eduardo's own, not from
+the artboard.
+
+### The crop
+
+The slot is 628×375, i.e. **1.675**. Advisory's source is 1120×670 — **1.672** —
+so that one lands in the panel very nearly uncropped, which is lucky and worth
+knowing if these ever get re-cut.
+
+The other two are taller relative to the slot and lose a band top and bottom.
+Centred, Product takes the crop off the chin and Teams off the top of the head,
+so both set `focus: 'object-top'`. `focus` works the way it does on the
+homepage: optional, defaulting to the centre, set only where centring fails.
+
+Note the default differs between the two pages — `object-center` here,
+`object-bottom` on the homepage — because the homepage slot is square and crops
+horizontally while this one crops vertically. Same prop, same idea, different
+baseline, and each page says which it uses.
+
+### Verified
+
+Rendered at 1600px and clipped to each panel exactly:
+
+- all three load (`complete`, non-zero `naturalWidth`) at 1145×843 / 1120×670 /
+  891×668 in a 628×375 box.
+- computed `object-position` is `50% 50%` on Advisory and `50% 0%` on the other
+  two.
+- Advisory keeps the whole frame — laptop, figure and teal block. Product keeps
+  the face, glasses and monitor. Teams keeps the presenter head-to-hands with
+  the corkboard.
+- 390px: the column stacks, each panel is 358×214 with the crop unchanged, no
+  horizontal overflow.
+- a clean load records **no failing requests** — the 404 seen mid-change was
+  HMR still asking for the pre-rename `/images/partner/` path.
+- `tsc --noEmit` and `vite build` clean.
