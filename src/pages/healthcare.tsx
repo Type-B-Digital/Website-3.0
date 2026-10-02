@@ -197,7 +197,7 @@ export function HealthcarePage() {
 
       <LevelsList
         heading="How we frame healthcare"
-        image="/images/services/product.png"
+        image="/images/industries/healthcare-framing.jpg"
         levels={LEVELS}
       />
 
@@ -208,7 +208,14 @@ export function HealthcarePage() {
         heading="Applied to your needs"
         claim="Simply, good AI on your cloud."
         body="Scheduling agents, internal search, analytics. When PHI is in the pipeline, we build it sovereign, and that is our specialty. Sovereign AI is AI that runs inside your organization’s boundary: your jurisdiction, your cloud or data center, your controls, with a full audit trail and no dependency on someone else’s black box. In healthcare that means PHI never leaves your tenancy, nothing trains a third-party model, and every output is traceable. We warrant conformance to the controls we agree in writing; your compliance officer owns the compliance determination."
-        image="/images/services/product-hero.jpg"
+        image="/images/industries/healthcare-specialty.jpg"
+        /*
+         * The slot is 519x560, portrait; this photograph is 2848x1280, so it
+         * keeps 42% of its width. Centred, that is the man whole between two
+         * women sliced through the face — 30% lands the window on the first
+         * two figures instead, both complete and turned toward each other.
+         */
+        focus="object-[30%_50%]"
       />
 
       <StatBand heading="Why Type B fits here" stats={STATS} />
@@ -223,7 +230,15 @@ export function HealthcarePage() {
         )}
       />
 
-      {/* ⚠ Claim only — the artboard draws no paragraph under it (3614:5893). */}
+      {/*
+        HIDDEN 2026-10-02, at Eduardo's request: hide the Featured section on
+        this page, as on the three service pages.
+
+        Commented rather than deleted, and unlike those three the import stays
+        live — `SplitFeature` is still what "Our specialty" above renders, so
+        removing these two markers is the whole of putting it back.
+
+      ⚠ Claim only — the artboard draws no paragraph under it (3614:5893).
       <SplitFeature
         eyebrow="Featured"
         headingLevel="h2"
@@ -231,6 +246,7 @@ export function HealthcarePage() {
         claim="3 agents, +20% conversion, 16 weeks to production"
         image="/images/services/product-featured.jpg"
       />
+      */}
     </ContentPage>
   )
 }

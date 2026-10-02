@@ -4598,3 +4598,66 @@ All three routes loaded and scrolled to the bottom:
 because both are named elsewhere — the footer's Case studies column and, on
 Product, the offerings copy. Only the Featured section is gone. "EventBook"
 now appears nowhere on the site, since that section was its only mention.
+
+## Healthcare: two new photographs, and the Featured section hidden — 2026-10-02
+
+Eduardo supplied an image for "How we frame healthcare" and one for "Our
+specialty", and asked for this page's Featured section to go the way of the
+three on the service pages.
+
+New folder `public/images/industries/`, since both are page-specific rather
+than shared the way `images/offerings/` is. Sources arrived as WebP and were
+re-encoded to JPEG at 88, matching what the repo does with photography:
+`healthcare-framing.jpg` (1300×650, 140 KB) and `healthcare-specialty.jpg`
+(2848×1280, 360 KB).
+
+They replace `services/product.png` and `services/product-hero.jpg`, which were
+stand-ins borrowed from the Product page. Both files stay — other pages use
+them.
+
+### The specialty slot is portrait, and the photograph is not
+
+"How we frame healthcare" was easy: `LevelsList` draws 628×375 (1.675) and the
+source is 2.0, so it loses a little width and nothing else.
+
+`SplitFeature` is the hard one. Its slot is **519×560 — portrait, 0.927** — and
+the photograph is **2.225**. Covering a portrait box with a frame that wide
+keeps `1280 × 0.927 = 1186` of 2848 pixels: **42% of the picture, 830 cut from
+each side.**
+
+Centred, that put the man in the middle whole and sliced BOTH women through the
+face — one reduced to a hand at the left edge, the other cut vertically at the
+right. It read as a mistake rather than a crop.
+
+No vertical adjustment helps, because the loss is horizontal. Five positions
+were rendered in the real slot: 15 and 85% cut a figure in half, 50% is the
+broken centre, and **30% and 70% both land on two complete figures**. 30% took
+it: the woman gesturing and the man listening with the tablet, faces turned
+toward each other, teal ground behind both. It reads as a composed two-shot.
+
+`SplitFeature` therefore gained an optional **`focus`**, defaulting to the
+`object-center` every block used before — the same pattern as the homepage
+offerings row and the What We Do panels. Only Healthcare sets it. The prop's
+doc comment says WHY it exists, because the next wide photograph dropped into
+this slot will hit exactly the same wall.
+
+### The Featured section
+
+`SplitFeature` with the Featured eyebrow — MatchDay Health — commented out, as
+on Advisory, Product and Teams. Unlike those three the import stays live, since
+"Our specialty" on this same page is also a `SplitFeature`, so putting it back
+is removing two comment markers and nothing else.
+
+### Verified
+
+- both images load at native size: 1300×650 in a 628×375 box, 2848×1280 in a
+  586×632 box, computed `object-position` `50% 50%` and `30% 50%`.
+- no "Featured" chip anywhere in the rendered page.
+- no failing requests. `services/product.png` is still requested, which is
+  correct — it is the Related services card for Product, not the image that
+  was replaced.
+- 390px: 358×214 and 358×386, crops unchanged, no horizontal overflow.
+- `tsc --noEmit` and `vite build` clean.
+
+⚠ "MatchDay" still appears twice in the page's own copy — a level label and a
+stat body — which is page content, not the hidden section.

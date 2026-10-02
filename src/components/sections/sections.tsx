@@ -448,6 +448,7 @@ export function SplitFeature({
   claim,
   body,
   image,
+  focus,
   reverse = false,
 }: {
   eyebrow?: string
@@ -461,6 +462,16 @@ export function SplitFeature({
    */
   body?: string
   image: string
+  /**
+   * Where the square-ish slot crops the photograph, as an `object-position`
+   * utility. Defaults to the centre every block used before.
+   *
+   * The slot is 519x560 — PORTRAIT — and most stock photography is not, so a
+   * wide frame loses roughly half its width here. Healthcare's "Our specialty"
+   * is the case that forced this: a 2.2:1 group shot centred showed one whole
+   * person between two sliced ones.
+   */
+  focus?: string
   /** Image on the left instead of the right. */
   reverse?: boolean
 }) {
@@ -515,7 +526,10 @@ export function SplitFeature({
           src={asset(image)}
           alt=""
           aria-hidden="true"
-          className="aspect-[519/560] w-full rounded-md object-cover"
+          className={cn(
+            'aspect-[519/560] w-full rounded-md object-cover',
+            focus ?? 'object-center',
+          )}
         />
       </TiltCard>
     </Reveal>
