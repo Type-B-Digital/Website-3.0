@@ -4564,3 +4564,37 @@ Rendered at 1600px and clipped to each panel exactly:
 - a clean load records **no failing requests** — the 404 seen mid-change was
   HMR still asking for the pre-rename `/images/partner/` path.
 - `tsc --noEmit` and `vite build` clean.
+
+## The three Featured case sections are hidden — 2026-10-02
+
+Eduardo: hide Featured EventBook on Advisory, Featured Class.fi on Product &
+AI Development, and Featured Ferry Pay on Teams.
+
+**Commented out, not deleted.** The ask was to hide them, the copy is written
+and signed off, and each is the last child of `ContentPage`, so nothing above
+depends on it. Removing the comment markers is the whole of putting one back.
+
+The import had to go with it: `noUnusedLocals` rejects `FeaturedCase` the
+moment its only call site is commented, so each file carries a commented import
+line pointing at the section at the foot of the file. Restoring means
+uncommenting in two places, and both say so.
+
+`FeaturedCase` itself is untouched in `components/sections/sections.tsx` — the
+case-study pages still use it, so nothing was retired.
+
+### Verified
+
+All three routes loaded and scrolled to the bottom:
+
+- no "Featured" chip in the rendered text, and no `product-featured.jpg`
+  anywhere in the DOM on any of the three.
+- each page now ends Related services -> FAQ -> closing CTA -> footer, with no
+  gap where the block was. Section counts: Advisory 9, Product 11, Teams 9.
+- no console errors and no failed requests (the `/favicon.ico` 404 on the dev
+  server predates this and is not served in production).
+- `tsc --noEmit` and `vite build` clean.
+
+⚠ "Class.fi" and "Ferry Pay" still appear in the body text of their pages,
+because both are named elsewhere — the footer's Case studies column and, on
+Product, the offerings copy. Only the Featured section is gone. "EventBook"
+now appears nowhere on the site, since that section was its only mention.

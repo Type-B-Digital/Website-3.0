@@ -3,7 +3,7 @@ import { Button } from '@/components'
 import {
   CapabilityGrid,
   ContentPage,
-  FeaturedCase,
+  // FeaturedCase,  <- restore with the section at the foot of this file
   IdealCustomerProfiles,
   LevelsList,
   Packaging,
@@ -203,12 +203,24 @@ export function TeamsPage() {
         )}
       />
 
+      {/*
+        HIDDEN 2026-10-02, at Eduardo's request: hide the Featured
+        Ferry Pay section on this page.
+
+        Commented rather than deleted. The copy is written and signed
+        off and the section is the last child of ContentPage, so it has
+        no effect on anything above it — removing the two comment
+        markers, and the import at the top, is the whole of putting
+        it back. The import is commented too because `noUnusedLocals`
+        rejects it the moment its only call site goes.
+
       <FeaturedCase
         name="Ferry Pay"
         claim="Daily payout on autopilot mode."
         body="We embedded a managed team, scaled engineering from two people to ten with playbooks and QA cycles, re-architected the platform, overhauled the UX, and launched the payroll product within six months. Infrastructure cost fell 43%, database queries went from 300ms to 80ms, the app rating climbed to 4.8, and support contacts fell to 4%. Partnering since 2023."
         image="/images/services/product-featured.jpg"
       />
+      */}
     </ContentPage>
   )
 }

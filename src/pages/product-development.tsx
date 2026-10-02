@@ -4,7 +4,7 @@ import {
   CapabilityGrid,
   ContentPage,
   EngagementSteps,
-  FeaturedCase,
+  // FeaturedCase,  <- restore with the section at the foot of this file
   IdealCustomerProfiles,
   LevelsList,
   Packaging,
@@ -238,12 +238,24 @@ export function ProductDevelopmentPage() {
         )}
       />
 
+      {/*
+        HIDDEN 2026-10-02, at Eduardo's request: hide the Featured
+        Class.fi section on this page.
+
+        Commented rather than deleted. The copy is written and signed
+        off and the section is the last child of ContentPage, so it has
+        no effect on anything above it — removing the two comment
+        markers, and the import at the top, is the whole of putting
+        it back. The import is commented too because `noUnusedLocals`
+        rejects it the moment its only call site goes.
+
       <FeaturedCase
         name="Class.fi"
         claim="Hours of expert research, answered in seconds."
         body="We delivered an audit of the existing platform, a roadmap to the desired end state, the brand, marketing site, product UX, and AI integration. The beta launched with real users signing up and giving raving feedback."
         image="/images/services/product-featured.jpg"
       />
+      */}
     </ContentPage>
   )
 }
