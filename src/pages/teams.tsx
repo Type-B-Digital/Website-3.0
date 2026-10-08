@@ -171,7 +171,7 @@ export function TeamsPage() {
         eyebrowTone="solar"
         heading="Senior teams, managed end to end"
         body="We source, screen, assess, and actively manage senior engineering, design, and data talent who ship with agents day to day, with a North America-based lead who owns the outcome, and build-operate-transfer for when you are ready to bring the team in-house."
-        image="/images/services/product-hero.jpg"
+        image="/images/services/teams-hero.jpg"
         cta={
           <Button as={Link} to="/contact" variant="secondary" tone="onLight">
             Start with a pod starter

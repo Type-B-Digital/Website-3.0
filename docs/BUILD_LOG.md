@@ -4786,3 +4786,39 @@ moved; it needs no further edit, which was the point of softening it.
 - **Teams and Financial Services still render the shared stand-in and it still
   loads** — the thing this change had to not break.
 - no failing requests; `tsc --noEmit` and `vite build` clean.
+
+## Teams gets its own hero photograph — 2026-10-02
+
+Third of three. `teams-hero.jpg`, 1920×1080, 3.7 MB PNG → JPEG at 88 →
+**892 KB**. Same 1.800 slot against a 1.778 source, same 13-row vertical trim,
+no `focus`.
+
+Named `teams-hero.jpg` beside the existing `teams.png`, which is the Related
+services card and a different image.
+
+### On the 892 KB
+
+Heavier than Advisory (728) and Product (704), and it is the picture: five
+people, foliage and bare wood grain is about as detail-dense as a photograph
+gets. Re-encoding lower buys little — q86 is 872 KB, q82 is 744, and q78 is
+708 for only a 20% saving at a quality that starts to show on a full-width
+hero. Kept at 88, consistent with the other two.
+
+The three heroes come to 2.3 MB, but no visitor loads more than one: they are
+on three separate routes and nothing preloads across them.
+
+### The stand-in is down to two pages
+
+`services/product-hero.jpg` now serves only **FinTech Group** and **Financial
+Services** (plus the note in `ferry-pay.tsx`). Both were loaded and still
+render it. See the 2026-10-02 Product entry for why the file's name is now a
+misnomer and should be deleted rather than renamed when those two land their
+own photography.
+
+### Verified
+
+- 1600px: 1920×1080 into 1440×800, `cover`, **zero** remaining
+  `services/product-hero` references in the Teams DOM.
+- 390px: 358×199, no horizontal overflow.
+- Financial Services and FinTech Group still render the stand-in, still loads.
+- no failing requests; `tsc --noEmit` and `vite build` clean.
