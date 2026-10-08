@@ -182,9 +182,12 @@ export function FerryPayPage() {
 
       {/*
         ⚠ Its OWN image since 2026-09-21. This slot used to borrow
-        `/images/services/product-hero.jpg`, which six other pages also
+        `/images/services/product-hero.jpg`, which several other pages also
         draw — updating Ferry from the artboard would have changed all of
         them, so the new frame (node 4008:2576) is a Ferry-specific file.
+        (The count is deliberately vague: it was six, and Advisory moved off
+        the shared file on 2026-10-02. It will keep falling as real
+        photography lands.)
       */}
       <CaseFigure
         image="/images/case/ferry-figure.jpg"

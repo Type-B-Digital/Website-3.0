@@ -4711,3 +4711,46 @@ Right edges measured at six widths, all three blocks:
 - 768 and 390 — stacked, column starts at the left margin (16) and the button
   sits on its own line above it; `lg:ml-auto` correctly does not apply.
 - `tsc --noEmit` and `vite build` clean.
+
+## Advisory gets its own hero photograph — 2026-10-02
+
+Eduardo supplied a photograph for the Advisory hero. `advisory-hero.jpg`,
+1920×1080, re-encoded from a 3.5 MB PNG to JPEG at 88 → **728 KB**.
+
+### It replaces a reference, not a file
+
+The slot was pointing at `/images/services/product-hero.jpg`, a stand-in that
+**five other pages still draw** (Financial Services, FinTech Group, Product &
+AI Development, Teams, and a note on Ferry Pay). Overwriting that file would
+have changed all of them, so only Advisory's reference moved and the shared
+file is untouched — the same trap `ferry-pay.tsx` already documents for its own
+figure. That comment said "six other pages", which this change made wrong; it
+now says "several" and records why the number moves.
+
+### The crop is almost nothing
+
+The slot is `aspect-[1280/711]` — **1.800** — and the source is 1920×1080,
+**1.778**. Covering by width keeps 1067 of 1080 rows, so **13 pixels total**
+come off, roughly 6 from each edge at the default centre. No `focus` needed,
+and nothing in the frame is near enough to an edge to care.
+
+### On the weight
+
+728 KB is heavier than the 468 KB stand-in it replaces, and that is the
+photograph, not the setting: 2.07 MP of foliage and dappled light costs about
+350 KB/MP against the stand-in's 210. Quality 80 would bring it to 580 KB.
+Kept at 88 for consistency with the other photographs converted this week
+(offerings, healthcare), since the hero is the page's main image. Worth
+revisiting if page weight is measured properly across the site.
+
+Not downscaled: the slot renders at the Container's 1440 cap, so 1920 is
+already below 2× and there is nothing to trim without losing real detail.
+
+### Verified
+
+- 1600px: `advisory-hero.jpg` loads at 1920×1080 into a 1440×800 box,
+  `object-fit: cover`, complete, and **zero** remaining `product-hero`
+  references in the Advisory DOM.
+- 390px: 358×199, no horizontal overflow.
+- no failing requests.
+- `tsc --noEmit` and `vite build` clean.

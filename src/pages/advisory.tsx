@@ -182,7 +182,7 @@ export function AdvisoryPage() {
         eyebrowTone="ember"
         heading="Clarity and the right plan before you build"
         body="AI strategy and roadmaps, technology due diligence for M&A and investment, and the change management that makes a transformation stick. Everything we recommend is something our own delivery teams could build, which keeps the advice honest."
-        image="/images/services/product-hero.jpg"
+        image="/images/services/advisory-hero.jpg"
         cta={
           <Button as={Link} to="/contact" variant="secondary" tone="onLight">
             Start with an architecture audit
