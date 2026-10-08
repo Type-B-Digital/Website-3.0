@@ -4754,3 +4754,35 @@ already below 2× and there is nothing to trim without losing real detail.
 - 390px: 358×199, no horizontal overflow.
 - no failing requests.
 - `tsc --noEmit` and `vite build` clean.
+
+## Product & AI Development gets its own hero photograph — 2026-10-02
+
+Same move as Advisory an hour earlier. `product-development-hero.jpg`,
+1920×1080, re-encoded from a 3.4 MB PNG to JPEG at 88 → **704 KB**. Slot is
+1.800 against the source's 1.778, so 13 rows come off vertically and no `focus`
+is needed.
+
+Named for the route (`/product-development`) rather than "product", because
+`services/product-hero.jpg` already exists and is something else entirely.
+
+### ⚠ `product-hero.jpg` is now a misnomer
+
+That file is the generic stand-in, and as of this commit **the Product page no
+longer uses it**. Three pages still do — FinTech Group, Financial Services and
+Teams — so it stays, but its name now points at a page that has moved off it.
+
+Renaming it would touch three more pages that were not part of this request,
+so it is logged rather than done. Whoever gives those three their real
+photography should delete the file rather than rename it.
+
+The count in `ferry-pay.tsx` was already softened to "several" when Advisory
+moved; it needs no further edit, which was the point of softening it.
+
+### Verified
+
+- 1600px: loads at 1920×1080 into 1440×800, `cover`, and **zero** remaining
+  `services/product-hero` references in the Product DOM.
+- 390px: 358×199, no horizontal overflow.
+- **Teams and Financial Services still render the shared stand-in and it still
+  loads** — the thing this change had to not break.
+- no failing requests; `tsc --noEmit` and `vite build` clean.

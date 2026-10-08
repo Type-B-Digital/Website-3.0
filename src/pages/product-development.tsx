@@ -189,7 +189,7 @@ export function ProductDevelopmentPage() {
         eyebrow="Product & AI development"
         heading="AI that ships inside working products"
         body="Data-driven UX, engineering across web and mobile, and AI systems with guardrails around them. Agents draft code and test inside our SDLC; senior engineers review everything and own the architecture. You own the code, the data, and the IP."
-        image="/images/services/product-hero.jpg"
+        image="/images/services/product-development-hero.jpg"
         cta={
           <Button as={Link} to="/contact" variant="secondary" tone="onLight">
             Start with an AI assessment or discovery
