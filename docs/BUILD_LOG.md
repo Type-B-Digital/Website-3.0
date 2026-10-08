@@ -4864,3 +4864,20 @@ Checked rather than assumed: 35, 50 and 65% were rendered in the real slot.
   real estate & PropTech?" block, as intended.
 - 390px: 358×386, loads, no horizontal overflow.
 - no failing requests; `tsc --noEmit` and `vite build` clean.
+
+## ↑ Reverted — 2026-10-02
+
+Eduardo: "revert image back." The Mave AI block points at
+`services/product-featured.jpg` again and `real-estate-featured.jpg` is
+deleted, since nothing referenced it once the block moved back.
+
+Verified by diffing against the commit before the change: **byte-identical**,
+no residue.
+
+The entry above is kept rather than deleted, because the finding in it is
+still true and still a trap: `real-estate.tsx` draws the stand-in TWICE, and
+the "What can AI do for real estate & PropTech?" block is `reverse`, so its
+image is on the left. Anyone changing "the image next to Mave AI" has to pick
+line 241, not 215.
+
+The source file is at `~/Desktop/why-agents-move.jpg` if it is wanted back.
