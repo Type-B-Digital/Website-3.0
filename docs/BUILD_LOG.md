@@ -4661,3 +4661,53 @@ is removing two comment markers and nothing else.
 
 ⚠ "MatchDay" still appears twice in the page's own copy — a level label and a
 stat body — which is page content, not the hidden section.
+
+## What We Do: the services column finishes level with "Learn more" — 2026-10-02
+
+Eduardo: the content to the right of the image under Advisory, Product and
+Teams should be right-aligned with the Learn more buttons.
+
+One class: `lg:ml-auto` on the column that holds the Services list and the
+case-study card.
+
+### It was off-grid, not merely misaligned
+
+The column is capped at 519px — the artboard's width — and sat in a grid track
+wider than that, left-aligned. So it ended wherever 519 from the track's left
+edge happened to land:
+
+| viewport | Learn more right edge | column right edge | short by |
+|---|---|---|---|
+| 1600 | 1520 | 1307 | **213** |
+| 1440 | 1360 | 1307 | **53** |
+| 1280 | 1200 | 1200 | 0 |
+
+1280 was already flush only by accident: there the `1fr` track is 412px, the
+519 cap never binds, and the column fills it.
+
+The 1600 figure is the tell. `xl:grid-cols-[628px_1fr]` grows the second track
+with the viewport while the box inside it stays 519, so the gap widens
+indefinitely — the wider the display, the more wrong it looked.
+
+**Right-aligned is the drawn position.** On the artboard's own grid — 1440
+frame, 80 margins, 12 columns, 24 gutter — a column is 84.67 and column 8
+begins at `80 + 7 × (84.67 + 24) = 840.7`. A 519 box there ends at 1359.7,
+i.e. the content right edge, which is where the button is. Measured after the
+change: **841 → 1360 at 1440.** So this restores the column to the grid rather
+than nudging it to taste; the left alignment was the deviation.
+
+### Scoped to `lg`
+
+Below it the row stacks, the photograph goes full width, and the list belongs
+under the image's left edge. Right-aligning a 519 box under a full-bleed
+photograph at 768 would have been a new bug in place of the old one.
+
+### Verified
+
+Right edges measured at six widths, all three blocks:
+
+- 1600, 1440, 1280 and 1024 — button and column right edges **identical**,
+  gap 0 at each.
+- 768 and 390 — stacked, column starts at the left margin (16) and the button
+  sits on its own line above it; `lg:ml-auto` correctly does not apply.
+- `tsc --noEmit` and `vite build` clean.

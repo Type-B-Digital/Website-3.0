@@ -401,7 +401,26 @@ function ServiceBlock({ service }: { service: (typeof SERVICES)[number] }) {
             made the column 409px and overhung the image by 34px.
           */}
           <Reveal index={2} className="h-full">
-            <div className="flex h-full max-w-[519px] flex-col justify-between gap-lg">
+            {/*
+              `lg:ml-auto` — Eduardo, 2026-10-02: this column should finish
+              level with the "Learn more" button above it.
+
+              It was left-aligned in a column wider than its own 519 cap, so it
+              stopped 53px short of the content edge at the designed 1440 and
+              213px short at 1600, where the `1fr` column grows and the box
+              does not.
+
+              Right-aligned it lands on the artboard's own grid: 1440 frame,
+              80 margins, 12 columns, 24 gutter puts column 8 at x=840.7, and
+              840.7 + 519 = 1359.7 — the content right edge, where the button
+              is. So this is the drawn position, not a new one; the left
+              alignment was off-grid.
+
+              Scoped to `lg` because the row stacks below it. There the column
+              is full width and the list belongs under the image's left edge,
+              not pushed to the right of a full-bleed photograph.
+            */}
+            <div className="flex h-full max-w-[519px] flex-col justify-between gap-lg lg:ml-auto">
               <div className="flex flex-col gap-lg">
                 <Typography variant="copySmall" as="h3" muted>
                   Services
