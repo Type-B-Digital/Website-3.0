@@ -4822,3 +4822,45 @@ own photography.
 - 390px: 358×199, no horizontal overflow.
 - Financial Services and FinTech Group still render the stand-in, still loads.
 - no failing requests; `tsc --noEmit` and `vite build` clean.
+
+## Real Estate: the Mave AI block gets a real photograph — 2026-10-02
+
+`real-estate-featured.jpg`, 1600×1067, re-encoded to JPEG at 88 → **536 KB**,
+into `images/industries/` beside the two Healthcare files.
+
+### Two blocks on this page shared the stand-in; only one moved
+
+`real-estate.tsx` draws `services/product-featured.jpg` twice:
+
+- line 215 — "What can AI do for real estate & PropTech?", which is
+  **`reverse`**, so its image is on the LEFT;
+- line 241 — the Mave AI featured block, image on the right.
+
+The request named the photo *to the right of* Mave AI, which is the second.
+The first is untouched and was checked after the change: the only remaining
+`product-featured` image on the page belongs to that block.
+
+The stand-in itself is used by eleven blocks across eight pages, so it was
+never a candidate for overwriting.
+
+### No `focus` this time
+
+The slot is the same portrait `aspect-[519/560]` (0.927) that forced the
+`focus` prop on Healthcare, and this source is 1.500, so it still loses 38% of
+its width — 306px from each side. But the subject is a torso holding a
+portfolio, dead centre, so the default centre crop holds the folder, both
+hands and the blazer with hedge on either side.
+
+Checked rather than assumed: 35, 50 and 65% were rendered in the real slot.
+35 loses the right of the blazer, 65 clips the portfolio's left edge, and
+**50 — the default — is the best of the three**, so the prop stays unset.
+
+### Verified
+
+- the Mave AI block's image is `real-estate-featured.jpg`, 1600×1067 in a
+  586×632 box, and sits to the RIGHT of its heading (asserted by comparing
+  bounding boxes, not by eye).
+- the one surviving `product-featured` on the page is the "What can AI do for
+  real estate & PropTech?" block, as intended.
+- 390px: 358×386, loads, no horizontal overflow.
+- no failing requests; `tsc --noEmit` and `vite build` clean.
